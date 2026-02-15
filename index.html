@@ -1,130 +1,25 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-<meta charset="UTF-8">
-<title>My Premium Music Player</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<style>
-  body { font-family: Arial; background: #121212; color: white; text-align: center; padding: 20px; }
-
-  .player-box {
-    width: 300px; margin: 0 auto;
-  }
-
-  /* 黑膠唱片 */
-  .vinyl {
-    width: 250px; height: 250px;
-    border-radius: 50%;
-    background-size: cover;
-    margin: 20px auto;
-    animation: spin 6s linear infinite;
-    animation-play-state: paused;
-  }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
-
-  /* 波形動畫 */
-  .bars {
-    display: flex; justify-content: center; margin: 20px 0;
-  }
-  .bars div {
-    width: 5px; height: 20px; background: #1DB954;
-    margin: 0 3px; animation: bounce 0.6s infinite alternate;
-  }
-  .bars div:nth-child(2) { animation-delay: 0.1s; }
-  .bars div:nth-child(3) { animation-delay: 0.2s; }
-  .bars div:nth-child(4) { animation-delay: 0.3s; }
-  @keyframes bounce { from { height: 10px; } to { height: 40px; } }
-
-  /* 播放清單 */
-  ul { list-style: none; padding: 0; }
-  li { padding: 10px; cursor: pointer; }
-  li.active { background: #1DB954; }
-</style>
+    <meta charset="UTF-8">
+    <title>我的個人音樂網站</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>🎧 My Premium Music Player</h1>
+    <h1>🎵 我的音樂網站</h1>
 
-<div class="player-box">
-  <div id="vinyl" class="vinyl"></div>
+    <div class="player">
+        <h2 id="title">請選擇一首歌</h2>
+        <audio id="audio" controls></audio>
+    </div>
 
-  <audio id="player" controls style="width:100%;"></audio>
+    <ul id="playlist">
+        <li data-src="music/song1.mp3">Song 1</li>
+        <li data-src="music/song2.mp3">Song 2</li>
+        <li data-src="music/song3.mp3">Song 3</li>
+    </ul>
 
-  <div class="bars">
-    <div></div><div></div><div></div><div></div>
-  </div>
-</div>
-
-<h2>播放清單</h2>
-<ul id="playlist">
-  <li data-src="song1.mp3" data-cover="covers/song1.jpg">Song 1<div id="qr1"></div></li>
-  <li data-src="song2.mp3" data-cover="covers/song2.jpg">Song 2<div id="qr2"></div></li>
-  <li data-src="song3.mp3" data-cover="covers/song3.jpg">Song 3<div id="qr3"></div></li>
-</ul>
-
-<button id="loopBtn">🔁 循環</button>
-<button id="shuffleBtn">🔀 隨機</button>
-
-<script>
-const player = document.getElementById("player");
-const vinyl = document.getElementById("vinyl");
-const items = document.querySelectorAll("#playlist li");
-
-let loop = false;
-let shuffle = false;
-
-function playSong(item) {
-  items.forEach(li => li.classList.remove("active"));
-  item.classList.add("active");
-
-  const src = item.getAttribute("data-src");
-  const cover = item.getAttribute("data-cover");
-
-  player.src = src;
-  vinyl.style.backgroundImage = `url(${cover})`;
-
-  player.play();
-  vinyl.style.animationPlayState = "running";
-}
-
-items.forEach((item, index) => {
-  item.addEventListener("click", () => playSong(item));
-
-  // QR Code
-  new QRCode(document.getElementById(`qr${index+1}`), {
-    text: window.location.href.replace("index.html", "") + item.getAttribute("data-src"),
-    width: 80, height: 80
-  });
-});
-
-// 循環播放
-document.getElementById("loopBtn").onclick = () => {
-  loop = !loop;
-  player.loop = loop;
-  alert(loop ? "已開啟循環播放" : "已關閉循環播放");
-};
-
-// 隨機播放
-document.getElementById("shuffleBtn").onclick = () => {
-  shuffle = !shuffle;
-  alert(shuffle ? "已開啟隨機播放" : "已關閉隨機播放");
-};
-
-// 自動播放下一首
-player.onended = () => {
-  if (shuffle) {
-    const random = Math.floor(Math.random() * items.length);
-    playSong(items[random]);
-  } else {
-    let current = [...items].findIndex(li => li.classList.contains("active"));
-    let next = (current + 1) % items.length;
-    playSong(items[next]);
-  }
-};
-
-// 預設播放第一首
-playSong(items[0]);
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>

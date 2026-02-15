@@ -1,0 +1,35 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.player {
+    margin-bottom: 20px;
+}
+
+#playlist {
+    padding: 0;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+#playlist li {
+    list-style: none;
+    padding: 12px;
+    margin: 5px 0;
+    background: #222;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#playlist li:hover {
+    background: #444;
+}
