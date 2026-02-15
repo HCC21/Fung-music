@@ -1,147 +1,127 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-HK">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>My Auto Music Player</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-  <meta charset="UTF-8">
-  <title>太平洋咖啡 每日通道</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Noto Serif TC', serif;
-      text-align: center;
-      background-image: url('coffee-bg.jpg'); /* ✅ 請換成你的咖啡背景圖位置 */
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      color: #2f2f2f;
-    }
-    h1 {
-      background-color: rgba(255, 255, 255, 0.75);
-      display: inline-block;
-      padding: 10px 30px;
-      border-radius: 12px;
-      margin-top: 30px;
-    }
-    #dateTime {
-      background-color: rgba(255, 255, 255, 0.6);
-      display: inline-block;
-      padding: 5px 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    .link-button {
-      margin: 15px;
-      padding: 18px 24px;
-      display: inline-block;
-      background: rgba(76, 175, 80, 0.85);
-      color: white;
-      text-decoration: none;
-      border-radius: 10px;
-      font-size: 1.1em;
-      transition: background 0.3s ease;
-      backdrop-filter: blur(6px);
-    }
-    .link-button:hover {
-      background: rgba(69, 160, 73, 0.95);
-    }
-@media (max-width: 768px) {
-  h1 {
-    font-size: 1.4em;
-    padding: 8px 20px;
+<style>
+  body { font-family: Arial; background: #121212; color: white; text-align: center; padding: 20px; }
+
+  .player-box { width: 300px; margin: 0 auto; }
+
+  /* 黑膠唱片 */
+  .vinyl {
+    width: 250px; height: 250px;
+    border-radius: 50%;
+    background-size: cover;
+    margin: 20px auto;
+    animation: spin 6s linear infinite;
+    animation-play-state: paused;
   }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
 
-  #dateTime {
-    font-size: 0.9em;
+  /* 波形動畫 */
+  .bars { display: flex; justify-content: center; margin: 20px 0; }
+  .bars div {
+    width: 5px; height: 20px; background: #1DB954;
+    margin: 0 3px; animation: bounce 0.6s infinite alternate;
   }
+  .bars div:nth-child(2) { animation-delay: 0.1s; }
+  .bars div:nth-child(3) { animation-delay: 0.2s; }
+  .bars div:nth-child(4) { animation-delay: 0.3s; }
+  @keyframes bounce { from { height: 10px; } to { height: 40px; } }
 
-  .link-button {
-    display: block;
-    width: 90%;
-    margin: 10px auto;
-    font-size: 1em;
-    padding: 14px;
-  }
-
-  section {
-    padding: 18px;
-    margin: 30px 10px;
-  }
-}
-
-  </style>
-
+  /* 播放清單 */
+  ul { list-style: none; padding: 0; }
+  li { padding: 10px; cursor: pointer; }
+  li.active { background: #1DB954; }
+</style>
 </head>
 <body>
-<script>
-  const correctPassword = "pacific2025"; // ✅ 自訂密碼
-  function checkPassword() {
-    const input = document.getElementById("passwordInput").value;
-    if (input === correctPassword) {
-      document.getElementById("lockScreen").style.display = "none";
-      document.body.style.overflow = "auto"; // 恢復捲動
-    } else {
-      alert("密碼錯誤，請再試一次");
-    }
-  }
-</script>
 
-<div id="lockScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:9999;text-align:center;padding-top:20vh;">
-  <h2>請輸入密碼以進入</h2>
-  <input type="password" id="passwordInput" style="padding:10px;font-size:1em;">
-  <button onclick="checkPassword()" style="padding:10px 20px;margin-left:10px;">確認</button>
+<h1>🎧 My Auto Music Player</h1>
+
+<div class="player-box">
+  <div id="vinyl" class="vinyl"></div>
+  <audio id="player" controls style="width:100%;"></audio>
+
+  <div class="bars">
+    <div></div><div></div><div></div><div></div>
+  </div>
 </div>
 
-  <h1>太平洋咖啡 每日通道</h1>
-  <p id="dateTime"></p>
+<h2>播放清單</h2>
+<ul id="playlist"></ul>
 
-  <a href="https://drive.google.com/drive/folders/1FN6h1g1dHdDr73U90JP1pFSd6_O2PJYT?usp=drive_link" class="link-button">📝 通告</a>
-  <a href="https://drive.google.com/drive/folders/1E5ZFu6CN6aFnHwJh-OXXMB29xzEIs81G?usp=drive_link" class="link-button">💵 宣傳物品</a>
-  <a href="https://drive.google.com/drive/folders/1yI6vbNPonKQSwrwM38v6Q1mRR5JkUyxJ?usp=drive_link" class="link-button">📄分店使用表格</a>
- <a href="https://pcc-inventory.web.app/auth" class="link-button">📦PCC Inventory系統</a>
- 
-<a href="https://docs.google.com/forms/d/1T7FBTbzPMQU0INJRbpaJI1CJqCrw41gR0riJABgEYMA/viewform?edit_requested=true" class="link-button">📦S/O 收貨差異申訴</a>
+<button id="loopBtn">🔁 循環</button>
+<button id="shuffleBtn">🔀 隨機</button>
 
-  <a href="https://time-sso.crdigital.com.cn/auth/realms/master/protocol/openid-connect/auth?response_type=code&client_id=wfm&redirect_uri=https%3A%2F%2Ftime-portal.crdigital.com.cn%2Fsignin-oauth&state=https%3A%2F%2Ftime-portal.crdigital.com.cn&login=true&acr_values=isNeedTenantCode%3Atrue&scope=openid" class="link-button" target="_blank">🕗 Gaia UI</a>
-
-  <script>
-    setInterval(() => {
-      const now = new Date();
-      document.getElementById('dateTime').textContent = now.toLocaleString();
-    }, 1000);
-  </script>
-
-<section style="margin-top:40px;">
-  <h2>輸入網址轉換成 QR CODE</h2>
-  <input type="text" id="urlInput" placeholder="請輸入網址" style="padding:10px; width:60%; border-radius:8px;">
-  <button onclick="generateQRCode()" style="padding:10px 20px; margin-left:10px; border-radius:8px; background-color:#4CAF50; color:white;">產生 QR Code</button>
-  <div id="qrCode" style="margin-top:20px;"></div>
-</section>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
-  function generateQRCode() {
-    const url = document.getElementById('urlInput').value.trim();
-    const qrContainer = document.getElementById('qrCode');
-    qrContainer.innerHTML = '';
-    if (url) {
-      QRCode.toDataURL(url, function (err, src) {
-        if (!err) {
-          const img = document.createElement('img');
-          img.src = src;
-          img.style.maxWidth = '200px';
-          img.style.border = '1px solid #ccc';
-          img.style.padding = '10px';
-          img.style.background = '#fff';
-          qrContainer.appendChild(img);
-        } else {
-          qrContainer.textContent = '產生失敗，請確認網址格式';
-        }
-      });
+let songs = [];
+let loop = false;
+let shuffle = false;
+
+const player = document.getElementById("player");
+const vinyl = document.getElementById("vinyl");
+const playlist = document.getElementById("playlist");
+
+async function loadSongs() {
+  const response = await fetch("songs.json");
+  songs = await response.json();
+  buildPlaylist();
+  playSong(0);
+}
+
+function buildPlaylist() {
+  playlist.innerHTML = "";
+  songs.forEach((song, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `${song.title}<div id="qr${index}"></div>`;
+    li.onclick = () => playSong(index);
+    playlist.appendChild(li);
+
+    // QR Code
+    new QRCode(document.getElementById(`qr${index}`), {
+      text: window.location.href.replace("index.html", "") + song.file,
+      width: 80, height: 80
+    });
+  });
+}
+
+function playSong(index) {
+  const song = songs[index];
+
+  [...playlist.children].forEach(li => li.classList.remove("active"));
+  playlist.children[index].classList.add("active");
+
+  player.src = song.file;
+  vinyl.style.backgroundImage = `url(${song.cover})`;
+
+  player.play();
+  vinyl.style.animationPlayState = "running";
+
+  player.onended = () => {
+    if (shuffle) {
+      playSong(Math.floor(Math.random() * songs.length));
     } else {
-      qrContainer.textContent = '請先輸入網址';
+      playSong((index + 1) % songs.length);
     }
-  }
+  };
+}
+
+document.getElementById("loopBtn").onclick = () => {
+  loop = !loop;
+  player.loop = loop;
+  alert(loop ? "已開啟循環播放" : "已關閉循環播放");
+};
+
+document.getElementById("shuffleBtn").onclick = () => {
+  shuffle = !shuffle;
+  alert(shuffle ? "已開啟隨機播放" : "已關閉隨機播放");
+};
+
+loadSongs();
 </script>
 
 </body>
