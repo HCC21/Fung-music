@@ -2,24 +2,66 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>我的個人音樂網站</title>
+    <title>My Music Player</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>🎵 我的音樂網站</h1>
+<!-- 動態背景 -->
+<div id="bg" class="dynamic-bg"></div>
 
-    <div class="player">
-        <h2 id="title">請選擇一首歌</h2>
-        <audio id="audio" controls></audio>
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>🎵 My Music</h2>
+
+        <h3>分類 Categories</h3>
+        <ul id="categories">
+            <li data-cat="all">全部歌曲</li>
+            <li data-cat="original">原創 Original</li>
+            <li data-cat="cover">翻唱 Cover</li>
+            <li data-cat="demo">Demo</li>
+            <li data-cat="kids">兒歌 Kids</li>
+        </ul>
+
+        <h3>播放清單 Playlist</h3>
+        <ul id="playlist">
+            <li data-src="music/song1.mp3" data-cover="covers/cover1.jpg" data-cat="original">Song 1</li>
+            <li data-src="music/song2.mp3" data-cover="covers/cover2.jpg" data-cat="cover">Song 2</li>
+            <li data-src="music/song3.mp3" data-cover="covers/cover3.jpg" data-cat="kids">Song 3</li>
+        </ul>
     </div>
 
-    <ul id="playlist">
-        <li data-src="music/song1.mp3">Song 1</li>
-        <li data-src="music/song2.mp3">Song 2</li>
-        <li data-src="music/song3.mp3">Song 3</li>
-    </ul>
+    <!-- Player Area -->
+    <div class="player-area">
 
-    <script src="script.js"></script>
+        <!-- CD 光暈 + 圓形旋轉 -->
+        <div class="cd-wrapper">
+            <img id="cover" src="covers/default.jpg" class="cd">
+        </div>
+
+        <h2 id="title">選擇一首歌播放</h2>
+
+        <audio id="audio"></audio>
+
+        <!-- 進度條 -->
+        <div class="progress-container">
+            <span id="current">0:00</span>
+            <input type="range" id="progress" value="0" min="0" max="100">
+            <span id="duration">0:00</span>
+        </div>
+
+        <!-- 控制按鈕 -->
+        <div class="controls">
+            <button id="prev">⏮️</button>
+            <button id="play">▶️</button>
+            <button id="next">⏭️</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
