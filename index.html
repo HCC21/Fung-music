@@ -2,13 +2,14 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<title>My Auto Music Player</title>
+<title>My Premium Music Player</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
 <style>
   body { font-family: Arial; background: #121212; color: white; text-align: center; padding: 20px; }
 
-  .player-box { width: 300px; margin: 0 auto; }
+  .player-box {
+    width: 300px; margin: 0 auto;
+  }
 
   /* 黑膠唱片 */
   .vinyl {
@@ -22,7 +23,9 @@
   @keyframes spin { 100% { transform: rotate(360deg); } }
 
   /* 波形動畫 */
-  .bars { display: flex; justify-content: center; margin: 20px 0; }
+  .bars {
+    display: flex; justify-content: center; margin: 20px 0;
+  }
   .bars div {
     width: 5px; height: 20px; background: #1DB954;
     margin: 0 3px; animation: bounce 0.6s infinite alternate;
@@ -40,10 +43,11 @@
 </head>
 <body>
 
-<h1>🎧 My Auto Music Player</h1>
+<h1>🎧 My Premium Music Player</h1>
 
 <div class="player-box">
   <div id="vinyl" class="vinyl"></div>
+
   <audio id="player" controls style="width:100%;"></audio>
 
   <div class="bars">
@@ -52,76 +56,74 @@
 </div>
 
 <h2>播放清單</h2>
-<ul id="playlist"></ul>
+<ul id="playlist">
+  <li data-src="music/song1.mp3" data-cover="covers/song1.jpg">Song 1<div id="qr1"></div></li>
+  <li data-src="music/song2.mp3" data-cover="covers/song2.jpg">Song 2<div id="qr2"></div></li>
+  <li data-src="music/song3.mp3" data-cover="covers/song3.jpg">Song 3<div id="qr3"></div></li>
+</ul>
 
 <button id="loopBtn">🔁 循環</button>
 <button id="shuffleBtn">🔀 隨機</button>
 
 <script>
-let songs = [];
+const player = document.getElementById("player");
+const vinyl = document.getElementById("vinyl");
+const items = document.querySelectorAll("#playlist li");
+
 let loop = false;
 let shuffle = false;
 
-const player = document.getElementById("player");
-const vinyl = document.getElementById("vinyl");
-const playlist = document.getElementById("playlist");
+function playSong(item) {
+  items.forEach(li => li.classList.remove("active"));
+  item.classList.add("active");
 
-async function loadSongs() {
-  const response = await fetch("songs.json");
-  songs = await response.json();
-  buildPlaylist();
-  playSong(0);
-}
+  const src = item.getAttribute("data-src");
+  const cover = item.getAttribute("data-cover");
 
-function buildPlaylist() {
-  playlist.innerHTML = "";
-  songs.forEach((song, index) => {
-    const li = document.createElement("li");
-    li.innerHTML = `${song.title}<div id="qr${index}"></div>`;
-    li.onclick = () => playSong(index);
-    playlist.appendChild(li);
-
-    // QR Code
-    new QRCode(document.getElementById(`qr${index}`), {
-      text: window.location.href.replace("index.html", "") + song.file,
-      width: 80, height: 80
-    });
-  });
-}
-
-function playSong(index) {
-  const song = songs[index];
-
-  [...playlist.children].forEach(li => li.classList.remove("active"));
-  playlist.children[index].classList.add("active");
-
-  player.src = song.file;
-  vinyl.style.backgroundImage = `url(${song.cover})`;
+  player.src = src;
+  vinyl.style.backgroundImage = `url(${cover})`;
 
   player.play();
   vinyl.style.animationPlayState = "running";
-
-  player.onended = () => {
-    if (shuffle) {
-      playSong(Math.floor(Math.random() * songs.length));
-    } else {
-      playSong((index + 1) % songs.length);
-    }
-  };
 }
 
+items.forEach((item, index) => {
+  item.addEventListener("click", () => playSong(item));
+
+  // QR Code
+  new QRCode(document.getElementById(`qr${index+1}`), {
+    text: window.location.href.replace("index.html", "") + item.getAttribute("data-src"),
+    width: 80, height: 80
+  });
+});
+
+// 循環播放
 document.getElementById("loopBtn").onclick = () => {
   loop = !loop;
   player.loop = loop;
   alert(loop ? "已開啟循環播放" : "已關閉循環播放");
 };
 
+// 隨機播放
 document.getElementById("shuffleBtn").onclick = () => {
   shuffle = !shuffle;
   alert(shuffle ? "已開啟隨機播放" : "已關閉隨機播放");
 };
 
-loadSongs();
+// 自動播放下一首
+player.onended = () => {
+  if (shuffle) {
+    const random = Math.floor(Math.random() * items.length);
+    playSong(items[random]);
+  } else {
+    let current = [...items].findIndex(li => li.classList.contains("active"));
+    let next = (current + 1) % items.length;
+    playSong(items[next]);
+  }
+};
+
+// 預設播放第一首
+playSong(items[0]);
 </script>
 
 </body>
