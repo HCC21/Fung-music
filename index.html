@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>My Music Player</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -12,6 +11,49 @@
 <div id="bg" class="dynamic-bg"></div>
 
 <div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>🎵 Fung Fung Music</h2>
+
+        <h3>分類 Categories</h3>
+        <ul id="categories">
+            <li data-cat="all">全部歌曲</li>
+            <li data-cat="slow songs">慢歌 Slow song</li>
+            <li data-cat="fast songs">快歌 Fast song</li>
+            <li data-cat="female">女歌男唱 Female</li>
+            <li data-cat="kids">兒歌 Kids</li>
+        </ul>
+
+        <h3>播放清單 Playlist</h3>
+        <ul id="playlist">
+            <li data-src="music/一千個願意.mp3" data-cover="covers/cover9.jpg" data-cat="slow songs">一千個願意</li>
+            <li data-src="music/遲來的春天.mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">遲來的春天</li>
+            <li data-src="music/感情的段落.mp3" data-cover="covers/cover1.jpg" data-cat="female">感情的段落</li>
+            <li data-src="music/愛情是一種法國甜品.mp3" data-cover="covers/cover6.jpg" data-cat="female">愛情是一種法國甜品</li>
+            <li data-src="music/痛哭.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">痛哭</li>
+            <li data-src="music/最後的信仰.mp3" data-cover="covers/cover5.jpg" data-cat="female">最後的信仰</li>
+            <li data-src="music/雪中情.mp3" data-cover="covers/cover8.jpg" data-cat="slow songs">雪中情</li>
+            <li data-src="music/迷戀.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">迷戀</li>
+            <li data-src="music/記得.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">記得</li>
+            <li data-src="music/真情流露.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">真情流露</li>
+            <li data-src="music/相對無言.mp3" data-cover="covers/cover4.jpg" data-cat="slow songs">相對無言</li>
+            <li data-src="music/為何仍剩我一人.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">為何仍剩我一人</li>
+            <li data-src="music/柔情蜜意.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">柔情蜜意</li>
+            <li data-src="music/明目張膽.mp3" data-cover="covers/cover3.jpg" data-cat="original">明目張膽</li>
+            <li data-src="music/我是你未來.mp3" data-cover="covers/cover7.jpg" data-cat="slow songs">我是你未來</li>
+            <li data-src="music/吻感.mp3" data-cover="covers/cover6.jpg" data-cat="slow songs">吻感</li>
+            <li data-src="music/你狠心來傷我嗎.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">你狠心來傷我嗎</li>
+            <li data-src="music/再渡艷陽天.mp3" data-cover="covers/cover2.jpg" data-cat="female">再渡艷陽天</li>
+            <li data-src="music/心有獨鍾(鋼琴版).mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">心有獨鍾(鋼琴版)</li>
+            <li data-src="music/不要哭了.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">不要哭了</li>
+            <li data-src="music/千年女王.mp3" data-cover="covers/cover3.jpg" data-cat="kids">千年女王</li>
+            <li data-src="music/千年女王(傳說).mp3" data-cover="covers/cover5.jpg" data-cat="kids">千年女王(傳說)</li>
+            <li data-src="music/飄零燕.mp3" data-cover="covers/cover8.jpg" data-cat="kids">飄零燕</li>
+
+
+        </ul>
+    </div>
 
     <!-- Player Area -->
     <div class="player-area">
@@ -38,49 +80,6 @@
             <button id="play">▶️</button>
             <button id="next">⏭️</button>
         </div>
-
-        <!-- 播放模式按鈕 -->
-        <div class="mode-controls">
-            <button id="shuffle">🔀</button>
-            <button id="repeat">🔁</button>
-        </div>
-
-        <!-- QR Code -->
-        <h3>歌曲 QR Code</h3>
-        <div id="qrcode"></div>
-
-        <!-- 分類 -->
-        <h3>分類 Categories</h3>
-        <ul id="categories" class="grid-4"></ul>
-
-        <!-- 播放清單 -->
-        <h3>播放清單 Playlist</h3>
-        <ul id="playlist" class="grid-6">
-             <li data-src="music/一千個願意.mp3" data-cover="covers/cover9.jpg" data-cat="slow songs">一千個願意</li>
-            <li data-src="music/遲來的春天.mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">遲來的春天</li>
-            <li data-src="music/感情的段落.mp3" data-cover="covers/cover1.jpg" data-cat="female">感情的段落</li>
-            <li data-src="music/愛情是一種法國甜品.mp3" data-cover="covers/cover6.jpg" data-cat="female">愛情是一種法國甜品</li>
-            <li data-src="music/痛哭.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">痛哭</li>
-            <li data-src="music/最後的信仰.mp3" data-cover="covers/cover5.jpg" data-cat="female">最後的信仰</li>
-            <li data-src="music/雪中情.mp3" data-cover="covers/cover8.jpg" data-cat="slow songs">雪中情</li>
-            <li data-src="music/迷戀.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">迷戀</li>
-            <li data-src="music/記得.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">記得</li>
-            <li data-src="music/真情流露.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">真情流露</li>
-            <li data-src="music/相對無言.mp3" data-cover="covers/cover4.jpg" data-cat="slow songs">相對無言</li>
-            <li data-src="music/為何仍剩我一人.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">為何仍剩我一人</li>
-            <li data-src="music/柔情蜜意.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">柔情蜜意</li>
-            <li data-src="music/明目張膽.mp3" data-cover="covers/cover3.jpg" data-cat="original">明目張膽</li>
-            <li data-src="music/我是你未來.mp3" data-cover="covers/cover7.jpg" data-cat="slow songs">我是你未來</li>
-            <li data-src="music/吻感.mp3" data-cover="covers/cover6.jpg" data-cat="slow songs">吻感</li>
-            <li data-src="music/你狠心來傷我嗎.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">你狠心來傷我嗎</li>
-            <li data-src="music/再渡艷陽天.mp3" data-cover="covers/cover2.jpg" data-cat="female">再渡艷陽天</li>
-            <li data-src="music/心有獨鍾(鋼琴版).mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">心有獨鍾(鋼琴版)</li>
-            <li data-src="music/不要哭了.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">不要哭了</li>
-            <li data-src="music/千年女王.mp3" data-cover="covers/cover3.jpg" data-cat="kids">千年女王</li>
-            <li data-src="music/千年女王(傳說).mp3" data-cover="covers/cover5.jpg" data-cat="kids">千年女王(傳說)</li>
-            <li data-src="music/飄零燕.mp3" data-cover="covers/cover8.jpg" data-cat="kids">飄零燕</li>
-        </ul>
-
     </div>
 
 </div>

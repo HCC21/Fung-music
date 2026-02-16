@@ -4,14 +4,10 @@ const cover = document.getElementById("cover");
 const playlist = document.getElementById("playlist");
 const categories = document.getElementById("categories");
 const bg = document.getElementById("bg");
-const qrcodeBox = document.getElementById("qrcode");
 
 const playBtn = document.getElementById("play");
 const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
-
-const shuffleBtn = document.getElementById("shuffle");
-const repeatBtn = document.getElementById("repeat");
 
 const progress = document.getElementById("progress");
 const currentTimeText = document.getElementById("current");
@@ -19,17 +15,6 @@ const durationText = document.getElementById("duration");
 
 let currentIndex = -1;
 let songs = [...playlist.getElementsByTagName("li")];
-
-let shuffleMode = false;
-let repeatMode = false;
-
-/* 建立分類 */
-const catList = ["all", "slow songs", "fast songs", "female", "kids"];
-const catNames = ["All 全部歌曲", "慢歌 Slow song", "快歌 Fast song", "女歌男唱 Female", "兒歌 Kids"];
-
-categories.innerHTML = catList
-    .map((c, i) => `<li data-cat="${c}">${catNames[i]}</li>`)
-    .join("");
 
 /* 播放歌曲 */
 function playSong(index) {
@@ -40,11 +25,8 @@ function playSong(index) {
     cover.src = item.getAttribute("data-cover");
     title.textContent = item.textContent;
 
+    /* 動態背景 */
     bg.style.backgroundImage = `url(${item.getAttribute("data-cover")})`;
-
-    /* 生成 QR Code */
-    qrcodeBox.innerHTML = "";
-    QRCode.toCanvas(qrcodeBox, window.location.href + "#" + item.textContent);
 
     audio.play();
     cover.style.animationPlayState = "running";
@@ -73,9 +55,7 @@ playBtn.addEventListener("click", () => {
 
 /* 下一首 */
 nextBtn.addEventListener("click", () => {
-    if (shuffleMode) {
-        playSong(Math.floor(Math.random() * songs.length));
-    } else if (currentIndex < songs.length - 1) {
+    if (currentIndex < songs.length - 1) {
         playSong(currentIndex + 1);
     } else {
         playSong(0);
@@ -84,9 +64,7 @@ nextBtn.addEventListener("click", () => {
 
 /* 上一首 */
 prevBtn.addEventListener("click", () => {
-    if (shuffleMode) {
-        playSong(Math.floor(Math.random() * songs.length));
-    } else if (currentIndex > 0) {
+    if (currentIndex > 0) {
         playSong(currentIndex - 1);
     } else {
         playSong(songs.length - 1);
@@ -95,23 +73,7 @@ prevBtn.addEventListener("click", () => {
 
 /* 自動播下一首 */
 audio.addEventListener("ended", () => {
-    if (repeatMode) {
-        playSong(currentIndex);
-    } else {
-        nextBtn.click();
-    }
-});
-
-/* 隨機播放 */
-shuffleBtn.addEventListener("click", () => {
-    shuffleMode = !shuffleMode;
-    shuffleBtn.style.background = shuffleMode ? "#1ed760" : "#1DB954";
-});
-
-/* 單曲循環 */
-repeatBtn.addEventListener("click", () => {
-    repeatMode = !repeatMode;
-    repeatBtn.style.background = repeatMode ? "#1ed760" : "#1DB954";
+    nextBtn.click();
 });
 
 /* 分類功能 */
@@ -120,10 +82,11 @@ categories.addEventListener("click", function(e) {
         const cat = e.target.getAttribute("data-cat");
 
         songs.forEach(song => {
-            song.style.display =
-                cat === "all" || song.getAttribute("data-cat") === cat
-                    ? "block"
-                    : "none";
+            if (cat === "all" || song.getAttribute("data-cat") === cat) {
+                song.style.display = "block";
+            } else {
+                song.style.display = "none";
+            }
         });
     }
 });
