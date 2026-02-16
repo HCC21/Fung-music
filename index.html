@@ -2,52 +2,35 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>Fung Fung Music Player</title>
+    <title>My Music Player</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- 動態背景（封面取色） -->
+<!-- 動態背景 -->
 <div id="bg" class="dynamic-bg"></div>
 
-<div class="app">
+<div class="container">
 
-    <!-- Top bar -->
-    <header class="topbar">
-        <div class="logo">🎵 Fung Fung Music</div>
-        <div class="search-box">
-            <input type="text" id="search" placeholder="搜尋歌曲 / Search songs...">
-        </div>
-    </header>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>🎵 Fung Fung Music</h2>
 
-    <div class="container">
+        <h3>分類 Categories</h3>
+        <ul id="categories">
+            <li data-cat="all">全部歌曲</li>
+            <li data-cat="slow songs">慢歌 Slow song</li>
+            <li data-cat="fast songs">快歌 Fast song</li>
+            <li data-cat="female">女歌男唱 Female</li>
+            <li data-cat="kids">兒歌/卡通 Kids/Cartoon</li>
+            <li data-cat="opera">粵曲 Cantonese opera</li>
+            <li data-cat="festival">節日 Festival</li>
+            <li data-cat="other">其他 Other</li>
+        </ul>
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <h3>分類 Categories</h3>
-            <ul id="categories">
-                <li data-cat="all" class="active">全部歌曲</li>
-                <li data-cat="slow songs">慢歌 Slow song</li>
-                <li data-cat="fast songs">快歌 Fast song</li>
-                <li data-cat="female">女歌男唱 Female</li>
-                <li data-cat="kids">兒歌/卡通 Kids/Cartoon</li>
-                <li data-cat="opera">粵曲 Cantonese opera</li>
-                <li data-cat="festival">節日 Festival</li>
-                <li data-cat="other">其他 Other</li>
-            </ul>
-
-            <h3>最近播放 Recently Played</h3>
-            <ul id="recent"></ul>
-        </aside>
-
-        <!-- Main content -->
-        <main class="main">
-
-            <section class="playlist-section">
-                <h3>播放清單 Playlist</h3>
-                <ul id="playlist">
-
-                    <li data-src="music/一千個願意.mp3" data-cover="covers/cover9.jpg" data-cat="slow songs">一千個願意</li>
+        <h3>播放清單 Playlist</h3>
+        <ul id="playlist">
+            <li data-src="music/一千個願意.mp3" data-cover="covers/cover9.jpg" data-cat="slow songs">一千個願意</li>
             <li data-src="music/遲來的春天.mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">遲來的春天</li>
             <li data-src="music/感情的段落.mp3" data-cover="covers/cover1.jpg" data-cat="female">感情的段落</li>
             <li data-src="music/愛情是一種法國甜品.mp3" data-cover="covers/cover6.jpg" data-cat="female">愛情是一種法國甜品</li>
@@ -95,67 +78,35 @@
  <li data-src="music/離開請關燈.mp3" data-cover="covers/cover3.jpg" data-cat="female songs">離開請關燈</li>
  <li data-src="music/魔法奇緣之媽媽知道.mp3" data-cover="covers/cover5.jpg" data-cat="kids">魔法奇緣之媽媽知道</li>
 
-
-
-                </ul>
-            </section>
-
-        </main>
-
+        </ul>
     </div>
 
-    <!-- Bottom Player -->
-    <footer class="player-area">
+    <!-- Player Area -->
+    <div class="player-area">
 
-        <!-- Left -->
-        <div class="player-left">
-            <div class="cd-wrapper">
-                <img id="cover" src="covers/default.jpg" class="cd">
-            </div>
-            <div class="track-info">
-                <h2 id="title">選擇一首歌播放</h2>
-
-                <!-- EQ 動畫 -->
-                <div class="eq">
-                    <div class="eq-bar"></div>
-                    <div class="eq-bar"></div>
-                    <div class="eq-bar"></div>
-                    <div class="eq-bar"></div>
-                </div>
-            </div>
+        <!-- CD 光暈 + 圓形旋轉 -->
+        <div class="cd-wrapper">
+            <img id="cover" src="covers/default.jpg" class="cd">
         </div>
 
-        <!-- Center -->
-        <div class="player-center">
-            <div class="controls">
-                <button id="prev">⏮️</button>
-                <button id="play">▶️</button>
-                <button id="next">⏭️</button>
-            </div>
-
-            <div class="progress-container">
-                <span id="current">0:00</span>
-                <input type="range" id="progress" value="0" min="0" max="100">
-                <span id="duration">0:00</span>
-            </div>
-        </div>
-
-        <!-- Right -->
-        <div class="player-right">
-            <div class="extra-controls">
-                <button id="random">🔀</button>
-                <button id="repeat">🔁</button>
-                <button id="fav">☆</button>
-            </div>
-
-            <div class="volume-box">
-                <span>🔊</span>
-                <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-            </div>
-        </div>
+        <h2 id="title">選擇一首歌播放</h2>
 
         <audio id="audio"></audio>
-    </footer>
+
+        <!-- 進度條 -->
+        <div class="progress-container">
+            <span id="current">0:00</span>
+            <input type="range" id="progress" value="0" min="0" max="100">
+            <span id="duration">0:00</span>
+        </div>
+
+        <!-- 控制按鈕 -->
+        <div class="controls">
+            <button id="prev">⏮️</button>
+            <button id="play">▶️</button>
+            <button id="next">⏭️</button>
+        </div>
+    </div>
 
 </div>
 
