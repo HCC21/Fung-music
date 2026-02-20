@@ -2,10 +2,26 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>My Music Player</title>
+    <title>Fung Fung Music</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- ⭐ 全屏登入頁 -->
+<div id="login-screen" class="login-screen">
+    <div class="login-box">
+        <h1>🎵 Fung Fung Music</h1>
+        <p>請輸入你的名字</p>
+        <input type="text" id="username-input" placeholder="你的名字">
+        <button id="login-btn">開始聽歌</button>
+    </div>
+</div>
+<div id="welcome-popup" class="welcome-popup">
+    <div class="welcome-box">
+        <h2 id="welcome-popup-text"></h2>
+        <p>祝你聽歌愉快！</p>
+    </div>
+</div>
 
 <!-- 動態背景 -->
 <div id="bg" class="dynamic-bg"></div>
@@ -14,7 +30,10 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <h2>🎵 Fung Fung Music</h2>
+        <h2 id="welcome-text">🎵 Fung Fung Music</h2>
+
+        <!-- ⭐ 搜尋框 -->
+        <input type="text" id="search" placeholder="搜尋歌曲..." class="search-box">
 
         <h3>分類 Categories</h3>
         <ul id="categories">
@@ -29,56 +48,9 @@
         </ul>
 
         <h3>播放清單 Playlist</h3>
-        <ul id="playlist">
-            <li data-src="music/一千個願意.mp3" data-cover="covers/cover9.jpg" data-cat="slow songs">一千個願意</li>
-            <li data-src="music/遲來的春天.mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">遲來的春天</li>
-            <li data-src="music/感情的段落.mp3" data-cover="covers/cover1.jpg" data-cat="female">感情的段落</li>
-            <li data-src="music/愛情是一種法國甜品.mp3" data-cover="covers/cover6.jpg" data-cat="female">愛情是一種法國甜品</li>
-            <li data-src="music/痛哭.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">痛哭</li>
-            <li data-src="music/最後的信仰.mp3" data-cover="covers/cover5.jpg" data-cat="female">最後的信仰</li>
-            <li data-src="music/雪中情.mp3" data-cover="covers/cover8.jpg" data-cat="slow songs">雪中情</li>
-            <li data-src="music/迷戀.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">迷戀</li>
-            <li data-src="music/記得.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">記得</li>
-            <li data-src="music/真情流露.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">真情流露</li>
-            <li data-src="music/相對無言.mp3" data-cover="covers/cover4.jpg" data-cat="slow songs">相對無言</li>
-            <li data-src="music/為何仍剩我一人.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">為何仍剩我一人</li>
-            <li data-src="music/柔情蜜意.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">柔情蜜意</li>
-            <li data-src="music/明目張膽.mp3" data-cover="covers/cover3.jpg" data-cat="female">明目張膽</li>
-            <li data-src="music/我是你未來.mp3" data-cover="covers/cover7.jpg" data-cat="slow songs">我是你未來</li>
-            <li data-src="music/吻感.mp3" data-cover="covers/cover6.jpg" data-cat="slow songs">吻感</li>
-            <li data-src="music/你狠心來傷我嗎.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">你狠心來傷我嗎</li>
-            <li data-src="music/再渡艷陽天.mp3" data-cover="covers/cover2.jpg" data-cat="female">再渡艷陽天</li>
-            <li data-src="music/心有獨鍾(鋼琴版).mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">心有獨鍾(鋼琴版)</li>
-            <li data-src="music/不要哭了.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">不要哭了</li>
-            <li data-src="music/千年女王.mp3" data-cover="covers/cover3.jpg" data-cat="kids">千年女王</li>
-            <li data-src="music/千年女王(傳說).mp3" data-cover="covers/cover5.jpg" data-cat="kids">千年女王(傳說)</li>
-            <li data-src="music/飄零燕.mp3" data-cover="covers/cover8.jpg" data-cat="kids">飄零燕</li>
 
- <li data-src="music/1874.mp3" data-cover="covers/cover5.jpg" data-cat="slow songs">1874</li>
- <li data-src="music/Sol4.mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">Sol4</li>
- <li data-src="music/一憶三千八天.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">一憶三千八天</li>
- <li data-src="music/不見不散.mp3" data-cover="covers/cover4.jpg" data-cat="slow songs">不見不散</li>
- <li data-src="music/你給我自信.mp3" data-cover="covers/cover1.jpg" data-cat="fast songs">你給我自信</li>
- <li data-src="music/告訴我你會在夢境中等我.mp3" data-cover="covers/cover7.jpg" data-cat="slow songs">告訴我你會在夢境中等我</li>
- <li data-src="music/我心不死.mp3" data-cover="covers/cover2.jpg" data-cat="female">我心不死</li>
- <li data-src="music/我的親愛還是你.mp3" data-cover="covers/cover6.jpg" data-cat="slow songs">我的親愛還是你</li>
- <li data-src="music/我這樣愛你.mp3" data-cover="covers/cover7.jpg" data-cat="slow songs">我這樣愛你</li>
- <li data-src="music/我愛玫瑰園.mp3" data-cover="covers/cover8.jpg" data-cat="fast songs">我愛玫瑰園</li>
- <li data-src="music/沒有你的愛.mp3" data-cover="covers/cover1.jpg" data-cat="slow songs">沒有你的愛</li>
- <li data-src="music/初戀.mp3" data-cover="covers/cover5.jpg" data-cat="female songs">初戀</li>
- <li data-src="music/送曲送給你.mp3" data-cover="covers/cover7.jpg" data-cat="slow songs">送曲送給你</li>
- <li data-src="music/送你一瓣的雪花.mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">送你一瓣的雪花</li>
- <li data-src="music/假的戀愛.mp3" data-cover="covers/cover4.jpg" data-cat="female songs">假的戀愛</li>
- <li data-src="music/富士山下.mp3" data-cover="covers/cover3.jpg" data-cat="slow songs">富士山下</li>
- <li data-src="music/棉胎.mp3" data-cover="covers/cover6.jpg" data-cat="female">棉胎</li>
- <li data-src="music/無心快語.mp3" data-cover="covers/cover7.jpg" data-cat="fast songs">無心快語</li>
- <li data-src="music/給自己的情書.mp3" data-cover="covers/cover4.jpg" data-cat="female">給自己的情書</li>
- <li data-src="music/媽咪與天父.mp3" data-cover="covers/cover8.jpg" data-cat="festival">媽咪與天父</li>
- <li data-src="music/暸解你的所有.mp3" data-cover="covers/cover2.jpg" data-cat="slow songs">暸解你的所有</li>
- <li data-src="music/離開請關燈.mp3" data-cover="covers/cover3.jpg" data-cat="female">離開請關燈</li>
- <li data-src="music/魔法奇緣之媽媽知道.mp3" data-cover="covers/cover5.jpg" data-cat="kids">魔法奇緣之媽媽知道</li>
-
-        </ul>
+        <!-- ⭐ 自動生成 playlist -->
+        <ul id="playlist"></ul>
     </div>
 
     <!-- Player Area -->
@@ -103,7 +75,7 @@
         <!-- 控制按鈕 -->
         <div class="controls">
             <button id="prev">⏮️</button>
-            <button id="play">▶️</button>
+            <button id="play" class="play-btn">▶️</button>
             <button id="next">⏭️</button>
         </div>
     </div>

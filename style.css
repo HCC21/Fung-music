@@ -1,8 +1,12 @@
+/* ============================
+   🎵 全局設定
+============================ */
 body {
     margin: 0;
     background: #121212;
     color: #fff;
     font-family: Arial, sans-serif;
+    overflow: hidden;
 }
 
 /* 動態背景 */
@@ -18,12 +22,74 @@ body {
     z-index: -1;
 }
 
+/* ============================
+   🎵 全屏登入頁
+============================ */
+.login-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    transition: opacity 0.6s ease;
+}
+
+.login-screen.fade-out {
+    opacity: 0;
+}
+
+.login-box {
+    text-align: center;
+    background: #181818;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #000;
+}
+
+.login-box h1 {
+    margin-bottom: 20px;
+}
+
+#username-input {
+    width: 80%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+#login-btn {
+    padding: 12px 20px;
+    background: #1DB954;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#login-btn:hover {
+    background: #1ed760;
+}
+
+/* ============================
+   🎵 主容器
+============================ */
 .container {
     display: flex;
     height: 100vh;
+    overflow: hidden;
 }
 
-/* Sidebar */
+/* ============================
+   🎵 Sidebar
+============================ */
 .sidebar {
     width: 260px;
     background: #000;
@@ -35,7 +101,20 @@ body {
     margin-bottom: 15px;
 }
 
-#categories li, #playlist li {
+/* 搜尋框 */
+.search-box {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 15px;
+    background: #222;
+    color: #fff;
+}
+
+/* Playlist & Categories */
+#categories li,
+#playlist li {
     list-style: none;
     padding: 10px;
     margin: 5px 0;
@@ -45,11 +124,22 @@ body {
     transition: 0.2s;
 }
 
-#categories li:hover, #playlist li:hover {
+#categories li:hover,
+#playlist li:hover {
     background: #333;
 }
 
-/* Player Area */
+/* ⭐ 播放中高亮 */
+#playlist li.active {
+    background: #1DB954;
+    color: #000;
+    font-weight: bold;
+    transform: scale(1.03);
+}
+
+/* ============================
+   🎵 Player Area
+============================ */
 .player-area {
     flex: 1;
     text-align: center;
@@ -65,7 +155,7 @@ body {
     filter: drop-shadow(0 0 40px #1DB954);
 }
 
-/* CD 圓形旋轉 */
+/* CD 旋轉 */
 .cd {
     width: 280px;
     height: 280px;
@@ -75,13 +165,14 @@ body {
     animation-play-state: paused;
 }
 
-/* Rotation animation */
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
 
-/* 進度條 */
+/* ============================
+   🎵 進度條
+============================ */
 .progress-container {
     display: flex;
     align-items: center;
@@ -95,6 +186,9 @@ body {
     width: 60%;
 }
 
+/* ============================
+   🎵 控制按鈕
+============================ */
 .controls {
     margin-top: 20px;
 }
@@ -110,23 +204,90 @@ body {
     transition: 0.2s;
 }
 
+/* ⭐ 播放按鈕動畫 */
+.play-btn.playing {
+    animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
 .controls button:hover {
     background: #1ed760;
 }
 
-/* Mobile Responsive */
+/* ============================
+   🎵 手機版優化
+============================ */
 @media (max-width: 768px) {
+
+    body {
+        overflow: auto;
+    }
+
     .container {
         flex-direction: column;
+        height: auto;
     }
 
     .sidebar {
         width: 100%;
+        height: auto;
         text-align: center;
+        padding-bottom: 10px;
     }
 
-    .cd {
+    .player-area {
+        padding-top: 20px;
+    }
+
+    .cd-wrapper {
         width: 220px;
         height: 220px;
     }
+
+    .cd {
+        width: 200px;
+        height: 200px;
+    }
+
+    .controls button {
+        padding: 10px 14px;
+        font-size: 18px;
+    }
+
+    #progress {
+        width: 70%;
+    }
+}
+/* ============================
+   🎉 登入後歡迎提示
+============================ */
+.welcome-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 900;
+}
+
+.welcome-box {
+    background: rgba(0,0,0,0.85);
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 20px #000;
+    animation: popIn 0.5s ease;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
