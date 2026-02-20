@@ -2,7 +2,7 @@
    🎵 Supabase 初始化
 ============================ */
 const SUPABASE_URL ="https://dzaemdhyvcgstidhvykn.supabase.co";
-const SUPABASE_KEY ="dzaemdhyvcgstidhvykn";
+const SUPABASE_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6YWVtZGh5dmNnc3RpZGh2eWtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NzgyMDMsImV4cCI6MjA4NzE1NDIwM30.Rx6vmN3QPnF4vxKIQt6Okid6SYmwrGfyCpom1KtaEo8";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ============================
@@ -68,10 +68,16 @@ async function saveLoginHistory(name) {
 async function showLoginHistory() {
     const historyList = document.getElementById("login-history");
 
-    const { data: history } = await supabase
+    const { data: history, error } = await supabase
         .from("login_history")
         .select("*")
         .order("count", { ascending: false });
+
+    // ⭐ 如果出錯或冇資料 → 當作空 array
+    if (error || !history) {
+        historyList.innerHTML = "<li>暫時沒有登入紀錄</li>";
+        return;
+    }
 
     historyList.innerHTML = "";
 
@@ -94,7 +100,6 @@ async function showLoginHistory() {
         historyList.appendChild(li);
     });
 }
-
 // 自動登入
 window.addEventListener("load", async () => {
     const savedName = localStorage.getItem("friendName");
@@ -113,7 +118,7 @@ window.addEventListener("load", async () => {
 
 // 按下登入
 loginBtn.addEventListener("click", async () => {
-    const name = usernameInput.value.trim();
+    const name = String(usernameInput.value.trim());
     if (name.length === 0) return;
 
     localStorage.setItem("friendName", name);
