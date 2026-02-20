@@ -2,7 +2,7 @@
    🎵 Supabase 初始化
 ============================ */
 const SUPABASE_URL ="https://dzaemdhyvcgstidhvykn.supabase.co";
-const SUPABASE_KEY ="sb_publishable_3gIDryVQCMi354alWvutiw_1xqRGU67";
+const SUPABASE_KEY ="dzaemdhyvcgstidhvykn";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ============================
