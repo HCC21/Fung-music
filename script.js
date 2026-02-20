@@ -1,14 +1,8 @@
-// ============================
-// 🎵 Supabase 初始化
-// ============================
-const SUPABASE_URL = "你的 dzaemdhyvcgstidhvykn";
-const SUPABASE_KEY = "你的 sb_publishable_3gIDryVQCMi354alWvutiw_1xqRGU67";
-
 /* ============================
    🎵 Supabase 初始化
 ============================ */
-const SUPABASE_URL = "你的 dzaemdhyvcgstidhvykn";
-const SUPABASE_KEY = "你的 sb_publishable_3gIDryVQCMi354alWvutiw_1xqRGU67";
+const SUPABASE_URL = "你的 "https://dzaemdhyvcgstidhvykn.supabase.co";
+const SUPABASE_KEY = "你的 "sb_publishable_3gIDryVQCMi354alWvutiw_1xqRGU67";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
