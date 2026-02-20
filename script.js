@@ -37,6 +37,8 @@ function generateAvatar(name) {
 }
 // ⭐ Supabase：儲存登入紀錄
 async function saveLoginHistory(name) {
+    name = String(name); // ⭐ 強制轉成字串
+
     const { data: existing } = await supabase
         .from("login_history")
         .select("*")
