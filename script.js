@@ -6,31 +6,10 @@ const loginBtn = document.getElementById("login-btn");
 const usernameInput = document.getElementById("username-input");
 const welcomeText = document.getElementById("welcome-text");
 
-// 如果已登入 → 自動進入
-window.addEventListener("load", () => {
-    const savedName = localStorage.getItem("friendName");
-    if (savedName) {
-        loginScreen.style.display = "none";
-        welcomeText.textContent = `🎵 歡迎你，${savedName}`;
-    }
-});
-
-// 按下登入
-loginBtn.addEventListener("click", () => {
-    const name = usernameInput.value.trim();
-    if (name.length === 0) return;
-
-    localStorage.setItem("friendName", name);
-    welcomeText.textContent = `🎵 歡迎你，${name}`;
-
-    loginScreen.classList.add("fade-out");
-    setTimeout(() => (loginScreen.style.display = "none"), 600);
-});
-
 const welcomePopup = document.getElementById("welcome-popup");
 const welcomePopupText = document.getElementById("welcome-popup-text");
 
-// 顯示歡迎提示
+// 顯示登入提示
 function showWelcomePopup(name) {
     welcomePopupText.textContent = `🎉 歡迎你，${name}！`;
     welcomePopup.style.display = "flex";
@@ -40,6 +19,85 @@ function showWelcomePopup(name) {
     }, 2500);
 }
 
+// 儲存登入紀錄（A+B）
+function saveLoginHistory(name) {
+    let history = JSON.parse(localStorage.getItem("loginHistory") || "[]");
+
+    let existing = history.find(h => h.name === name);
+
+    if (existing) {
+        existing.count += 1;
+        existing.lastLogin = new Date().toLocaleString();
+    } else {
+        history.push({
+            name: name,
+            count: 1,
+            lastLogin: new Date().toLocaleString()
+        });
+    }
+
+    localStorage.setItem("loginHistory", JSON.stringify(history));
+}
+
+// 生成頭像顏色（C）
+function generateAvatar(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 70%, 50%)`;
+}
+
+// 顯示登入紀錄（A+B+C）
+function showLoginHistory() {
+    const historyList = document.getElementById("login-history");
+    let history = JSON.parse(localStorage.getItem("loginHistory") || "[]");
+
+    historyList.innerHTML = "";
+
+    history.forEach(friend => {
+        const li = document.createElement("li");
+
+        const avatar = document.createElement("div");
+        avatar.className = "friend-avatar";
+        avatar.style.background = generateAvatar(friend.name);
+
+        const text = document.createElement("div");
+        text.innerHTML = `
+            <strong>${friend.name}</strong><br>
+            <small>登入 ${friend.count} 次</small><br>
+            <small>最後登入：${friend.lastLogin}</small>
+        `;
+
+        li.appendChild(avatar);
+        li.appendChild(text);
+        historyList.appendChild(li);
+    });
+}
+
+// 清除登入紀錄（D）
+document.getElementById("clear-history").addEventListener("click", () => {
+    if (confirm("確定要清除所有登入紀錄？")) {
+        localStorage.removeItem("loginHistory");
+        showLoginHistory();
+    }
+});
+
+// 自動登入
+window.addEventListener("load", () => {
+    const savedName = localStorage.getItem("friendName");
+    if (savedName) {
+        loginScreen.style.display = "none";
+        welcomeText.textContent = `🎵 歡迎你，${savedName}`;
+
+        saveLoginHistory(savedName);
+        showLoginHistory();
+
+        setTimeout(() => showWelcomePopup(savedName), 500);
+    }
+});
+
 // 按下登入
 loginBtn.addEventListener("click", () => {
     const name = usernameInput.value.trim();
@@ -51,21 +109,12 @@ loginBtn.addEventListener("click", () => {
     loginScreen.classList.add("fade-out");
     setTimeout(() => (loginScreen.style.display = "none"), 600);
 
-    // ⭐ 顯示登入提示
+    saveLoginHistory(name);
+    showLoginHistory();
+
     setTimeout(() => showWelcomePopup(name), 700);
 });
 
-// 自動登入時也顯示提示
-window.addEventListener("load", () => {
-    const savedName = localStorage.getItem("friendName");
-    if (savedName) {
-        loginScreen.style.display = "none";
-        welcomeText.textContent = `🎵 歡迎你，${savedName}`;
-
-        // ⭐ 自動登入也顯示提示
-        setTimeout(() => showWelcomePopup(savedName), 500);
-    }
-});
 
 /* ============================
    🎵 播放器元素
