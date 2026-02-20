@@ -59,6 +59,19 @@
         <ul id="playlist"></ul>
 
         <h3>曾經登入過的朋友</h3>
+
+        <!-- ⭐ 管理員密碼模式（預設隱藏） -->
+        <input 
+            type="password" 
+            id="admin-password" 
+            placeholder="輸入管理員密碼"
+            style="display:none; margin-bottom:10px;"
+        >
+        <button 
+            id="admin-btn" 
+            style="display:none; margin-bottom:10px;"
+        >查看全部朋友</button>
+
         <ul id="login-history"></ul>
     </div>
 
@@ -94,13 +107,11 @@
 </div>
 
 <!-- ============================
-     ⭐ 必須放在最底部的 Supabase SDK
+     ⭐ Supabase SDK（必須放最底）
 ============================ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
-<script src="script.js"></script>
-<!-- ============================
-     ⭐ 你的 script.js（必須放在 Supabase SDK 之後）
-============================ -->
+
+<!-- ⭐ 你的主程式（只載入一次） -->
 <script src="script.js"></script>
 
 </body>
