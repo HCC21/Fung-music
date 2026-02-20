@@ -79,35 +79,6 @@ body {
 }
 
 /* ============================
-   🎉 登入後歡迎提示
-============================ */
-.welcome-popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 900;
-}
-
-.welcome-box {
-    background: rgba(0,0,0,0.85);
-    padding: 30px 40px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 0 20px #000;
-    animation: popIn 0.5s ease;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* ============================
    🎵 主容器
 ============================ */
 .container {
@@ -164,42 +135,6 @@ body {
     color: #000;
     font-weight: bold;
     transform: scale(1.03);
-}
-
-/* ============================
-   🎨 登入紀錄樣式
-============================ */
-#login-history li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #181818;
-    padding: 8px;
-    border-radius: 6px;
-    margin-bottom: 6px;
-}
-
-.friend-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.clear-btn {
-    margin-top: 10px;
-    width: 100%;
-    padding: 10px;
-    background: #b00020;
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.clear-btn:hover {
-    background: #d32f2f;
 }
 
 /* ============================
@@ -327,4 +262,32 @@ body {
     #progress {
         width: 70%;
     }
+}
+/* ============================
+   🎉 登入後歡迎提示
+============================ */
+.welcome-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 900;
+}
+
+.welcome-box {
+    background: rgba(0,0,0,0.85);
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 20px #000;
+    animation: popIn 0.5s ease;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
