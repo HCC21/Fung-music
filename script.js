@@ -2,44 +2,14 @@
    🎵 Supabase 初始化
 ============================ */
 const SUPABASE_URL ="https://dzaemdhyvcgstidhvykn.supabase.co";
-const SUPABASE_KEY ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6YWVtZGh5dmNnc3RpZGh2eWtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NzgyMDMsImV4cCI6MjA4NzE1NDIwM30.Rx6vmN3QPnF4vxKIQt6Okid6SYmwrGfyCpom1KtaEo8";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6YWVtZGh5dmNnc3RpZGh2eWtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NzgyMDMsImV4cCI6MjA4NzE1NDIwM30.Rx6vmN3QPnF4vxKIQt6Okid6SYmwrGfyCpom1KtaEo8";
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
 /* ============================
-   ⭐ 白名單 + 固定 3 位數字密碼
+   ⭐ 管理員設定
 ============================ */
-const USERS = {
-    "fungfung": "678",
-    "Manman": "107",
-    "莉莉": "123",
-    "271": "271",
-    "jackie": "173",
-    "Jason Tang": "021",
-    "Dawn": "678",
-    "Billy": "107",
-    "Grace": "456",
-    "Creamy": "578",
-    "Yuen": "987",
-    "Winnie": "777",
-    "Cherry": "555",
-    "星雲": "114",
-    "Linda": "654",
-    "Yuki": "871",
-    "Vivien": "107",
-    "Jen Jen": "111",
-    "Joey": "678",
-    "Monica": "222",
-    "June": "112",
-    "Tun": "113",
-    "Ying": "127",
-    "Mi": "121",
-
-
-
-};
-
-// ⭐ 管理員設定
 const ADMIN_NAME = "fungfung";
 const ADMIN_PASSWORD = "790614";
 
@@ -100,7 +70,7 @@ function generateAvatar(name) {
 }
 
 /* ============================
-   ⭐ Supabase：儲存登入紀錄
+   ⭐ 儲存登入紀錄
 ============================ */
 async function saveLoginHistory(name) {
     const { data: existing } = await supabase
@@ -129,14 +99,13 @@ async function saveLoginHistory(name) {
 }
 
 /* ============================
-   ⭐ 顯示自己登入紀錄
+   ⭐ 顯示登入紀錄
 ============================ */
 async function showLoginHistory(name) {
     const historyList = document.getElementById("login-history");
 
     let query = supabase.from("login_history").select("*");
 
-    // ⭐ 管理員顯示全部
     if (name !== ADMIN_NAME) {
         query = query.eq("name", name);
     }
@@ -169,6 +138,7 @@ async function showLoginHistory(name) {
         historyList.appendChild(li);
     });
 }
+
 /* ============================
    ⭐ 管理員：顯示全部登入紀錄
 ============================ */
@@ -185,9 +155,9 @@ async function loadAdminHistory() {
     history.forEach(friend => {
         const li = document.createElement("li");
         li.innerHTML = `
-    ${friend.name} — 登入 ${friend.count} 次（最後：${friend.last_login}）
-    <button class="delete-login" data-name="${friend.name}">刪除</button>
-`;
+            ${friend.name} — 登入 ${friend.count} 次（最後：${friend.last_login}）
+            <button class="delete-login" data-name="${friend.name}">刪除</button>
+        `;
         list.appendChild(li);
     });
 }
@@ -195,20 +165,29 @@ async function loadAdminHistory() {
 /* ============================
    ⭐ 開啟管理員後台
 ============================ */
-function openAdminPanel() {
+async function openAdminPanel() {
     adminPanel.style.display = "block";
 
     const list = document.getElementById("admin-user-list");
     list.innerHTML = "";
 
-    for (const name in USERS) {
+    const { data: users } = await supabase
+        .from("users")
+        .select("*")
+        .order("name");
+
+    users.forEach(u => {
         const li = document.createElement("li");
-        li.textContent = `${name} — 密碼：${USERS[name]}`;
+        li.textContent = `${u.name} — 密碼：${u.password}`;
         list.appendChild(li);
-    }
+    });
 
     loadAdminHistory();
 }
+
+/* ============================
+   ⭐ 刪除登入紀錄
+============================ */
 document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-login")) {
         const name = e.target.dataset.name;
@@ -220,21 +199,14 @@ document.addEventListener("click", async (e) => {
             .delete()
             .eq("name", name);
 
-        loadAdminHistory(); // 重新載入
+        loadAdminHistory();
     }
-});
-adminBtn.addEventListener("click", () => {
-    if (adminPasswordInput.value !== ADMIN_PASSWORD) {
-        alert("管理員密碼錯誤！");
-        return;
-    }
-    openAdminPanel();
 });
 
-adminClose.addEventListener("click", () => {
-    adminPanel.style.display = "none";
-});
-document.getElementById("add-user-btn").addEventListener("click", () => {
+/* ============================
+   ⭐ 新增帳號（寫入 Supabase）
+============================ */
+document.getElementById("add-user-btn").addEventListener("click", async () => {
     const newName = document.getElementById("new-user-name").value.trim();
     const newPass = document.getElementById("new-user-pass").value.trim();
 
@@ -243,40 +215,44 @@ document.getElementById("add-user-btn").addEventListener("click", () => {
         return;
     }
 
-    if (USERS[newName]) {
-        alert("此用戶已存在！");
-        return;
-    }
-
     if (newPass.length !== 3) {
         alert("密碼必須是 3 位數字！");
         return;
     }
 
-    USERS[newName] = newPass;
+    const { error } = await supabase
+        .from("users")
+        .insert({ name: newName, password: newPass });
+
+    if (error) {
+        alert("新增失敗，可能用戶已存在！");
+        return;
+    }
 
     alert(`成功新增：${newName}`);
 
     document.getElementById("new-user-name").value = "";
     document.getElementById("new-user-pass").value = "";
 
-    openAdminPanel(); // 重新載入白名單
+    openAdminPanel();
 });
 
 /* ============================
-   ⭐ 登入按鈕（白名單 + 密碼）
+   ⭐ 登入按鈕（Supabase 驗證）
 ============================ */
 loginBtn.addEventListener("click", async () => {
     const name = usernameInput.value.trim();
     const password = passwordInput.value.trim();
 
-    if (!USERS[name]) {
-        alert("❌ 此名字未被授權登入！");
-        return;
-    }
+    const { data: user } = await supabase
+        .from("users")
+        .select("*")
+        .eq("name", name)
+        .eq("password", password)
+        .single();
 
-    if (USERS[name] !== password) {
-        alert("❌ 密碼錯誤！");
+    if (!user) {
+        alert("❌ 名字或密碼錯誤！");
         return;
     }
 
@@ -293,9 +269,9 @@ loginBtn.addEventListener("click", async () => {
     await saveLoginHistory(name);
     await showLoginHistory(name);
 
-if (name === ADMIN_NAME) {
-    loadAdminHistory();   // ⭐ 管理員登入後顯示全部朋友紀錄
-}
+    if (name === ADMIN_NAME) {
+        loadAdminHistory();
+    }
 
     showWelcomePopup(name);
 });
@@ -317,13 +293,6 @@ logoutBtn.addEventListener("click", () => {
     welcomeText.textContent = "🎵 Fung Fung Music";
 
     document.getElementById("login-history").innerHTML = "";
-});
-
-/* ============================
-   ⭐ 自動登入（禁用）
-============================ */
-window.addEventListener("load", () => {
-    localStorage.removeItem("friendName");
 });
 
 /* ============================
@@ -447,6 +416,30 @@ nextBtn.addEventListener("click", () => {
 
 prevBtn.addEventListener("click", () => {
     playSong((currentIndex - 1 + songs.length) % songs.length);
+});
+/* ============================
+   ⭐ 開啟管理員後台按鈕事件
+============================ */
+adminBtn.addEventListener("click", () => {
+    const adminPass = adminPasswordInput.value.trim();
+
+    if (adminPass === ADMIN_PASSWORD) {
+        openAdminPanel();
+    } else {
+        alert("管理員密碼錯誤！");
+    }
+});
+
+/* ============================
+   ⭐ 關閉管理員後台
+============================ */
+adminClose.addEventListener("click", () => {
+    adminPanel.style.display = "none";
+});
+
+/* ⭐ 自動跳下一首 */
+audio.addEventListener("ended", () => {
+    playSong((currentIndex + 1) % songs.length);
 });
 
 audio.addEventListener("timeupdate", () => {
