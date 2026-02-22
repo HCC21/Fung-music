@@ -7,33 +7,89 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
 /* ============================
-   🎵 朋友登入系統
+   ⭐ 白名單 + 固定 3 位數字密碼
+============================ */
+const USERS = {
+    "fungfung": "678",
+    "Manman": "107",
+    "莉莉": "123",
+    "271": "271",
+    "jackie": "173",
+    "Jason Tang": "021",
+    "Dawn": "678",
+    "Billy": "107",
+    "Grace": "456",
+    "Creamy": "578",
+    "Yuen": "987",
+    "Winnie": "777",
+    "Cherry": "555",
+    "星雲": "114",
+    "Linda": "654",
+    "Yuki": "871",
+    "Vivien": "107",
+    "Jen Jen": "111",
+    "Joey": "678",
+    "Monica": "222",
+    "June": "112",
+    "Tun": "113",
+    "Ying": "127",
+    "Mi": "121",
+
+
+
+};
+
+// ⭐ 管理員設定
+const ADMIN_NAME = "fungfung";
+const ADMIN_PASSWORD = "790614";
+
+/* ============================
+   🎵 DOM 元素
 ============================ */
 const loginScreen = document.getElementById("login-screen");
 const loginBtn = document.getElementById("login-btn");
 const usernameInput = document.getElementById("username-input");
-const welcomeText = document.getElementById("welcome-text");
+const passwordInput = document.getElementById("password-input");
 
+const welcomeText = document.getElementById("welcome-text");
 const welcomePopup = document.getElementById("welcome-popup");
 const welcomePopupText = document.getElementById("welcome-popup-text");
 
-// 管理員模式元素
 const adminPasswordInput = document.getElementById("admin-password");
 const adminBtn = document.getElementById("admin-btn");
-const ADMIN_NAME = "fungfung";   // ⭐ 你嘅管理員登入名字
-const ADMIN_PASSWORD = "12345";  // ⭐ 你嘅管理員密碼
 
-// 顯示登入提示
+const adminPanel = document.getElementById("admin-panel");
+const adminClose = document.getElementById("admin-close");
+
+const logoutBtn = document.getElementById("logout-btn");
+
+const playlist = document.getElementById("playlist");
+const categories = document.getElementById("categories");
+const searchBox = document.getElementById("search");
+
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+const cover = document.getElementById("cover");
+const progress = document.getElementById("progress");
+const currentTimeText = document.getElementById("current");
+const durationText = document.getElementById("duration");
+
+const prevBtn = document.getElementById("prev");
+const playBtn = document.getElementById("play");
+const nextBtn = document.getElementById("next");
+
+/* ============================
+   🎉 登入提示
+============================ */
 function showWelcomePopup(name) {
     welcomePopupText.textContent = `🎉 歡迎你，${name}！`;
     welcomePopup.style.display = "flex";
-
-    setTimeout(() => {
-        welcomePopup.style.display = "none";
-    }, 2500);
+    setTimeout(() => welcomePopup.style.display = "none", 2500);
 }
 
-// 生成頭像顏色
+/* ============================
+   🎨 頭像顏色
+============================ */
 function generateAvatar(name) {
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
@@ -47,8 +103,6 @@ function generateAvatar(name) {
    ⭐ Supabase：儲存登入紀錄
 ============================ */
 async function saveLoginHistory(name) {
-    name = String(name);
-
     const { data: existing } = await supabase
         .from("login_history")
         .select("*")
@@ -75,22 +129,26 @@ async function saveLoginHistory(name) {
 }
 
 /* ============================
-   ⭐ Supabase：讀取登入紀錄（只睇自己）
+   ⭐ 顯示自己登入紀錄
 ============================ */
 async function showLoginHistory(name) {
     const historyList = document.getElementById("login-history");
 
-    const { data: history, error } = await supabase
-        .from("login_history")
-        .select("*")
-        .eq("name", name);
+    let query = supabase.from("login_history").select("*");
 
-    if (error || !history) {
+    // ⭐ 管理員顯示全部
+    if (name !== ADMIN_NAME) {
+        query = query.eq("name", name);
+    }
+
+    const { data: history } = await query.order("last_login", { ascending: false });
+
+    historyList.innerHTML = "";
+
+    if (!history || history.length === 0) {
         historyList.innerHTML = "<li>暫時沒有登入紀錄</li>";
         return;
     }
-
-    historyList.innerHTML = "";
 
     history.forEach(friend => {
         const li = document.createElement("li");
@@ -111,96 +169,122 @@ async function showLoginHistory(name) {
         historyList.appendChild(li);
     });
 }
-
 /* ============================
-   ⭐ 管理員模式：顯示全部朋友
+   ⭐ 管理員：顯示全部登入紀錄
 ============================ */
-async function showAllLoginHistory() {
-    const historyList = document.getElementById("login-history");
+async function loadAdminHistory() {
+    const list = document.getElementById("admin-history-list");
 
-    const { data: history, error } = await supabase
+    const { data: history } = await supabase
         .from("login_history")
         .select("*")
         .order("count", { ascending: false });
 
-    if (error || !history) {
-        historyList.innerHTML = "<li>暫時沒有登入紀錄</li>";
-        return;
-    }
-
-    historyList.innerHTML = "";
+    list.innerHTML = "";
 
     history.forEach(friend => {
         const li = document.createElement("li");
-
-        const avatar = document.createElement("div");
-        avatar.className = "friend-avatar";
-        avatar.style.background = generateAvatar(friend.name);
-
-        const text = document.createElement("div");
-        text.innerHTML = `
-            <strong>${friend.name}</strong><br>
-            <small>登入 ${friend.count} 次</small><br>
-            <small>最後登入：${friend.last_login}</small>
-        `;
-
-        li.appendChild(avatar);
-        li.appendChild(text);
-        historyList.appendChild(li);
+        li.innerHTML = `
+    ${friend.name} — 登入 ${friend.count} 次（最後：${friend.last_login}）
+    <button class="delete-login" data-name="${friend.name}">刪除</button>
+`;
+        list.appendChild(li);
     });
 }
 
 /* ============================
-   ⭐ 管理員按鈕事件
+   ⭐ 開啟管理員後台
 ============================ */
-adminBtn.addEventListener("click", async () => {
-    const input = adminPasswordInput.value;
+function openAdminPanel() {
+    adminPanel.style.display = "block";
 
-    if (input !== ADMIN_PASSWORD) {
-        alert("密碼錯誤！");
+    const list = document.getElementById("admin-user-list");
+    list.innerHTML = "";
+
+    for (const name in USERS) {
+        const li = document.createElement("li");
+        li.textContent = `${name} — 密碼：${USERS[name]}`;
+        list.appendChild(li);
+    }
+
+    loadAdminHistory();
+}
+document.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("delete-login")) {
+        const name = e.target.dataset.name;
+
+        if (!confirm(`確定要刪除 ${name} 的登入紀錄？`)) return;
+
+        await supabase
+            .from("login_history")
+            .delete()
+            .eq("name", name);
+
+        loadAdminHistory(); // 重新載入
+    }
+});
+adminBtn.addEventListener("click", () => {
+    if (adminPasswordInput.value !== ADMIN_PASSWORD) {
+        alert("管理員密碼錯誤！");
+        return;
+    }
+    openAdminPanel();
+});
+
+adminClose.addEventListener("click", () => {
+    adminPanel.style.display = "none";
+});
+document.getElementById("add-user-btn").addEventListener("click", () => {
+    const newName = document.getElementById("new-user-name").value.trim();
+    const newPass = document.getElementById("new-user-pass").value.trim();
+
+    if (!newName || !newPass) {
+        alert("請輸入名字和密碼！");
         return;
     }
 
-    await showAllLoginHistory();
-});
-
-/* ============================
-   ⭐ 自動登入
-============================ */
-window.addEventListener("load", async () => {
-    const savedName = localStorage.getItem("friendName");
-
-    if (savedName) {
-        loginScreen.style.display = "none";
-        welcomeText.textContent = `🎵 歡迎你，${savedName}`;
-
-        // ⭐ 如果係管理員 → 顯示密碼框
-        if (savedName === ADMIN_NAME) {
-            adminPasswordInput.style.display = "block";
-            adminBtn.style.display = "block";
-        }
-
-        await saveLoginHistory(savedName);
-        await showLoginHistory(savedName);
-
-        setTimeout(() => showWelcomePopup(savedName), 500);
+    if (USERS[newName]) {
+        alert("此用戶已存在！");
+        return;
     }
+
+    if (newPass.length !== 3) {
+        alert("密碼必須是 3 位數字！");
+        return;
+    }
+
+    USERS[newName] = newPass;
+
+    alert(`成功新增：${newName}`);
+
+    document.getElementById("new-user-name").value = "";
+    document.getElementById("new-user-pass").value = "";
+
+    openAdminPanel(); // 重新載入白名單
 });
 
 /* ============================
-   ⭐ 按下登入
+   ⭐ 登入按鈕（白名單 + 密碼）
 ============================ */
 loginBtn.addEventListener("click", async () => {
-    const name = String(usernameInput.value.trim());
-    if (name.length === 0) return;
+    const name = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!USERS[name]) {
+        alert("❌ 此名字未被授權登入！");
+        return;
+    }
+
+    if (USERS[name] !== password) {
+        alert("❌ 密碼錯誤！");
+        return;
+    }
 
     localStorage.setItem("friendName", name);
+
+    loginScreen.style.display = "none";
     welcomeText.textContent = `🎵 歡迎你，${name}`;
 
-    loginScreen.classList.add("fade-out");
-    setTimeout(() => (loginScreen.style.display = "none"), 600);
-
-    // ⭐ 如果係管理員 → 顯示密碼框
     if (name === ADMIN_NAME) {
         adminPasswordInput.style.display = "block";
         adminBtn.style.display = "block";
@@ -209,84 +293,45 @@ loginBtn.addEventListener("click", async () => {
     await saveLoginHistory(name);
     await showLoginHistory(name);
 
-    setTimeout(() => showWelcomePopup(name), 700);
+if (name === ADMIN_NAME) {
+    loadAdminHistory();   // ⭐ 管理員登入後顯示全部朋友紀錄
+}
+
+    showWelcomePopup(name);
 });
 
 /* ============================
-   🎵 播放器元素
+   ⭐ 登出功能
 ============================ */
-const audio = document.getElementById("audio");
-const title = document.getElementById("title");
-const cover = document.getElementById("cover");
-const playlist = document.getElementById("playlist");
-const categories = document.getElementById("categories");
-const bg = document.getElementById("bg");
+logoutBtn.addEventListener("click", () => {
+    audio.pause();
+    audio.currentTime = 0;
 
-const playBtn = document.getElementById("play");
-const prevBtn = document.getElementById("prev");
-const nextBtn = document.getElementById("next");
+    localStorage.removeItem("friendName");
 
-const progress = document.getElementById("progress");
-const currentTimeText = document.getElementById("current");
-const durationText = document.getElementById("duration");
-const searchBox = document.getElementById("search");
+    adminPasswordInput.style.display = "none";
+    adminBtn.style.display = "none";
+    adminPanel.style.display = "none";
 
+    loginScreen.style.display = "flex";
+    welcomeText.textContent = "🎵 Fung Fung Music";
+
+    document.getElementById("login-history").innerHTML = "";
+});
+
+/* ============================
+   ⭐ 自動登入（禁用）
+============================ */
+window.addEventListener("load", () => {
+    localStorage.removeItem("friendName");
+});
+
+/* ============================
+   🎵 生成 Playlist
+============================ */
 let currentIndex = -1;
 let songs = [];
 
-/* ============================
-   🎵 自動生成 Playlist
-============================ */
-const songsData = [
-    { name: "一千個願意", src: "music/一千個願意.mp3", cover: "covers/cover9.jpg", cat: "slow songs" },
-    { name: "遲來的春天", src: "music/遲來的春天.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
-    { name: "感情的段落", src: "music/感情的段落.mp3", cover: "covers/cover1.jpg", cat: "female" },
-    { name: "愛情是一種法國甜品", src: "music/愛情是一種法國甜品.mp3", cover: "covers/cover6.jpg", cat: "female" },
-    { name: "痛哭", src: "music/痛哭.mp3", cover: "covers/cover2.jpg", cat: "slow songs" },
-    { name: "最後的信仰", src: "music/最後的信仰.mp3", cover: "covers/cover5.jpg", cat: "female" },
-    { name: "雪中情", src: "music/雪中情.mp3", cover: "covers/cover8.jpg", cat: "slow songs" },
-    { name: "迷戀", src: "music/迷戀.mp3", cover: "covers/cover1.jpg", cat: "slow songs" },
-    { name: "記得", src: "music/記得.mp3", cover: "covers/cover1.jpg", cat: "slow songs" },
-    { name: "真情流露", src: "music/真情流露.mp3", cover: "covers/cover2.jpg", cat: "slow songs" },
-    { name: "相對無言", src: "music/相對無言.mp3", cover: "covers/cover4.jpg", cat: "slow songs" },
-    { name: "為何仍剩我一人", src: "music/為何仍剩我一人.mp3", cover: "covers/cover2.jpg", cat: "slow songs" },
-    { name: "柔情蜜意", src: "music/柔情蜜意.mp3", cover: "covers/cover1.jpg", cat: "slow songs" },
-    { name: "明目張膽", src: "music/明目張膽.mp3", cover: "covers/cover3.jpg", cat: "female" },
-    { name: "我是你未來", src: "music/我是你未來.mp3", cover: "covers/cover7.jpg", cat: "slow songs" },
-    { name: "吻感", src: "music/吻感.mp3", cover: "covers/cover6.jpg", cat: "slow songs" },
-    { name: "你狠心來傷我嗎", src: "music/你狠心來傷我嗎.mp3", cover: "covers/cover1.jpg", cat: "slow songs" },
-    { name: "再渡艷陽天", src: "music/再渡艷陽天.mp3", cover: "covers/cover2.jpg", cat: "female" },
-    { name: "心有獨鍾(鋼琴版)", src: "music/心有獨鍾(鋼琴版).mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
-    { name: "不要哭了", src: "music/不要哭了.mp3", cover: "covers/cover1.jpg", cat: "slow songs" },
-    { name: "千年女王", src: "music/千年女王.mp3", cover: "covers/cover3.jpg", cat: "kids" },
-    { name: "千年女王(傳說)", src: "music/千年女王(傳說).mp3", cover: "covers/cover5.jpg", cat: "kids" },
-    { name: "飄零燕", src: "music/飄零燕.mp3", cover: "covers/cover8.jpg", cat: "kids" },
-    { name: "1874", src: "music/1874.mp3", cover: "covers/cover5.jpg", cat: "slow songs" },
-    { name: "Sol4", src: "music/Sol4.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
-    { name: "一憶三千八天", src: "music/一憶三千八天.mp3", cover: "covers/cover2.jpg", cat: "slow songs" },
-    { name: "不見不散", src: "music/不見不散.mp3", cover: "covers/cover4.jpg", cat: "slow songs" },
-    { name: "你給我自信", src: "music/你給我自信.mp3", cover: "covers/cover1.jpg", cat: "fast songs" },
-    { name: "告訴我你會在夢境中等我", src: "music/告訴我你會在夢境中等我.mp3", cover: "covers/cover7.jpg", cat: "slow songs" },
-    { name: "我心不死", src: "music/我心不死.mp3", cover: "covers/cover2.jpg", cat: "female" },
-    { name: "我的親愛還是你", src: "music/我的親愛還是你.mp3", cover: "covers/cover6.jpg", cat: "slow songs" },
-    { name: "我這樣愛你", src: "music/我這樣愛你.mp3", cover: "covers/cover7.jpg", cat: "slow songs" },
-    { name: "我愛玫瑰園", src: "music/我愛玫瑰園.mp3", cover: "covers/cover8.jpg", cat: "fast songs" },
-    { name: "沒有你的愛", src: "music/沒有你的愛.mp3", cover: "covers/cover1.jpg", cat: "slow songs" },
-    { name: "初戀", src: "music/初戀.mp3", cover: "covers/cover5.jpg", cat: "female" },
-    { name: "送曲送給你", src: "music/送曲送給你.mp3", cover: "covers/cover7.jpg", cat: "slow songs" },
-    { name: "送你一瓣的雪花", src: "music/送你一瓣的雪花.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
-    { name: "假的戀愛", src: "music/假的戀愛.mp3", cover: "covers/cover4.jpg", cat: "female" },
-    { name: "富士山下", src: "music/富士山下.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
-    { name: "棉胎", src: "music/棉胎.mp3", cover: "covers/cover6.jpg", cat: "female" },
-    { name: "無心快語", src: "music/無心快語.mp3", cover: "covers/cover7.jpg", cat: "fast songs" },
-    { name: "給自己的情書", src: "music/給自己的情書.mp3", cover: "covers/cover4.jpg", cat: "female" },
-    { name: "媽咪與天父", src: "music/媽咪與天父.mp3", cover: "covers/cover8.jpg", cat: "festival" },
-    { name: "暸解你的所有", src: "music/暸解你的所有.mp3", cover: "covers/cover2.jpg", cat: "slow songs" },
-    { name: "離開請關燈", src: "music/離開請關燈.mp3", cover: "covers/cover3.jpg", cat: "female" },
-    { name: "魔法奇緣之媽媽知道", src: "music/魔法奇緣之媽媽知道.mp3", cover: "covers/cover5.jpg", cat: "kids" }
-];
-
-// 生成 playlist
 function generatePlaylist() {
     playlist.innerHTML = "";
     songsData.forEach((song, index) => {
@@ -298,14 +343,61 @@ function generatePlaylist() {
         li.dataset.index = index;
         playlist.appendChild(li);
     });
-
     songs = [...playlist.querySelectorAll("li")];
 }
 
 generatePlaylist();
 
 /* ============================
-   🎵 播放功能
+   🔍 搜尋功能
+============================ */
+searchBox.addEventListener("input", () => {
+    const keyword = searchBox.value.trim().toLowerCase();
+
+    playlist.innerHTML = "";
+
+    songsData
+        .filter(song => song.name.toLowerCase().includes(keyword))
+        .forEach((song, index) => {
+            const li = document.createElement("li");
+            li.textContent = song.name;
+            li.dataset.src = song.src;
+            li.dataset.cover = song.cover;
+            li.dataset.cat = song.cat;
+            li.dataset.index = index;
+            playlist.appendChild(li);
+        });
+
+    songs = [...playlist.querySelectorAll("li")];
+});
+
+/* ============================
+   ⭐ 分類功能
+============================ */
+categories.addEventListener("click", e => {
+    if (e.target.tagName !== "LI") return;
+
+    const selectedCat = e.target.dataset.cat;
+
+    playlist.innerHTML = "";
+
+    songsData
+        .filter(song => selectedCat === "all" || song.cat === selectedCat)
+        .forEach((song, index) => {
+            const li = document.createElement("li");
+            li.textContent = song.name;
+            li.dataset.src = song.src;
+            li.dataset.cover = song.cover;
+            li.dataset.cat = song.cat;
+            li.dataset.index = index;
+            playlist.appendChild(li);
+        });
+
+    songs = [...playlist.querySelectorAll("li")];
+});
+
+/* ============================
+   🎵 播放器功能
 ============================ */
 function highlightSong() {
     songs.forEach(li => li.classList.remove("active"));
@@ -321,8 +413,6 @@ function playSong(index) {
     audio.src = item.dataset.src;
     cover.src = item.dataset.cover;
     title.textContent = item.textContent;
-
-    bg.style.backgroundImage = `url(${item.dataset.cover})`;
 
     audio.play();
     cover.style.animationPlayState = "running";
@@ -344,12 +434,10 @@ playBtn.addEventListener("click", () => {
         audio.play();
         cover.style.animationPlayState = "running";
         playBtn.textContent = "⏸️";
-        playBtn.classList.add("playing");
     } else {
         audio.pause();
         cover.style.animationPlayState = "paused";
         playBtn.textContent = "▶️";
-        playBtn.classList.remove("playing");
     }
 });
 
@@ -361,37 +449,6 @@ prevBtn.addEventListener("click", () => {
     playSong((currentIndex - 1 + songs.length) % songs.length);
 });
 
-audio.addEventListener("ended", () => nextBtn.click());
-
-/* ============================
-   🎵 搜尋功能
-============================ */
-searchBox.addEventListener("input", () => {
-    const keyword = searchBox.value.toLowerCase();
-
-    songs.forEach(li => {
-        const name = li.textContent.toLowerCase();
-        li.style.display = name.includes(keyword) ? "block" : "none";
-    });
-});
-
-/* ============================
-   🎵 分類功能
-============================ */
-categories.addEventListener("click", e => {
-    if (e.target.tagName !== "LI") return;
-
-    const cat = e.target.dataset.cat;
-
-    songs.forEach(song => {
-        song.style.display =
-            cat === "all" || song.dataset.cat === cat ? "block" : "none";
-    });
-});
-
-/* ============================
-   🎵 進度條
-============================ */
 audio.addEventListener("timeupdate", () => {
     if (!audio.duration) return;
 

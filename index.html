@@ -1,118 +1,97 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-    <meta charset="UTF-8">
-    <title>Fung Fung Music</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Fung Fung Music</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ============================
-     🎵 全屏登入頁
-============================ -->
+<!-- 🎵 登入畫面 -->
 <div id="login-screen" class="login-screen">
-    <div class="login-box">
-        <h1>🎵 Fung Fung Music</h1>
-        <p>請輸入你的名字</p>
-        <input type="text" id="username-input" placeholder="你的名字">
-        <button id="login-btn">開始聽歌</button>
-    </div>
+  <div class="login-box">
+    <h1>🎵 Fung Fung Music</h1>
+    <p>朋友請登入</p>
+    <input type="text" id="username-input" placeholder="名字">
+    <input type="password" id="password-input" placeholder="密碼">
+    <button id="login-btn">登入</button>
+  </div>
 </div>
 
-<!-- ============================
-     🎉 登入後歡迎提示
-============================ -->
+<!-- 🎉 登入後歡迎提示 -->
 <div id="welcome-popup" class="welcome-popup">
-    <div class="welcome-box">
-        <h2 id="welcome-popup-text"></h2>
-        <p>祝你聽歌愉快！</p>
-    </div>
+  <div class="welcome-box">
+    <h2 id="welcome-popup-text"></h2>
+    <p>祝你聽歌愉快！</p>
+  </div>
 </div>
 
-<!-- 動態背景 -->
-<div id="bg" class="dynamic-bg"></div>
+<!-- 🎛️ 管理員密碼輸入框（登入後顯示） -->
+<input type="password" id="admin-password" placeholder="管理員密碼" style="display:none;">
+<button id="admin-btn" style="display:none;">開啟管理員後台</button>
 
+<!-- 🎛️ 管理員後台頁面 -->
+<div id="admin-panel" class="admin-panel" style="display:none;">
+  <h2>管理員後台</h2>
+  <h3>允許登入的用戶（白名單）</h3>
+  <ul id="admin-user-list"></ul>
+  <h3>所有登入紀錄</h3>
+  <ul id="admin-history-list"></ul>
+  <button id="admin-close">關閉管理員頁面</button>
+<h3>新增朋友帳號</h3>
+<input type="text" id="new-user-name" placeholder="名字">
+<input type="password" id="new-user-pass" placeholder="密碼（3位數字）">
+<button id="add-user-btn">新增帳號</button>
+</div>
+
+<!-- 🎵 主頁內容 -->
 <div class="container">
+  <div class="sidebar">
+    <h2 id="welcome-text">🎵 Fung Fung Music</h2>
+    <input type="text" id="search" placeholder="搜尋歌曲..." class="search-box">
+    <h3>分類 Categories</h3>
+    <ul id="categories">
+      <li data-cat="all">全部歌曲</li>
+      <li data-cat="slow songs">慢歌</li>
+      <li data-cat="fast songs">快歌</li>
+      <li data-cat="female">女歌男唱</li>
+      <li data-cat="kids">兒歌/卡通</li>
+      <li data-cat="opera">粵曲</li>
+      <li data-cat="festival">節日</li>
+      <li data-cat="other">其他</li>
+    </ul>
+    <h3>播放清單 Playlist</h3>
+    <ul id="playlist"></ul>
+    <h3>曾經登入過的朋友</h3>
+    <ul id="login-history"></ul>
 
-    <!-- ============================
-         🎵 Sidebar
-    ============================ -->
-    <div class="sidebar">
-        <h2 id="welcome-text">🎵 Fung Fung Music</h2>
+<button id="logout-btn" class="logout-btn">登出</button>
+  </div>
 
-        <!-- 搜尋框 -->
-        <input type="text" id="search" placeholder="搜尋歌曲..." class="search-box">
-
-        <h3>分類 Categories</h3>
-        <ul id="categories">
-            <li data-cat="all">全部歌曲</li>
-            <li data-cat="slow songs">慢歌 Slow song</li>
-            <li data-cat="fast songs">快歌 Fast song</li>
-            <li data-cat="female">女歌男唱 Female</li>
-            <li data-cat="kids">兒歌/卡通 Kids/Cartoon</li>
-            <li data-cat="opera">粵曲 Cantonese opera</li>
-            <li data-cat="festival">節日 Festival</li>
-            <li data-cat="other">其他 Other</li>
-        </ul>
-
-        <h3>播放清單 Playlist</h3>
-        <ul id="playlist"></ul>
-
-        <h3>曾經登入過的朋友</h3>
-
-        <!-- ⭐ 管理員密碼模式（預設隱藏） -->
-        <input 
-            type="password" 
-            id="admin-password" 
-            placeholder="輸入管理員密碼"
-            style="display:none; margin-bottom:10px;"
-        >
-        <button 
-            id="admin-btn" 
-            style="display:none; margin-bottom:10px;"
-        >查看全部朋友</button>
-
-        <ul id="login-history"></ul>
+  <div class="player-area">
+    <div class="cd-wrapper">
+      <img id="cover" src="covers/default.jpg" class="cd">
     </div>
-
-    <!-- ============================
-         🎵 Player Area
-    ============================ -->
-    <div class="player-area">
-
-        <!-- CD 光暈 + 圓形旋轉 -->
-        <div class="cd-wrapper">
-            <img id="cover" src="covers/default.jpg" class="cd">
-        </div>
-
-        <h2 id="title">選擇一首歌播放</h2>
-
-        <audio id="audio"></audio>
-
-        <!-- 進度條 -->
-        <div class="progress-container">
-            <span id="current">0:00</span>
-            <input type="range" id="progress" value="0" min="0" max="100">
-            <span id="duration">0:00</span>
-        </div>
-
-        <!-- 控制按鈕 -->
-        <div class="controls">
-            <button id="prev">⏮️</button>
-            <button id="play" class="play-btn">▶️</button>
-            <button id="next">⏭️</button>
-        </div>
+    <h2 id="title">選擇一首歌播放</h2>
+    <audio id="audio"></audio>
+    <div class="progress-container">
+      <span id="current">0:00</span>
+      <input type="range" id="progress" value="0" min="0" max="100">
+      <span id="duration">0:00</span>
     </div>
-
+    <div class="controls">
+      <button id="prev">⏮️</button>
+      <button id="play" class="play-btn">▶️</button>
+      <button id="next">⏭️</button>
+    </div>
+  </div>
 </div>
 
-<!-- ============================
-     ⭐ Supabase SDK（必須放最底）
-============================ -->
+<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
-
-<!-- ⭐ 你的主程式（只載入一次） -->
+<script src="songsData.js"></script>
 <script src="script.js"></script>
 
+<canvas id="fireworks"></canvas>
 </body>
 </html>
