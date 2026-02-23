@@ -62,7 +62,8 @@ body {
     margin-bottom: 20px;
 }
 
-#username-input {
+#username-input,
+#password-input {
     width: 80%;
     padding: 12px;
     border-radius: 8px;
@@ -92,6 +93,7 @@ body {
     display: flex;
     height: 100vh;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* ============================
@@ -102,6 +104,8 @@ body {
     background: #000;
     padding: 20px;
     overflow-y: auto;
+    height: 100vh; /* ⭐ 修正排版 */
+    box-sizing: border-box;
 }
 
 .sidebar h2, .sidebar h3 {
@@ -149,8 +153,11 @@ body {
 ============================ */
 .player-area {
     flex: 1;
-    text-align: center;
-    padding-top: 50px;
+    display: flex;              /* ⭐ 置中排版 */
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+    overflow-y: auto;
 }
 
 /* CD 光暈效果 */
@@ -211,6 +218,10 @@ body {
     transition: 0.2s;
 }
 
+.controls button:hover {
+    background: #1ed760;
+}
+
 /* ⭐ 播放按鈕動畫 */
 .play-btn.playing {
     animation: pulse 1s infinite ease-in-out;
@@ -222,8 +233,14 @@ body {
     100% { transform: scale(1); }
 }
 
-.controls button:hover {
-    background: #1ed760;
+/* ============================
+   🎵 Playlist 區域
+============================ */
+#playlist {
+    width: 80%;
+    max-height: 40vh;   /* ⭐ 防止推亂排版 */
+    overflow-y: auto;
+    margin-top: 20px;
 }
 
 /* ============================
@@ -270,6 +287,7 @@ body {
         width: 70%;
     }
 }
+
 /* ============================
    🎉 登入後歡迎提示
 ============================ */
@@ -297,4 +315,101 @@ body {
 @keyframes popIn {
     0% { transform: scale(0.6); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
+}
+/* ============================
+   🎛️ 管理員後台排版
+============================ */
+.admin-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #181818;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    z-index: 9999;
+    color: #fff;
+}
+
+.admin-panel h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.admin-panel h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-left: 4px solid #1DB954;
+    padding-left: 8px;
+}
+
+.admin-panel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-panel li {
+    background: #222;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-panel li button {
+    background: #ff4d4d;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.admin-panel li button:hover {
+    background: #ff6666;
+}
+
+.admin-panel input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 10px;
+    background: #222;
+    color: #fff;
+}
+
+#add-user-btn {
+    width: 100%;
+    padding: 12px;
+    background: #1DB954;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+#add-user-btn:hover {
+    background: #1ed760;
+}
+
+#admin-close {
+    width: 100%;
+    padding: 12px;
+    background: #444;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+#admin-close:hover {
+    background: #555;
 }
