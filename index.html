@@ -26,7 +26,7 @@
   </div>
 </div>
 
-<!-- 🎛️ 管理員密碼輸入框（登入 fungfung 後顯示） -->
+<!-- 🎛️ 管理員密碼輸入框 -->
 <input type="password" id="admin-password" placeholder="管理員密碼" style="display:none;">
 <button id="admin-btn" style="display:none;">開啟管理員後台</button>
 
@@ -54,14 +54,22 @@
     <h2 id="welcome-text">🎵 Fung Fung Music</h2>
 
     <input type="text" id="search" placeholder="搜尋歌曲..." class="search-box">
-<h3>主題 Theme</h3>
-<select id="theme-select">
-  <option value="theme-default">預設</option>
-  <option value="theme-sakura">櫻花模式</option>
-  <option value="theme-tech">科技模式</option>
-  <option value="theme-cartoon">卡通模式</option>
-  <option value="theme-light">亮色模式</option>
- </select>
+
+    <h3>主題 Theme</h3>
+    <select id="theme-select">
+      <option value="theme-default">預設</option>
+      <option value="theme-sakura">櫻花模式</option>
+      <option value="theme-tech">科技模式</option>
+      <option value="theme-cartoon">卡通模式</option>
+      <option value="theme-light">亮色模式</option>
+    </select>
+
+    <h3>🎮 小遊戲 Game Center</h3>
+    <ul id="game-center">
+      <li id="game-sakura">🌸 櫻花接花 Sakura Catch</li>
+      <li id="game-tech">🟦 科技反應 Cyber Reflex</li>
+      <li id="game-cartoon">🎨 卡通跳跳樂 Cartoon Jump</li>
+    </ul>
 
     <h3>分類 Categories</h3>
     <ul id="categories">
@@ -73,7 +81,6 @@
       <li data-cat="opera">粵曲</li>
       <li data-cat="festival">節日</li>
       <li data-cat="other">其他</li>
-      <li data-cat="all">全部歌曲</li>
     </ul>
 
     <h3>播放清單 Playlist</h3>
@@ -107,13 +114,23 @@
   </div>
 </div>
 
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+<!-- 🎆 登入煙花（必須放在 script.js 之前） -->
+<canvas id="fireworks"></canvas>
+
+<!-- 🎮 小遊戲 Modal（必須放在 script.js 之前） -->
+<div id="game-modal" class="game-modal">
+  <div class="game-box">
+    <button id="game-close" class="game-close">✖</button>
+    <canvas id="game-canvas"></canvas>
+    <div id="game-ui"></div>
+  </div>
+</div>
+
+<!-- Supabase SDK（只保留一行） -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+
 <script src="songsData.js"></script>
 <script src="script.js"></script>
-
-<!-- 🎆 登入煙花 -->
-<canvas id="fireworks"></canvas>
 
 </body>
 </html>

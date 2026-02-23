@@ -774,3 +774,90 @@ body {
 .theme-light .cd-wrapper {
     filter: drop-shadow(0 0 25px #1DB954);
 }
+/* ============================
+   🎮 小遊戲 Modal
+============================ */
+.game-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+.game-box {
+    background: #111;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    position: relative;
+}
+
+.game-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff4d4d;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+}
+
+#game-canvas {
+    background: #000;
+    width: 400px;
+    height: 400px;
+    display: block;
+}
+
+#game-ui {
+    margin-top: 10px;
+    text-align: center;
+    color: white;
+}
+/* 🌸 櫻花模式遊戲配色 */
+.theme-sakura #game-canvas {
+    background: #ffeaf4;
+}
+
+.theme-sakura .game-box {
+    background: #ffd6e8;
+}
+
+.theme-sakura .game-close {
+    background: #ff8fb3;
+}
+/* 🟦 科技模式遊戲配色 */
+.theme-tech #game-canvas {
+    background: #0a0f1f;
+}
+
+.theme-tech .game-box {
+    background: #0d1228;
+    border: 1px solid #1e2a4a;
+}
+
+.theme-tech .game-close {
+    background: #00eaff;
+    color: #00121a;
+}
+/* 🎨 卡通模式遊戲配色 */
+.theme-cartoon #game-canvas {
+    background: #fff7d1;
+}
+
+.theme-cartoon .game-box {
+    background: #ffe9a3;
+}
+
+.theme-cartoon .game-close {
+    background: #ffcc00;
+    color: #000;
+}
