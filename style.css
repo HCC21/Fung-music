@@ -143,22 +143,6 @@ body {
     font-weight: bold;
     transform: scale(1.03);
 }
-.dark-mode {
-    background: #111;
-    color: #eee;
-}
-
-.dark-mode .sidebar {
-    background: #1a1a1a;
-}
-
-.dark-mode .player-area {
-    background: #222;
-}
-
-.dark-mode li {
-    color: #ddd;
-}
 
 /* ============================
    🎵 Player Area
@@ -313,82 +297,4 @@ body {
 @keyframes popIn {
     0% { transform: scale(0.6); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
-}
-/* ============================
-   🌙 深色模式（Pro 版）
-============================ */
-.dark-mode {
-    background: #0f0f0f;
-    color: #f2f2f2;
-}
-
-/* Sidebar */
-.dark-mode .sidebar {
-    background: #1a1a1a;
-    border-right: 1px solid #333;
-}
-
-.dark-mode .sidebar h2,
-.dark-mode .sidebar h3 {
-    color: #fff;
-}
-
-.dark-mode .sidebar li {
-    color: #ddd;
-}
-
-.dark-mode .sidebar li:hover {
-    background: #333;
-}
-
-/* Player Area */
-.dark-mode .player-area {
-    background: #181818;
-    border-left: 1px solid #333;
-}
-
-.dark-mode #title {
-    color: #fff;
-}
-
-/* Buttons */
-.dark-mode button {
-    background: #333;
-    color: #fff;
-    border: 1px solid #555;
-}
-
-.dark-mode button:hover {
-    background: #444;
-}
-
-/* Search Box */
-.dark-mode .search-box {
-    background: #222;
-    color: #fff;
-    border: 1px solid #444;
-}
-
-/* Playlist */
-.dark-mode #playlist li {
-    background: #222;
-    color: #eee;
-}
-
-.dark-mode #playlist li.active {
-    background: #444;
-    color: #fff;
-}
-
-/* Admin Panel */
-.dark-mode #admin-panel {
-    background: #1c1c1c;
-    color: #fff;
-    border: 1px solid #444;
-}
-
-.dark-mode #admin-panel input {
-    background: #222;
-    color: #fff;
-    border: 1px solid #444;
 }

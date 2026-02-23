@@ -1,10 +1,11 @@
 /* ============================
    🎵 Supabase 初始化
 ============================ */
-const SUPABASE_URL = "https://dzaemdhyvcgstidhvykn.supabase.co";
+const SUPABASE_URL ="https://dzaemdhyvcgstidhvykn.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6YWVtZGh5dmNnc3RpZGh2eWtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NzgyMDMsImV4cCI6MjA4NzE1NDIwM30.Rx6vmN3QPnF4vxKIQt6Okid6SYmwrGfyCpom1KtaEo8";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 
 /* ============================
    ⭐ 管理員設定
@@ -53,7 +54,7 @@ const nextBtn = document.getElementById("next");
 function showWelcomePopup(name) {
     welcomePopupText.textContent = `🎉 歡迎你，${name}！`;
     welcomePopup.style.display = "flex";
-    setTimeout(() => (welcomePopup.style.display = "none"), 2500);
+    setTimeout(() => welcomePopup.style.display = "none", 2500);
 }
 
 /* ============================
@@ -87,16 +88,18 @@ async function saveLoginHistory(name) {
             })
             .eq("name", name);
     } else {
-        await supabase.from("login_history").insert({
-            name: name,
-            count: 1,
-            last_login: new Date().toLocaleString()
-        });
+        await supabase
+            .from("login_history")
+            .insert({
+                name: name,
+                count: 1,
+                last_login: new Date().toLocaleString()
+            });
     }
 }
 
 /* ============================
-   ⭐ 顯示登入紀錄（左邊）
+   ⭐ 顯示登入紀錄
 ============================ */
 async function showLoginHistory(name) {
     const historyList = document.getElementById("login-history");
@@ -107,9 +110,7 @@ async function showLoginHistory(name) {
         query = query.eq("name", name);
     }
 
-    const { data: history } = await query.order("last_login", {
-        ascending: false
-    });
+    const { data: history } = await query.order("last_login", { ascending: false });
 
     historyList.innerHTML = "";
 
@@ -139,7 +140,7 @@ async function showLoginHistory(name) {
 }
 
 /* ============================
-   ⭐ 管理員：顯示登入次數列表
+   ⭐ 管理員：顯示全部登入紀錄
 ============================ */
 async function loadAdminHistory() {
     const list = document.getElementById("admin-history-list");
@@ -150,11 +151,6 @@ async function loadAdminHistory() {
         .order("count", { ascending: false });
 
     list.innerHTML = "";
-
-    if (!history || history.length === 0) {
-        list.innerHTML = "<li>暫時沒有登入紀錄</li>";
-        return;
-    }
 
     history.forEach(friend => {
         const li = document.createElement("li");
@@ -167,12 +163,11 @@ async function loadAdminHistory() {
 }
 
 /* ============================
-   ⭐ 開啟管理員後台（含播放紀錄）
+   ⭐ 開啟管理員後台
 ============================ */
 async function openAdminPanel() {
     adminPanel.style.display = "block";
 
-    // 用戶列表
     const list = document.getElementById("admin-user-list");
     list.innerHTML = "";
 
@@ -181,49 +176,28 @@ async function openAdminPanel() {
         .select("*")
         .order("name");
 
-    if (users) {
-        users.forEach(u => {
-            const li = document.createElement("li");
-            li.textContent = `${u.name} — 密碼：${u.password}`;
-            list.appendChild(li);
-        });
-    }
+    users.forEach(u => {
+        const li = document.createElement("li");
+        li.textContent = `${u.name} — 密碼：${u.password}`;
+        list.appendChild(li);
+    });
 
-    // 登入次數
-    await loadAdminHistory();
-
-    // 播放紀錄
-    const playList = document.getElementById("admin-play-history");
-    if (playList) {
-        playList.innerHTML = "";
-
-        const { data: plays } = await supabase
-            .from("play_history")
-            .select("*")
-            .order("time", { ascending: false });
-
-        if (!plays || plays.length === 0) {
-            playList.innerHTML = "<li>暫時沒有播放紀錄</li>";
-        } else {
-            plays.forEach(p => {
-                const li = document.createElement("li");
-                li.innerHTML = `${p.name} 聽了 <strong>${p.song}</strong>（${p.time}）`;
-                playList.appendChild(li);
-            });
-        }
-    }
+    loadAdminHistory();
 }
 
 /* ============================
    ⭐ 刪除登入紀錄
 ============================ */
-document.addEventListener("click", async e => {
+document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-login")) {
         const name = e.target.dataset.name;
 
         if (!confirm(`確定要刪除 ${name} 的登入紀錄？`)) return;
 
-        await supabase.from("login_history").delete().eq("name", name);
+        await supabase
+            .from("login_history")
+            .delete()
+            .eq("name", name);
 
         loadAdminHistory();
     }
@@ -262,6 +236,7 @@ document.getElementById("add-user-btn").addEventListener("click", async () => {
 
     openAdminPanel();
 });
+
 /* ============================
    ⭐ 登入按鈕（Supabase 驗證）
 ============================ */
@@ -287,40 +262,18 @@ loginBtn.addEventListener("click", async () => {
     welcomeText.textContent = `🎵 歡迎你，${name}`;
 
     if (name === ADMIN_NAME) {
-        adminPasswordInput.style.display = "none";
-        adminBtn.style.display = "none";
-        openAdminPanel();
+        adminPasswordInput.style.display = "block";
+        adminBtn.style.display = "block";
     }
 
     await saveLoginHistory(name);
+    await showLoginHistory(name);
 
     if (name === ADMIN_NAME) {
-        await showLoginHistory(ADMIN_NAME);
-    } else {
-        await showLoginHistory(name);
+        loadAdminHistory();
     }
 
     showWelcomePopup(name);
-});
-
-/* ============================
-   ⭐ 開啟管理員後台按鈕事件（備用）
-============================ */
-adminBtn.addEventListener("click", () => {
-    const adminPass = adminPasswordInput.value.trim();
-
-    if (adminPass === ADMIN_PASSWORD) {
-        openAdminPanel();
-    } else {
-        alert("管理員密碼錯誤！");
-    }
-});
-
-/* ============================
-   ⭐ 關閉管理員後台
-============================ */
-adminClose.addEventListener("click", () => {
-    adminPanel.style.display = "none";
 });
 
 /* ============================
@@ -352,9 +305,7 @@ function generatePlaylist() {
     playlist.innerHTML = "";
     songsData.forEach((song, index) => {
         const li = document.createElement("li");
-        li.textContent = song.play_count
-            ? `${song.name} (${song.play_count} 次)`
-            : song.name;
+        li.textContent = song.name;
         li.dataset.src = song.src;
         li.dataset.cover = song.cover;
         li.dataset.cat = song.cat;
@@ -378,9 +329,7 @@ searchBox.addEventListener("input", () => {
         .filter(song => song.name.toLowerCase().includes(keyword))
         .forEach((song, index) => {
             const li = document.createElement("li");
-            li.textContent = song.play_count
-                ? `${song.name} (${song.play_count} 次)`
-                : song.name;
+            li.textContent = song.name;
             li.dataset.src = song.src;
             li.dataset.cover = song.cover;
             li.dataset.cat = song.cat;
@@ -402,14 +351,10 @@ categories.addEventListener("click", e => {
     playlist.innerHTML = "";
 
     songsData
-        .filter(
-            song => selectedCat === "all" || song.cat === selectedCat
-        )
+        .filter(song => selectedCat === "all" || song.cat === selectedCat)
         .forEach((song, index) => {
             const li = document.createElement("li");
-            li.textContent = song.play_count
-                ? `${song.name} (${song.play_count} 次)`
-                : song.name;
+            li.textContent = song.name;
             li.dataset.src = song.src;
             li.dataset.cover = song.cover;
             li.dataset.cat = song.cat;
@@ -428,7 +373,7 @@ function highlightSong() {
     if (songs[currentIndex]) songs[currentIndex].classList.add("active");
 }
 
-async function playSong(index) {
+function playSong(index) {
     const item = songs[index];
     if (!item) return;
 
@@ -445,13 +390,6 @@ async function playSong(index) {
     playBtn.classList.add("playing");
 
     highlightSong();
-
-    // ⭐ 記錄播放歷史（只有管理員會看）
-    await supabase.from("play_history").insert({
-        name: localStorage.getItem("friendName"),
-        song: item.textContent,
-        time: new Date().toLocaleString()
-    });
 }
 
 playlist.addEventListener("click", e => {
@@ -473,53 +411,34 @@ playBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
-    if (!songs.length) return;
     playSong((currentIndex + 1) % songs.length);
 });
 
 prevBtn.addEventListener("click", () => {
-    if (!songs.length) return;
     playSong((currentIndex - 1 + songs.length) % songs.length);
+});
+/* ============================
+   ⭐ 開啟管理員後台按鈕事件
+============================ */
+adminBtn.addEventListener("click", () => {
+    const adminPass = adminPasswordInput.value.trim();
+
+    if (adminPass === ADMIN_PASSWORD) {
+        openAdminPanel();
+    } else {
+        alert("管理員密碼錯誤！");
+    }
 });
 
 /* ============================
-   ⭐ 隨機播放 + 單曲循環
+   ⭐ 關閉管理員後台
 ============================ */
-let isShuffle = false;
-let isRepeat = false;
+adminClose.addEventListener("click", () => {
+    adminPanel.style.display = "none";
+});
 
-const shuffleBtn = document.getElementById("shuffle");
-const repeatBtn = document.getElementById("repeat");
-
-if (shuffleBtn) {
-    shuffleBtn.addEventListener("click", () => {
-        isShuffle = !isShuffle;
-        shuffleBtn.style.opacity = isShuffle ? "1" : "0.4";
-    });
-}
-
-if (repeatBtn) {
-    repeatBtn.addEventListener("click", () => {
-        isRepeat = !isRepeat;
-        repeatBtn.textContent = isRepeat ? "🔂" : "🔁";
-    });
-}
-
-/* ⭐ 自動跳下一首（唯一版本） */
+/* ⭐ 自動跳下一首 */
 audio.addEventListener("ended", () => {
-    if (!songs.length) return;
-
-    if (isRepeat) {
-        playSong(currentIndex);
-        return;
-    }
-
-    if (isShuffle) {
-        const next = Math.floor(Math.random() * songs.length);
-        playSong(next);
-        return;
-    }
-
     playSong((currentIndex + 1) % songs.length);
 });
 
@@ -532,42 +451,12 @@ audio.addEventListener("timeupdate", () => {
 });
 
 progress.addEventListener("input", () => {
-    if (!audio.duration) return;
     audio.currentTime = (progress.value / 100) * audio.duration;
 });
 
 function formatTime(sec) {
     if (isNaN(sec)) return "0:00";
     const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60)
-        .toString()
-        .padStart(2, "0");
+    const s = Math.floor(sec % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
 }
-
-/* ============================
-   ⭐ 深色模式切換
-============================ */
-const themeToggle = document.getElementById("theme-toggle");
-
-function applyTheme() {
-    const mode = localStorage.getItem("theme") || "light";
-    if (mode === "dark") {
-        document.body.classList.add("dark-mode");
-        if (themeToggle) themeToggle.textContent = "☀️ 淺色模式";
-    } else {
-        document.body.classList.remove("dark-mode");
-        if (themeToggle) themeToggle.textContent = "🌙 深色模式";
-    }
-}
-
-if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-        const current = localStorage.getItem("theme") || "light";
-        const next = current === "light" ? "dark" : "light";
-        localStorage.setItem("theme", next);
-        applyTheme();
-    });
-}
-
-applyTheme();
