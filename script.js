@@ -518,11 +518,6 @@ document.getElementById("game-sakura").addEventListener("click", () => {
     startSakuraGame();
 });
 
-document.getElementById("game-tech").addEventListener("click", () => {
-    openGame();
-    startTechGame();
-});
-
 document.getElementById("game-cartoon").addEventListener("click", () => {
     openGame();
     startCartoonGame();
