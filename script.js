@@ -552,14 +552,15 @@ function startSakuraGame() {
         });
     }
 
-    /* ⭐ 電腦控制（滑鼠） */
+    /* ⭐ 電腦控制 */
     document.onmousemove = (e) => {
         const rect = canvas.getBoundingClientRect();
         basketX = e.clientX - rect.left - 40;
     };
 
-    /* ⭐ 手機控制（手指滑動） */
+    /* ⭐ 手機控制（阻止整頁滑動） */
     canvas.ontouchmove = (e) => {
+        e.preventDefault(); // ←←← 重要！
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
         basketX = touch.clientX - rect.left - 40;
@@ -570,11 +571,9 @@ function startSakuraGame() {
 
         ctx.clearRect(0, 0, 400, 400);
 
-        // 籃子
         ctx.fillStyle = "#ff8fb3";
         ctx.fillRect(basketX, 350, 80, 20);
 
-        // 花瓣
         ctx.fillStyle = "#ffcce0";
         petals.forEach((p, i) => {
             p.y += p.speed;
@@ -614,78 +613,6 @@ function startSakuraGame() {
     }, 1000);
 
     update();
-}/* ============================
-   🟦 科技反應遊戲 Cyber Reflex（修正版）
-============================ */
-function startTechGame() {
-    const canvas = document.getElementById("game-canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = 400;
-    canvas.height = 400;
-
-    let waiting = true;
-    let startTime = 0;
-    let best = localStorage.getItem("bestReflex") || null;
-
-    // 初始畫面
-    ctx.fillStyle = "#0d1228";
-    ctx.fillRect(0, 0, 400, 400);
-    ctx.fillStyle = "#8bd3ff";
-    ctx.font = "20px Arial";
-    ctx.fillText("按一下畫面開始測試反應速度", 40, 200);
-
-    document.getElementById("game-ui").innerHTML =
-        best ? `最佳成績：${best} ms` : "最佳成績：--";
-
-    // ⭐ 清除舊事件（避免重複）
-    canvas.onclick = null;
-
-    // 等待玩家點擊開始
-    canvas.onclick = () => {
-        if (waiting) {
-            waiting = false;
-
-            ctx.fillStyle = "#111a33";
-            ctx.fillRect(0, 0, 400, 400);
-            ctx.fillStyle = "#8bd3ff";
-            ctx.fillText("準備...", 160, 200);
-
-            // 隨機時間後亮起
-            const delay = 1000 + Math.random() * 3000;
-
-            techTimeout = setTimeout(() => {
-                startTime = Date.now();
-
-                ctx.fillStyle = "#00eaff";
-                ctx.fillRect(0, 0, 400, 400);
-                ctx.fillStyle = "#00121a";
-                ctx.fillText("按！按！按！", 150, 200);
-
-                // 玩家反應
-                canvas.onclick = () => {
-                    const reaction = Date.now() - startTime;
-
-                    ctx.fillStyle = "#111a33";
-                    ctx.fillRect(0, 0, 400, 400);
-                    ctx.fillStyle = "#8bd3ff";
-                    ctx.fillText(`你的反應速度：${reaction} ms`, 90, 200);
-
-                    // 更新最佳成績
-                    if (!best || reaction < best) {
-                        best = reaction;
-                        localStorage.setItem("bestReflex", best);
-                    }
-
-                    document.getElementById("game-ui").innerHTML =
-                        `最佳成績：${best} ms`;
-
-                    // 1.5 秒後重新開始
-                    setTimeout(startTechGame, 1500);
-                };
-            }, delay);
-        }
-    };
 }
 /* ============================
    🎨 卡通跳跳樂（手機 + 電腦版）
@@ -710,7 +637,7 @@ function startCartoonGame() {
     let score = 0;
     let gameRunning = true;
 
-    /* ⭐ 電腦跳躍（Space） */
+    /* ⭐ 電腦跳躍 */
     document.onkeydown = (e) => {
         if (e.code === "Space" && !player.jumping) {
             player.dy = -10;
@@ -718,8 +645,9 @@ function startCartoonGame() {
         }
     };
 
-    /* ⭐ 手機跳躍（tap） */
-    canvas.ontouchstart = () => {
+    /* ⭐ 手機跳躍（阻止整頁滑動） */
+    canvas.ontouchstart = (e) => {
+        e.preventDefault(); // ←←← 重要！
         if (!player.jumping) {
             player.dy = -10;
             player.jumping = true;
@@ -745,19 +673,15 @@ function startCartoonGame() {
 
         ctx.clearRect(0, 0, 400, 400);
 
-        // 背景
         ctx.fillStyle = "#fff1b8";
         ctx.fillRect(0, 0, 400, 400);
 
-        // 地面
         ctx.fillStyle = "#ffd86b";
         ctx.fillRect(0, 350, 400, 50);
 
-        // 玩家
         ctx.fillStyle = "#ff9900";
         ctx.fillRect(player.x, player.y, player.width, player.height);
 
-        // 重力
         player.y += player.dy;
         player.dy += 0.5;
 
@@ -767,7 +691,6 @@ function startCartoonGame() {
             player.jumping = false;
         }
 
-        // 障礙物
         ctx.fillStyle = "#ff4444";
         obstacles.forEach((o, i) => {
             o.x -= o.speed;

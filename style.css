@@ -834,20 +834,6 @@ body {
 .theme-sakura .game-close {
     background: #ff8fb3;
 }
-/* 🟦 科技模式遊戲配色 */
-.theme-tech #game-canvas {
-    background: #0a0f1f;
-}
-
-.theme-tech .game-box {
-    background: #0d1228;
-    border: 1px solid #1e2a4a;
-}
-
-.theme-tech .game-close {
-    background: #00eaff;
-    color: #00121a;
-}
 /* 🎨 卡通模式遊戲配色 */
 .theme-cartoon #game-canvas {
     background: #fff7d1;
