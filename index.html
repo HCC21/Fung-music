@@ -1,110 +1,128 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-  <meta charset="UTF-8">
-  <title>Fung Fung Music</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Fung Fung Music</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- 🎵 登入畫面 -->
+<!-- ============================
+     🎵 登入畫面
+============================ -->
 <div id="login-screen" class="login-screen">
-  <div class="login-box">
     <h1>🎵 Fung Fung Music</h1>
-    <p>朋友請登入</p>
-    <input type="text" id="username-input" placeholder="名字">
-    <input type="password" id="password-input" placeholder="密碼">
+
+    <input id="username-input" type="text" placeholder="名字">
+    <input id="password-input" type="password" placeholder="密碼">
+
     <button id="login-btn">登入</button>
-  </div>
+
+    <!-- 管理員密碼（已自動隱藏） -->
+    <input id="admin-password" type="password" placeholder="管理員密碼" style="display:none;">
+    <button id="admin-btn" style="display:none;">管理員登入</button>
 </div>
 
-<!-- 🎉 登入後歡迎提示 -->
+<!-- ============================
+     🎉 歡迎彈窗
+============================ -->
 <div id="welcome-popup" class="welcome-popup">
-  <div class="welcome-box">
-    <h2 id="welcome-popup-text"></h2>
-    <p>祝你聽歌愉快！</p>
-  </div>
+    <div id="welcome-popup-text"></div>
 </div>
 
-<!-- 🎛️ 管理員密碼輸入框（登入 fungfung 後顯示） -->
-<input type="password" id="admin-password" placeholder="管理員密碼" style="display:none;">
-<button id="admin-btn" style="display:none;">開啟管理員後台</button>
-
-<!-- 🎛️ 管理員後台頁面 -->
-<div id="admin-panel" class="admin-panel" style="display:none;">
-  <h2>管理員後台</h2>
-
-  <h3>允許登入的用戶（白名單）</h3>
-  <ul id="admin-user-list"></ul>
-
-  <h3>所有登入紀錄</h3>
-  <ul id="admin-history-list"></ul>
-
-  <h3>新增朋友帳號</h3>
-  <input type="text" id="new-user-name" placeholder="名字">
-  <input type="password" id="new-user-pass" placeholder="密碼（3位數字）">
-  <button id="add-user-btn">新增帳號</button>
-
-  <button id="admin-close">關閉管理員頁面</button>
-</div>
-
-<!-- 🎵 主頁內容 -->
+<!-- ============================
+     🎵 主介面
+============================ -->
 <div class="container">
-  <div class="sidebar">
-    <h2 id="welcome-text">🎵 Fung Fung Music</h2>
 
-    <input type="text" id="search" placeholder="搜尋歌曲..." class="search-box">
+    <!-- ============================
+         📌 左邊 Sidebar
+    ============================ -->
+    <div class="sidebar">
 
-    <h3>分類 Categories</h3>
-    <ul id="categories">
-      <li data-cat="all">全部歌曲</li>
-      <li data-cat="slow songs">慢歌</li>
-      <li data-cat="fast songs">快歌</li>
-      <li data-cat="female">女歌男唱</li>
-      <li data-cat="kids">兒歌/卡通</li>
-      <li data-cat="opera">粵曲</li>
-      <li data-cat="festival">節日</li>
-      <li data-cat="other">其他</li>
-    </ul>
+        <h2 id="welcome-text">🎵 Fung Fung Music</h2>
 
-    <h3>播放清單 Playlist</h3>
-    <ul id="playlist"></ul>
+        <button id="theme-toggle">🌙 深色模式</button>
 
-    <h3>曾經登入過的朋友</h3>
-    <ul id="login-history"></ul>
+        <h3>🔍 搜尋</h3>
+        <input id="search" type="text" placeholder="搜尋歌曲">
 
-    <button id="logout-btn" class="logout-btn">登出</button>
-  </div>
+        <h3>📂 分類</h3>
+        <ul id="categories">
+            <li data-cat="all">全部</li>
+            <li data-cat="slow songs">慢歌</li>
+            <li data-cat="female">女聲</li>
+        </ul>
 
-  <div class="player-area">
-    <div class="cd-wrapper">
-      <img id="cover" src="covers/default.jpg" class="cd">
+        <h3>👥 登入紀錄</h3>
+        <ul id="login-history"></ul>
+
+        <button id="logout-btn">登出</button>
     </div>
 
-    <h2 id="title">選擇一首歌播放</h2>
-    <audio id="audio"></audio>
+    <!-- ============================
+         🎧 播放器區域
+    ============================ -->
+    <div class="player-area">
 
-    <div class="progress-container">
-      <span id="current">0:00</span>
-      <input type="range" id="progress" value="0" min="0" max="100">
-      <span id="duration">0:00</span>
-    </div>
+        <img id="cover" class="cover" src="covers/default.jpg">
 
-    <div class="controls">
-      <button id="prev">⏮️</button>
-      <button id="play" class="play-btn">▶️</button>
-      <button id="next">⏭️</button>
+        <h2 id="title">請選擇歌曲</h2>
+
+        <audio id="audio"></audio>
+
+        <input id="progress" type="range" min="0" max="100" value="0">
+
+        <div class="time-box">
+            <span id="current">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+
+        <div class="controls">
+            <button id="prev">⏮️</button>
+            <button id="play">▶️</button>
+            <button id="next">⏭️</button>
+            <button id="shuffle">🔀</button>
+            <button id="repeat">🔁</button>
+        </div>
+
+        <h3>🎵 播放清單</h3>
+        <ul id="playlist"></ul>
     </div>
-  </div>
 </div>
 
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
+<!-- ============================
+     🛠 管理員後台
+============================ -->
+<div id="admin-panel" class="admin-panel">
+
+    <button id="admin-close" class="close-btn">❌</button>
+
+    <h2>管理員後台</h2>
+
+    <h3>👥 用戶列表</h3>
+    <ul id="admin-user-list"></ul>
+
+    <h3>➕ 新增用戶</h3>
+    <input id="new-user-name" type="text" placeholder="名字">
+    <input id="new-user-pass" type="text" placeholder="3 位數密碼">
+    <button id="add-user-btn">新增</button>
+
+    <h3>📌 登入紀錄（全部）</h3>
+    <ul id="admin-history-list"></ul>
+
+    <h3>🎧 播放紀錄（全部）</h3>
+    <ul id="admin-play-history"></ul>
+
+</div>
+
+<!-- ============================
+     📜 Script
+============================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="songsData.js"></script>
 <script src="script.js"></script>
-
-<!-- 🎆 登入煙花 -->
-<canvas id="fireworks"></canvas>
 
 </body>
 </html>
