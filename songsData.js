@@ -4,6 +4,31 @@
 
 const songsData = [
     { name: "一千個願意", src: "music/一千個願意.mp3", cover: "covers/cover9.jpg", cat: "slow songs" },
+{
+    name: "沒有你的愛",
+    src: "music/灰沒有你的愛.mp3",
+    cover: "covers/cover9.jpg",
+    cat: "other",
+    allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
+},
+ {   name: "情非首爾",
+    src: "music/灰情非首爾.mp3",
+    cover: "covers/cover9.jpg",
+    cat: "other",
+    allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
+},
+  {  name: "有了你",
+    src: "music/灰有了你.mp3",
+    cover: "covers/cover9.jpg",
+    cat: "other",
+    allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
+},
+  {  name: "小老鼠與大花猫",
+    src: "music/灰小老鼠與大花猫.mp3",
+    cover: "covers/cover9.jpg",
+    cat: "other",
+    allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
+},
     { name: "遲來的春天", src: "music/遲來的春天.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
     { name: "感情的段落", src: "music/感情的段落.mp3", cover: "covers/cover1.jpg", cat: "female" },
     { name: "愛情是一種法國甜品", src: "music/愛情是一種法國甜品.mp3", cover: "covers/cover6.jpg", cat: "female" },

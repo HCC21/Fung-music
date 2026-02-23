@@ -302,37 +302,66 @@ let songs = [];
 
 function generatePlaylist() {
     playlist.innerHTML = "";
+
+    const currentUser = (localStorage.getItem("friendName") || "")
+        .trim()
+        .toLowerCase();
+
     songsData.forEach((song, index) => {
+
+        // ⭐ 如果歌曲有限制，但用家唔係允許名單 → 跳過
+        if (song.allowedUsers && song.allowedUsers !== "all") {
+            const allowed = song.allowedUsers.map(u => u.toLowerCase());
+            if (!allowed.includes(currentUser)) {
+                return; // ❌ 不顯示這首歌
+            }
+        }
+
+        // ⭐ 正常顯示歌曲
         const li = document.createElement("li");
         li.textContent = song.name;
         li.dataset.src = song.src;
         li.dataset.cover = song.cover;
         li.dataset.cat = song.cat;
         li.dataset.index = index;
+
         playlist.appendChild(li);
     });
+
     songs = [...playlist.querySelectorAll("li")];
 }
-
 generatePlaylist();
 
 /* ============================
    🔍 搜尋功能
 ============================ */
-searchBox.addEventListener("input", () => {
+   searchBox.addEventListener("input", () => {
     const keyword = searchBox.value.trim().toLowerCase();
+    const currentUser = (localStorage.getItem("friendName") || "")
+        .trim()
+        .toLowerCase();
 
     playlist.innerHTML = "";
 
     songsData
         .filter(song => song.name.toLowerCase().includes(keyword))
         .forEach((song, index) => {
+
+            // ⭐ 搜尋時也要檢查權限
+            if (song.allowedUsers && song.allowedUsers !== "all") {
+                const allowed = song.allowedUsers.map(u => u.toLowerCase());
+                if (!allowed.includes(currentUser)) {
+                    return; // ❌ 不顯示
+                }
+            }
+
             const li = document.createElement("li");
             li.textContent = song.name;
             li.dataset.src = song.src;
             li.dataset.cover = song.cover;
             li.dataset.cat = song.cat;
             li.dataset.index = index;
+
             playlist.appendChild(li);
         });
 
@@ -340,30 +369,42 @@ searchBox.addEventListener("input", () => {
 });
 
 /* ============================
-   ⭐ 分類功能
+   ⭐ 分類功能（加入權限過濾）
 ============================ */
 categories.addEventListener("click", e => {
     if (e.target.tagName !== "LI") return;
 
     const selectedCat = e.target.dataset.cat;
+    const currentUser = (localStorage.getItem("friendName") || "")
+        .trim()
+        .toLowerCase();
 
     playlist.innerHTML = "";
 
     songsData
         .filter(song => selectedCat === "all" || song.cat === selectedCat)
         .forEach((song, index) => {
+
+            // ⭐ 分類時也要檢查權限
+            if (song.allowedUsers && song.allowedUsers !== "all") {
+                const allowed = song.allowedUsers.map(u => u.toLowerCase());
+                if (!allowed.includes(currentUser)) {
+                    return; // ❌ 不顯示
+                }
+            }
+
             const li = document.createElement("li");
             li.textContent = song.name;
             li.dataset.src = song.src;
             li.dataset.cover = song.cover;
             li.dataset.cat = song.cat;
             li.dataset.index = index;
+
             playlist.appendChild(li);
         });
 
     songs = [...playlist.querySelectorAll("li")];
 });
-
 /* ============================
    🎵 播放器功能
 ============================ */
