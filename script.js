@@ -460,3 +460,6 @@ function formatTime(sec) {
     const s = Math.floor(sec % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
 }
+document.getElementById("theme-select").addEventListener("change", (e) => {
+    document.body.className = e.target.value;
+});

@@ -413,3 +413,364 @@ body {
 #admin-close:hover {
     background: #555;
 }
+/* ============================
+   🌈 多主題系統（正式版）
+============================ */
+
+/* ⭐ 預設主題 */
+.theme-default {
+    background: #121212;
+    color: #fff;
+}
+
+/* ============================
+   🌸 櫻花模式
+============================ */
+.theme-sakura {
+    background: #ffeaf4;
+    color: #5a2a3c;
+}
+
+.theme-sakura .sidebar {
+    background: #ffd6e8;
+}
+
+.theme-sakura .player-area {
+    background: #ffeaf4;
+}
+
+/* Playlist + Categories */
+.theme-sakura #playlist li,
+.theme-sakura #categories li {
+    background: #ffe0ed;
+    color: #5a2a3c;
+}
+
+.theme-sakura #playlist li:hover,
+.theme-sakura #categories li:hover {
+    background: #ffbcd6;
+}
+
+.theme-sakura #playlist li.active,
+.theme-sakura #categories li.active {
+    background: #ff8fb3;
+    color: white;
+}
+
+/* CD 光暈 */
+.theme-sakura .cd-wrapper {
+    filter: drop-shadow(0 0 30px #ff8fb3);
+}
+
+/* ============================
+   🟦 科技模式（Cyber Tech）
+============================ */
+.theme-tech {
+    background: #0a0f1f;
+    color: #8bd3ff;
+}
+
+.theme-tech .sidebar {
+    background: #0d1228;
+    border-right: 1px solid #1e2a4a;
+}
+
+.theme-tech .player-area {
+    background: #0a0f1f;
+}
+
+.theme-tech #playlist li,
+.theme-tech #categories li {
+    background: #111a33;
+    color: #8bd3ff;
+}
+
+.theme-tech #playlist li:hover,
+.theme-tech #categories li:hover {
+    background: #1a2647;
+}
+
+.theme-tech #playlist li.active,
+.theme-tech #categories li.active {
+    background: #00eaff;
+    color: #00121a;
+}
+
+.theme-tech .cd-wrapper {
+    filter: drop-shadow(0 0 35px #00eaff);
+}
+
+/* ============================
+   🎨 卡通模式（Cartoon）
+============================ */
+.theme-cartoon {
+    background: #fff7d1;
+    color: #333;
+}
+
+.theme-cartoon .sidebar {
+    background: #ffe9a3;
+}
+
+.theme-cartoon .player-area {
+    background: #fff7d1;
+}
+
+.theme-cartoon #playlist li,
+.theme-cartoon #categories li {
+    background: #ffe9a3;
+    color: #333;
+    border-radius: 12px;
+}
+
+.theme-cartoon #playlist li:hover,
+.theme-cartoon #categories li:hover {
+    background: #ffd86b;
+}
+
+.theme-cartoon #playlist li.active,
+.theme-cartoon #categories li.active {
+    background: #ffcc00;
+    color: #000;
+}
+
+.theme-cartoon .cd-wrapper {
+    filter: drop-shadow(0 0 25px #ffcc00);
+}
+
+/* ============================
+   ☀️ 亮色模式（Light）
+============================ */
+.theme-light {
+    background: #f7f7f7;
+    color: #222;
+}
+
+.theme-light .sidebar {
+    background: #ffffff;
+    border-right: 1px solid #ddd;
+}
+
+.theme-light .player-area {
+    background: #f7f7f7;
+}
+
+.theme-light #playlist li,
+.theme-light #categories li {
+    background: #e6e6e6;
+    color: #222;
+}
+
+.theme-light #playlist li:hover,
+.theme-light #categories li:hover {
+    background: #d4d4d4;
+}
+
+.theme-light #playlist li.active,
+.theme-light #categories li.active {
+    background: #1DB954;
+    color: white;
+}
+
+.theme-light .cd-wrapper {
+    filter: drop-shadow(0 0 25px #1DB954);
+}
+
+/* ============================
+   🌙 深色模式（Dark）
+============================ */
+.theme-dark {
+    background: #0f0f0f;
+    color: #f2f2f2;
+}
+
+.theme-dark .sidebar {
+    background: #1a1a1a;
+    border-right: 1px solid #333;
+}
+
+.theme-dark .player-area {
+    background: #181818;
+}
+
+.theme-dark #playlist li,
+.theme-dark #categories li {
+    background: #222;
+    color: #eee;
+}
+
+.theme-dark #playlist li:hover,
+.theme-dark #categories li:hover {
+    background: #333;
+}
+
+.theme-dark #playlist li.active,
+.theme-dark #categories li.active {
+    background: #444;
+    color: #fff;
+}
+
+.theme-dark .cd-wrapper {
+    filter: drop-shadow(0 0 25px #888);
+}/* ============================
+   🌈 多主題系統（正式版）
+============================ */
+
+/* ⭐ 預設主題 */
+.theme-default {
+    background: #121212;
+    color: #fff;
+}
+
+/* ============================
+   🌸 櫻花模式
+============================ */
+.theme-sakura {
+    background: #ffeaf4;
+    color: #5a2a3c;
+}
+
+.theme-sakura .sidebar {
+    background: #ffd6e8;
+}
+
+.theme-sakura .player-area {
+    background: #ffeaf4;
+}
+
+/* Playlist + Categories */
+.theme-sakura #playlist li,
+.theme-sakura #categories li {
+    background: #ffe0ed;
+    color: #5a2a3c;
+}
+
+.theme-sakura #playlist li:hover,
+.theme-sakura #categories li:hover {
+    background: #ffbcd6;
+}
+
+.theme-sakura #playlist li.active,
+.theme-sakura #categories li.active {
+    background: #ff8fb3;
+    color: white;
+}
+
+/* CD 光暈 */
+.theme-sakura .cd-wrapper {
+    filter: drop-shadow(0 0 30px #ff8fb3);
+}
+
+/* ============================
+   🟦 科技模式（Cyber Tech）
+============================ */
+.theme-tech {
+    background: #0a0f1f;
+    color: #8bd3ff;
+}
+
+.theme-tech .sidebar {
+    background: #0d1228;
+    border-right: 1px solid #1e2a4a;
+}
+
+.theme-tech .player-area {
+    background: #0a0f1f;
+}
+
+.theme-tech #playlist li,
+.theme-tech #categories li {
+    background: #111a33;
+    color: #8bd3ff;
+}
+
+.theme-tech #playlist li:hover,
+.theme-tech #categories li:hover {
+    background: #1a2647;
+}
+
+.theme-tech #playlist li.active,
+.theme-tech #categories li.active {
+    background: #00eaff;
+    color: #00121a;
+}
+
+.theme-tech .cd-wrapper {
+    filter: drop-shadow(0 0 35px #00eaff);
+}
+
+/* ============================
+   🎨 卡通模式（Cartoon）
+============================ */
+.theme-cartoon {
+    background: #fff7d1;
+    color: #333;
+}
+
+.theme-cartoon .sidebar {
+    background: #ffe9a3;
+}
+
+.theme-cartoon .player-area {
+    background: #fff7d1;
+}
+
+.theme-cartoon #playlist li,
+.theme-cartoon #categories li {
+    background: #ffe9a3;
+    color: #333;
+    border-radius: 12px;
+}
+
+.theme-cartoon #playlist li:hover,
+.theme-cartoon #categories li:hover {
+    background: #ffd86b;
+}
+
+.theme-cartoon #playlist li.active,
+.theme-cartoon #categories li.active {
+    background: #ffcc00;
+    color: #000;
+}
+
+.theme-cartoon .cd-wrapper {
+    filter: drop-shadow(0 0 25px #ffcc00);
+}
+
+/* ============================
+   ☀️ 亮色模式（Light）
+============================ */
+.theme-light {
+    background: #f7f7f7;
+    color: #222;
+}
+
+.theme-light .sidebar {
+    background: #ffffff;
+    border-right: 1px solid #ddd;
+}
+
+.theme-light .player-area {
+    background: #f7f7f7;
+}
+
+.theme-light #playlist li,
+.theme-light #categories li {
+    background: #e6e6e6;
+    color: #222;
+}
+
+.theme-light #playlist li:hover,
+.theme-light #categories li:hover {
+    background: #d4d4d4;
+}
+
+.theme-light #playlist li.active,
+.theme-light #categories li.active {
+    background: #1DB954;
+    color: white;
+}
+
+.theme-light .cd-wrapper {
+    filter: drop-shadow(0 0 25px #1DB954);
+}
