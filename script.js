@@ -335,7 +335,7 @@ generatePlaylist();
 /* ============================
    🔍 搜尋功能
 ============================ */
-   searchBox.addEventListener("input", () => {
+searchBox.addEventListener("input", () => {
     const keyword = searchBox.value.trim().toLowerCase();
     const currentUser = (localStorage.getItem("friendName") || "")
         .trim()
@@ -405,6 +405,7 @@ categories.addEventListener("click", e => {
 
     songs = [...playlist.querySelectorAll("li")];
 });
+
 /* ============================
    🎵 播放器功能
 ============================ */
@@ -430,6 +431,13 @@ function playSong(index) {
     playBtn.classList.add("playing");
 
     highlightSong();
+
+    // ⭐ 播放歌曲時載入留言（正確位置）
+    const currentUser = (localStorage.getItem("friendName") || "")
+        .trim()
+        .toLowerCase();
+
+    loadComments(item.textContent, currentUser);
 }
 
 playlist.addEventListener("click", e => {
@@ -502,6 +510,57 @@ function formatTime(sec) {
     return `${m}:${s}`;
 }
 
+async function addComment(songName, user, message) {
+    await supabase.from("comments").insert({
+        songName: songName,
+        user: user,
+        message: message,
+        time: new Date().toLocaleString()
+    });
+}
+async function loadComments(songName, currentUser) {
+    const { data: comments } = await supabase
+        .from("comments")
+        .select("*")
+        .eq("songName", songName)
+        .order("id", { ascending: true });
+
+    const list = document.getElementById("comment-list");
+    list.innerHTML = "";
+
+    comments.forEach(c => {
+        // ⭐ 只有留言者本人 + fungfung 可以看到
+        if (c.user === currentUser || currentUser === "fungfung") {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <strong>${c.user}</strong>：${c.message}
+                <br><small>${c.time}</small>
+            `;
+            list.appendChild(li);
+        }
+    });
+}
+document.getElementById("comment-submit").addEventListener("click", async () => {
+    const message = document.getElementById("comment-input").value.trim();
+    if (!message) return;
+
+    const currentUser = (localStorage.getItem("friendName") || "")
+        .trim()
+        .toLowerCase();
+
+    const songName = title.textContent; // ⭐ 目前播放的歌名
+
+    await supabase.from("comments").insert({
+        songName: songName,
+        user: currentUser,
+        message: message,
+        time: new Date().toLocaleString()
+    });
+
+    document.getElementById("comment-input").value = "";
+
+    loadComments(songName, currentUser); // ⭐ 即時刷新留言
+});
 /* ============================
    ⭐ 主題切換
 ============================ */
