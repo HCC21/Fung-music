@@ -56,55 +56,55 @@ const songsData = [
 },
  {   name: "一天一天",
     src: "music/manman/一天一天.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man1.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "一生不變",
     src: "music/manman/一生不變.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man6.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "一生愛你一個",
     src: "music/manman/一生愛你一個.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man3.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },{
     name: "一往情深",
     src: "music/manman/一往情深.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man8.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "一家笑口",
     src: "music/manman/一家笑口.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man2.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "一萬年",
     src: "music/manman/一萬年.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man9.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "大懶堂",
     src: "music/manman/大懶堂.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man4.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },{
     name: "小叮噹",
     src: "music/manman/小叮噹.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man4.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "小老鼠與大花猫 (2)",
     src: "music/manman/小老鼠與大花猫 (2).mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man2.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
@@ -116,45 +116,45 @@ const songsData = [
 },
   {  name: "不老的傳說",
     src: "music/manman/不老的傳說.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man8.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
 {
     name: "沒有你的愛",
     src: "music/manman/沒有你的愛.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "不想獨自快樂",
     src: "music/manman/不想獨自快樂.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "五十年之後",
     src: "music/manman/五十年之後.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man3.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {
     name: "五十年以后(敏唱)",
     src: "music/manman/五十年以后(敏唱).mp3",
-    cover: "covers/man8.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "五十年以后粵",
     src: "music/manman/五十年以后粵.mp3",
-    cover: "covers/man7.jpg",
+    cover: "covers/man1.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "仍能情深愛上",
     src: "music/manman/仍能情深愛上.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man6.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
@@ -166,7 +166,7 @@ const songsData = [
 },{
     name: "天變地變情不變",
     src: "music/manman/天變地變情不變.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
@@ -184,7 +184,7 @@ const songsData = [
 },
   {  name: "心淡",
     src: "music/manman/心淡.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },{
@@ -208,25 +208,25 @@ const songsData = [
 },
   {  name: "月半小夜曲",
     src: "music/manman/月半小夜曲.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },{
     name: "他不適合妳",
     src: "music/manman/他不適合妳.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man4.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "只怕不再遇上",
     src: "music/manman/只怕不再遇上.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man6.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "只屬於我們的一天",
     src: "music/manman/只屬於我們的一天.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
@@ -238,31 +238,31 @@ const songsData = [
 },
  {  name: "未曾心愛已無情",
     src: "music/manman/未曾心愛已無情.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "未曾心愛已無情2",
     src: "music/manman/未曾心愛已無情2.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man3.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },{
     name: "永遠的微笑",
     src: "music/manman/永遠的微笑.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man1.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "白恤衫",
     src: "music/manman/白恤衫.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man8.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "目黑",
     src: "music/manman/目黑.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man9.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
@@ -274,25 +274,25 @@ const songsData = [
 },{
     name: "好心好報",
     src: "music/manman/好心好報.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man6.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "好想你2.0",
     src: "music/manman/好想你2.0.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "如果天空要下雨",
     src: "music/manman/如果天空要下雨.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man6.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "如果陽光",
     src: "music/manman/如果陽光.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
@@ -304,25 +304,25 @@ const songsData = [
 },{
     name: "有你明白我(敏唱)",
     src: "music/manman/有你明白我(敏唱).mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man4.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
  {   name: "死啦啲青春豆",
     src: "music/manman/死啦啲青春豆.mp3",
-    cover: "covers/man4.jpg",
+    cover: "covers/man2.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "灰姑娘",
     src: "music/manman/灰姑娘.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man9.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
   {  name: "你回來吧",
     src: "music/manman/你回來吧.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man1.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },{
