@@ -32,7 +32,7 @@ const adminClose = document.getElementById("admin-close");
 
 const logoutBtn = document.getElementById("logout-btn");
 
-const playlist = document.getElementById("playlist");
+const playlistButtons = document.getElementById("playlist-buttons");
 const categories = document.getElementById("categories");
 const searchBox = document.getElementById("search");
 
@@ -59,7 +59,7 @@ function showWelcomePopup(name) {
 }
 
 /* ============================
-   🎨 頭像顏色
+   ⭐ 頭像顏色
 ============================ */
 function generateAvatar(name) {
   let hash = 0;
@@ -71,7 +71,7 @@ function generateAvatar(name) {
 }
 
 /* ============================
-   ⭐ 儲存登入紀錄（已修正：使用 ISO 日期）
+   ⭐ 儲存登入紀錄（ISO 時間）
 ============================ */
 async function saveLoginHistory(name) {
   const { data: existing } = await supabase
@@ -80,7 +80,7 @@ async function saveLoginHistory(name) {
     .eq("name", name)
     .single();
 
-  const nowISO = new Date().toISOString(); // ⭐ 正確排序格式
+  const nowISO = new Date().toISOString();
 
   if (existing) {
     await supabase
@@ -100,7 +100,7 @@ async function saveLoginHistory(name) {
 }
 
 /* ============================
-   ⭐ 顯示登入紀錄（只顯示 5 個 + 依最近排序）
+   ⭐ 顯示登入紀錄（最多 5 個）
 ============================ */
 async function showLoginHistory(name) {
   const historyList = document.getElementById("login-history");
@@ -112,8 +112,8 @@ async function showLoginHistory(name) {
   }
 
   const { data: history, error } = await query
-    .order("last_login", { ascending: false }) // ⭐ 正確排序
-    .limit(5);                                 // ⭐ 只顯示 5 個
+    .order("last_login", { ascending: false })
+    .limit(5);
 
   historyList.innerHTML = "";
 
@@ -149,6 +149,7 @@ async function checkNotifications() {
   const currentUser = (localStorage.getItem("friendName") || "")
     .trim()
     .toLowerCase();
+
   if (currentUser !== ADMIN_NAME) {
     adminNotice.style.display = "none";
     return;
@@ -169,6 +170,7 @@ async function markAllRead() {
   const currentUser = (localStorage.getItem("friendName") || "")
     .trim()
     .toLowerCase();
+
   if (currentUser !== ADMIN_NAME) return;
 
   await supabase
@@ -180,7 +182,7 @@ async function markAllRead() {
 }
 
 /* ============================
-   ⭐ 管理員：顯示全部登入紀錄（依最近排序）
+   ⭐ 管理員：顯示全部登入紀錄
 ============================ */
 async function loadAdminHistory() {
   const list = document.getElementById("admin-history-list");
@@ -230,20 +232,6 @@ async function openAdminPanel() {
 }
 
 /* ============================
-   ⭐ 回覆留言按鈕
-============================ */
-document.addEventListener("click", e => {
-  if (e.target.classList.contains("reply-btn")) {
-    const replyUser = e.target.dataset.user;
-
-    const input = document.getElementById("comment-input");
-    input.value = `@${replyUser} `;
-    input.dataset.replyTo = replyUser;
-    input.focus();
-  }
-});
-
-/* ============================
    ⭐ 新增帳號
 ============================ */
 document.getElementById("add-user-btn").addEventListener("click", async () => {
@@ -275,6 +263,272 @@ document.getElementById("add-user-btn").addEventListener("click", async () => {
   document.getElementById("new-user-pass").value = "";
 
   openAdminPanel();
+});
+
+/* ============================
+   🎵 播放清單（按鈕版）
+============================ */
+
+let currentIndex = -1;
+let songs = [];
+
+/**
+ * 生成播放清單（按鈕版）
+ * @param {string} filterCat - 分類
+ * @param {string} keyword - 搜尋關鍵字
+ */
+function generatePlaylist(filterCat = "all", keyword = "") {
+  const container = document.getElementById("playlist-buttons");
+  container.innerHTML = "";
+
+  const currentUser = (localStorage.getItem("friendName") || "")
+    .trim()
+    .toLowerCase();
+
+  songs = [];
+
+  songsData.forEach((song, realIndex) => {
+
+    // 🔍 搜尋過濾
+    if (keyword && !song.name.toLowerCase().includes(keyword)) return;
+
+    // 🏷️ 分類過濾
+    if (filterCat !== "all" && song.cat !== filterCat) return;
+
+    // 🔐 權限過濾
+    if (song.allowedUsers && song.allowedUsers !== "all") {
+      const allowed = song.allowedUsers.map(u => u.toLowerCase());
+      if (!allowed.includes(currentUser)) return;
+    }
+
+    // 🎵 建立按鈕
+    const btn = document.createElement("button");
+    btn.textContent = song.name;
+
+    // ⭐ 記錄真正 index（分類後不會錯）
+    btn.dataset.realIndex = realIndex;
+
+    btn.addEventListener("click", () => {
+      playSong(realIndex);
+    });
+
+    container.appendChild(btn);
+    songs.push(btn);
+  });
+}
+/* ============================
+   🔍 搜尋功能（同步分類）
+============================ */
+searchBox.addEventListener("input", () => {
+  const keyword = searchBox.value.trim().toLowerCase();
+
+  const activeCat = document.querySelector("#categories li.active");
+  const selectedCat = activeCat ? activeCat.dataset.cat : "all";
+
+  generatePlaylist(selectedCat, keyword);
+});
+
+/* ============================
+   ⭐ 分類功能（同步播放清單）
+============================ */
+categories.addEventListener("click", e => {
+  if (e.target.tagName !== "LI") return;
+
+  // ⭐ 高亮分類
+  document.querySelectorAll("#categories li").forEach(li => li.classList.remove("active"));
+  e.target.classList.add("active");
+
+  const selectedCat = e.target.dataset.cat;
+  const keyword = searchBox.value.trim().toLowerCase();
+
+  generatePlaylist(selectedCat, keyword);
+});
+
+/* ============================
+   ⭐ 播放中高亮
+============================ */
+function highlightSong() {
+  songs.forEach(btn => btn.classList.remove("active"));
+
+  songs.forEach(btn => {
+    if (parseInt(btn.dataset.realIndex) === currentIndex) {
+      btn.classList.add("active");
+    }
+  });
+}
+/* ============================
+   🎵 播放歌曲
+============================ */
+function playSong(realIndex) {
+  const song = songsData[realIndex];
+  if (!song) return;
+
+  currentIndex = realIndex;
+
+  audio.src = song.src;
+  cover.src = song.cover;
+  title.textContent = song.name;
+
+  audio.play();
+  cover.style.animationPlayState = "running";
+
+  playBtn.textContent = "⏸️";
+  playBtn.classList.add("playing");
+
+  highlightSong();
+
+  const currentUser = (localStorage.getItem("friendName") || "")
+    .trim()
+    .toLowerCase();
+
+  if (currentUser === ADMIN_NAME) {
+    markAllRead();
+  }
+
+  loadComments(song.name, currentUser);
+}
+/* ============================
+   🎵 播放器控制
+============================ */
+
+playBtn.addEventListener("click", () => {
+  if (audio.paused) {
+    audio.play();
+    cover.style.animationPlayState = "running";
+    playBtn.textContent = "⏸️";
+  } else {
+    audio.pause();
+    cover.style.animationPlayState = "paused";
+    playBtn.textContent = "▶️";
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  if (songs.length === 0) return;
+  playSong((currentIndex + 1) % songs.length);
+});
+
+prevBtn.addEventListener("click", () => {
+  if (songs.length === 0) return;
+  playSong((currentIndex - 1 + songs.length) % songs.length);
+});
+
+/* 自動跳下一首 */
+audio.addEventListener("ended", () => {
+  if (songs.length === 0) return;
+  playSong((currentIndex + 1) % songs.length);
+});
+
+/* 進度條更新 */
+audio.addEventListener("timeupdate", () => {
+  if (!audio.duration) return;
+
+  progress.value = (audio.currentTime / audio.duration) * 100;
+  currentTimeText.textContent = formatTime(audio.currentTime);
+  durationText.textContent = formatTime(audio.duration);
+});
+
+/* 拖動進度條 */
+progress.addEventListener("input", () => {
+  if (!audio.duration) return;
+  audio.currentTime = (progress.value / 100) * audio.duration;
+});
+
+function formatTime(sec) {
+  if (isNaN(sec)) return "0:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+/* ============================
+   ⭐ 留言系統：載入留言
+============================ */
+async function loadComments(songName, currentUser) {
+  const { data: comments, error } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("songName", songName)
+    .order("id", { ascending: true });
+
+  const list = document.getElementById("comment-list");
+  list.innerHTML = "";
+
+  if (error || !comments) return;
+
+  comments.forEach(c => {
+    if (currentUser === ADMIN_NAME) {
+      showComment(c, list);
+      return;
+    }
+
+    if (!c.replyTo || c.replyTo === "") {
+      if (c.user === currentUser) {
+        showComment(c, list);
+      }
+      return;
+    }
+
+    if (c.replyTo === currentUser || c.user === currentUser) {
+      showComment(c, list);
+    }
+  });
+}
+
+/* 顯示留言 */
+function showComment(c, list) {
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <strong>${c.user}</strong>：${c.message}
+    <br><small>${c.time}</small>
+    <br><button class="reply-btn" data-id="${c.id}" data-user="${c.user}">回覆</button>
+  `;
+  list.appendChild(li);
+}
+
+/* 送出留言 */
+document.getElementById("comment-submit").addEventListener("click", async () => {
+  const input = document.getElementById("comment-input");
+  const message = input.value.trim();
+  if (!message) return;
+
+  const currentUser = (localStorage.getItem("friendName") || "")
+    .trim()
+    .toLowerCase();
+  const songName = title.textContent;
+
+  await supabase.from("comments").insert({
+    songName: songName,
+    user: currentUser,
+    message: message,
+    replyTo: input.dataset.replyTo || null,
+    isRead: false,
+    time: new Date().toLocaleString()
+  });
+
+  input.value = "";
+  input.dataset.replyTo = "";
+
+  loadComments(songName, currentUser);
+});
+
+/* 回覆留言按鈕 */
+document.addEventListener("click", e => {
+  if (e.target.classList.contains("reply-btn")) {
+    const replyUser = e.target.dataset.user;
+
+    const input = document.getElementById("comment-input");
+    input.value = `@${replyUser} `;
+    input.dataset.replyTo = replyUser;
+    input.focus();
+  }
+});
+
+/* ============================
+   ⭐ 主題切換
+============================ */
+document.getElementById("theme-select").addEventListener("change", e => {
+  document.body.className = e.target.value;
 });
 
 /* ============================
@@ -314,7 +568,11 @@ loginBtn.addEventListener("click", async () => {
     await loadAdminHistory();
   }
 
-  generatePlaylist();
+  generatePlaylist(); // ⭐ 登入後生成播放清單
+btn.addEventListener("click", () => {
+  playSong(realIndex);
+});
+
   showWelcomePopup(name);
 });
 
@@ -336,176 +594,6 @@ logoutBtn.addEventListener("click", () => {
 
   document.getElementById("login-history").innerHTML = "";
   adminNotice.style.display = "none";
-});
-
-/* ============================
-   🎵 生成 Playlist
-============================ */
-let currentIndex = -1;
-let songs = [];
-
-function generatePlaylist() {
-  playlist.innerHTML = "";
-
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-
-  songsData.forEach((song, index) => {
-    if (song.allowedUsers && song.allowedUsers !== "all") {
-      const allowed = song.allowedUsers.map(u => u.toLowerCase());
-      if (!allowed.includes(currentUser)) {
-        return;
-      }
-    }
-
-    const li = document.createElement("li");
-    li.textContent = song.name;
-    li.dataset.src = song.src;
-    li.dataset.cover = song.cover;
-    li.dataset.cat = song.cat;
-    li.dataset.index = index;
-
-    playlist.appendChild(li);
-  });
-
-  songs = [...playlist.querySelectorAll("li")];
-}
-generatePlaylist();
-
-/* ============================
-   🔍 搜尋功能
-============================ */
-searchBox.addEventListener("input", () => {
-  const keyword = searchBox.value.trim().toLowerCase();
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-
-  playlist.innerHTML = "";
-
-  songsData
-    .filter(song => song.name.toLowerCase().includes(keyword))
-    .forEach((song, index) => {
-      if (song.allowedUsers && song.allowedUsers !== "all") {
-        const allowed = song.allowedUsers.map(u => u.toLowerCase());
-        if (!allowed.includes(currentUser)) {
-          return;
-        }
-      }
-
-      const li = document.createElement("li");
-      li.textContent = song.name;
-      li.dataset.src = song.src;
-      li.dataset.cover = song.cover;
-      li.dataset.cat = song.cat;
-      li.dataset.index = index;
-
-      playlist.appendChild(li);
-    });
-
-  songs = [...playlist.querySelectorAll("li")];
-});
-
-/* ============================
-   ⭐ 分類功能
-============================ */
-categories.addEventListener("click", e => {
-  if (e.target.tagName !== "LI") return;
-
-  const selectedCat = e.target.dataset.cat;
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-
-  playlist.innerHTML = "";
-
-  songsData
-    .filter(song => selectedCat === "all" || song.cat === selectedCat)
-    .forEach((song, index) => {
-      if (song.allowedUsers && song.allowedUsers !== "all") {
-        const allowed = song.allowedUsers.map(u => u.toLowerCase());
-        if (!allowed.includes(currentUser)) {
-          return;
-        }
-      }
-
-      const li = document.createElement("li");
-      li.textContent = song.name;
-      li.dataset.src = song.src;
-      li.dataset.cover = song.cover;
-      li.dataset.cat = song.cat;
-      li.dataset.index = index;
-
-      playlist.appendChild(li);
-    });
-
-  songs = [...playlist.querySelectorAll("li")];
-});
-
-/* ============================
-   🎵 播放器功能
-============================ */
-function highlightSong() {
-  songs.forEach(li => li.classList.remove("active"));
-  if (songs[currentIndex]) songs[currentIndex].classList.add("active");
-}
-
-function playSong(index) {
-  const item = songs[index];
-  if (!item) return;
-
-  currentIndex = index;
-
-  audio.src = item.dataset.src;
-  cover.src = item.dataset.cover;
-  title.textContent = item.textContent;
-
-  audio.play();
-  cover.style.animationPlayState = "running";
-
-  playBtn.textContent = "⏸️";
-  playBtn.classList.add("playing");
-
-  highlightSong();
-
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-
-  if (currentUser === ADMIN_NAME) {
-    markAllRead();
-  }
-
-  loadComments(item.textContent, currentUser);
-}
-
-playlist.addEventListener("click", e => {
-  if (e.target.tagName === "LI") {
-    playSong(parseInt(e.target.dataset.index, 10));
-  }
-});
-
-playBtn.addEventListener("click", () => {
-  if (audio.paused) {
-    audio.play();
-    cover.style.animationPlayState = "running";
-    playBtn.textContent = "⏸️";
-  } else {
-    audio.pause();
-    cover.style.animationPlayState = "paused";
-    playBtn.textContent = "▶️";
-  }
-});
-
-nextBtn.addEventListener("click", () => {
-  if (songs.length === 0) return;
-  playSong((currentIndex + 1) % songs.length);
-});
-
-prevBtn.addEventListener("click", () => {
-  if (songs.length === 0) return;
-  playSong((currentIndex - 1 + songs.length) % songs.length);
 });
 
 /* ============================
@@ -697,12 +785,189 @@ document.getElementById("game-cartoon").addEventListener("click", () => {
    🌸 櫻花接花
 ============================ */
 function startSakuraGame() {
-  //（你原本的遊戲程式碼保持不變）
+  const canvas = document.getElementById("game-canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 400;
+  canvas.height = 400;
+
+  let petals = [];
+  let basketX = 160;
+  let score = 0;
+  let timeLeft = 30;
+  let gameRunning = true;
+
+  function createPetal() {
+    petals.push({
+      x: Math.random() * 380,
+      y: -20,
+      speed: 1 + Math.random() * 2
+    });
+  }
+
+  document.onmousemove = e => {
+    const rect = canvas.getBoundingClientRect();
+    basketX = e.clientX - rect.left - 40;
+  };
+
+  canvas.ontouchmove = e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    basketX = touch.clientX - rect.left - 40;
+  };
+
+  function update() {
+    if (!gameRunning) return;
+
+    ctx.clearRect(0, 0, 400, 400);
+
+    ctx.fillStyle = "#ff8fb3";
+    ctx.fillRect(basketX, 350, 80, 20);
+
+    ctx.fillStyle = "#ffcce0";
+    petals.forEach((p, i) => {
+      p.y += p.speed;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (p.y > 340 && p.x > basketX && p.x < basketX + 80) {
+        score++;
+        petals.splice(i, 1);
+      }
+
+      if (p.y > 400) {
+        score--;
+        petals.splice(i, 1);
+      }
+    });
+
+    requestAnimationFrame(update);
+  }
+
+  sakuraPetalTimer = setInterval(createPetal, 500);
+
+  sakuraTimer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("game-ui").innerHTML =
+      `分數：${score}｜剩餘時間：${timeLeft}s`;
+
+    if (timeLeft <= 0) {
+      gameRunning = false;
+      clearInterval(sakuraTimer);
+      clearInterval(sakuraPetalTimer);
+      document.getElementById("game-ui").innerHTML =
+        `🎉 遊戲結束！你的分數：${score}`;
+    }
+  }, 1000);
+
+  update();
 }
 
 /* ============================
    🎨 卡通跳跳樂
 ============================ */
 function startCartoonGame() {
-  //（你原本的遊戲程式碼保持不變）
+  const canvas = document.getElementById("game-canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 400;
+  canvas.height = 400;
+
+  let player = {
+    x: 50,
+    y: 300,
+    width: 30,
+    height: 30,
+    dy: 0,
+    jumping: false
+  };
+
+  let obstacles = [];
+  let score = 0;
+  let gameRunning = true;
+
+  document.onkeydown = e => {
+    if (e.code === "Space" && !player.jumping) {
+      player.dy = -10;
+      player.jumping = true;
+    }
+  };
+
+  canvas.ontouchstart = e => {
+    e.preventDefault();
+    if (!player.jumping) {
+      player.dy = -10;
+      player.jumping = true;
+    }
+  };
+
+  function createObstacle() {
+    obstacles.push({
+      x: 400,
+      y: 320,
+      width: 30,
+      height: 30,
+      speed: 4
+    });
+  }
+
+  cartoonObstacleTimer = setInterval(() => {
+    if (gameRunning) createObstacle();
+  }, 1200);
+
+  function update() {
+    if (!gameRunning) return;
+
+    ctx.clearRect(0, 0, 400, 400);
+
+    ctx.fillStyle = "#fff1b8";
+    ctx.fillRect(0, 0, 400, 400);
+
+    ctx.fillStyle = "#ffd86b";
+    ctx.fillRect(0, 350, 400, 50);
+
+    ctx.fillStyle = "#ff9900";
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    player.y += player.dy;
+    player.dy += 0.5;
+
+    if (player.y >= 300) {
+      player.y = 300;
+      player.dy = 0;
+      player.jumping = false;
+    }
+
+    ctx.fillStyle = "#ff4444";
+    obstacles.forEach((o, i) => {
+      o.x -= o.speed;
+      ctx.fillRect(o.x, o.y, o.width, o.height);
+
+      if (
+        player.x < o.x + o.width &&
+        player.x + player.width > o.x &&
+        player.y < o.y + o.height &&
+        player.y + player.height > o.y
+      ) {
+        gameRunning = false;
+        clearInterval(cartoonObstacleTimer);
+        document.getElementById("game-ui").innerHTML =
+          `💥 Game Over！分數：${score}`;
+      }
+
+      if (o.x + o.width < 0) {
+        obstacles.splice(i, 1);
+        score++;
+      }
+    });
+
+    document.getElementById("game-ui").innerHTML = `分數：${score}`;
+
+    requestAnimationFrame(update);
+  }
+
+  update();
 }

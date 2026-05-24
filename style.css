@@ -697,5 +697,108 @@ body {
     background: #ffcc00;
     color: #000;
 }
+/* 🎵 播放清單按鈕樣式 */
+#playlist-buttons button {
+    width: 100%;
+    padding: 12px;
+    margin: 6px 0;
+    background: #1DB954;
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
+#playlist-buttons button:hover {
+    background: #1ed760;
+    transform: scale(1.03);
+}
+
+#playlist-buttons button.active {
+    background: #fff;
+    color: #1DB954;
+    font-weight: bold;
+    border: 2px solid #1DB954;
+}
+/* 🎵 播放清單按鈕：4 欄網格 */
+#playlist-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#playlist-buttons button {
+    padding: 12px;
+    background: #1DB954;
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#playlist-buttons button:hover {
+    background: #1ed760;
+    transform: scale(1.05);
+}
+
+#playlist-buttons button.active {
+    background: #fff;
+    color: #1DB954;
+    font-weight: bold;
+    border: 2px solid #1DB954;
+}
+
+/* 📱 手機版自動變成 2 欄 */
+@media (max-width: 768px) {
+    #playlist-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+#playlist-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+#playlist-buttons button {
+    padding: 12px;
+    background: linear-gradient(135deg, #1DB954, #1ed760);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#playlist-buttons button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+#playlist-buttons button.active {
+    background: white;
+    color: #1DB954;
+    border: 2px solid #1DB954;
+    box-shadow: 0 0 12px #1DB954;
+}
+
+@media (max-width: 768px) {
+    #playlist-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 
