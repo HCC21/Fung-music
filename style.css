@@ -243,12 +243,14 @@ body {
    🎵 Playlist 區域
 ============================ */
 #playlist {
-    width: 80%;
-    max-height: 40vh;
+    height: 300px;
     overflow-y: auto;
-    margin-top: 20px;
 }
-
+#login-history {
+    height: 300px;
+    overflow-y: auto;
+    padding-right: 5px; /* 讓捲動條不會遮住文字 */
+}
 /* ============================
    🎵 手機版優化
 ============================ */
@@ -695,3 +697,5 @@ body {
     background: #ffcc00;
     color: #000;
 }
+
+
