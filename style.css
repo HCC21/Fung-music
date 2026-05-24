@@ -86,6 +86,22 @@ body {
     background: #1ed760;
 }
 
+/* ⭐ 手機登入畫面優化 */
+@media (max-width: 768px) {
+    .login-box {
+        width: 85%;
+        padding: 25px;
+    }
+    #username-input,
+    #password-input {
+        width: 100%;
+    }
+    #login-btn {
+        width: 100%;
+        padding: 12px;
+    }
+}
+
 /* ============================
    🎵 主容器
 ============================ */
@@ -146,6 +162,12 @@ body {
     color: #000;
     font-weight: bold;
     transform: scale(1.03);
+}
+
+/* ⭐ 限制登入紀錄高度 */
+#login-history {
+    max-height: 180px;
+    overflow-y: auto;
 }
 
 /* ============================
@@ -238,19 +260,18 @@ body {
 ============================ */
 #playlist {
     width: 80%;
-    max-height: 40vh;
+    max-height: 60vh;   /* ⭐ 原本 40vh → 60vh */
     overflow-y: auto;
     margin-top: 20px;
 }
 
 /* ============================
-   🎵 手機版優化（強化版）
+   🎵 手機版優化
 ============================ */
 @media (max-width: 768px) {
 
     body {
-        overflow-y: auto;
-        background: #000;
+        overflow: auto;
     }
 
     .container {
@@ -260,35 +281,20 @@ body {
 
     .sidebar {
         width: 100%;
-        height: auto;
+        max-height: 50vh; /* ⭐ 新增 */
+        overflow-y: auto;
         text-align: center;
-        padding: 15px;
         padding-bottom: 10px;
-        border-bottom: 1px solid #333;
     }
 
-    .search-box {
-        width: 90%;
-        margin: 0 auto 15px;
-        font-size: 18px;
-        padding: 12px;
-    }
-
-    #playlist {
-        width: 95%;
-        max-height: 50vh;
-        margin: 10px auto;
-    }
-
-    #playlist li {
-        padding: 14px;
-        font-size: 18px;
+    /* ⭐ 播放器縮窄 */
+    .player-area > * {
+        max-width: 320px;
+        width: 100%;
     }
 
     .player-area {
-        padding-top: 10px;
-        width: 100%;
-        align-items: center;
+        padding-top: 20px;
     }
 
     .cd-wrapper {
@@ -302,38 +308,12 @@ body {
     }
 
     .controls button {
-        padding: 12px 16px;
-        font-size: 22px;
+        padding: 10px 14px;
+        font-size: 18px;
     }
 
     #progress {
-        width: 80%;
-    }
-
-    #comment-section {
-        width: 95%;
-        margin: 20px auto;
-    }
-
-    #comment-input {
-        font-size: 16px;
-        padding: 10px;
-    }
-
-    #comment-submit {
-        width: 100%;
-        padding: 12px;
-        font-size: 18px;
-        margin-top: 8px;
-    }
-
-    #game-canvas {
-        width: 300px;
-        height: 300px;
-    }
-
-    .game-box {
-        transform: scale(0.9);
+        width: 70%;
     }
 }
 
@@ -474,7 +454,9 @@ body {
     color: #fff;
 }
 
-/* 🌸 櫻花模式 */
+/* ============================
+   🌸 櫻花模式
+============================ */
 .theme-sakura {
     background: #ffeaf4;
     color: #5a2a3c;
@@ -509,7 +491,9 @@ body {
     filter: drop-shadow(0 0 30px #ff8fb3);
 }
 
-/* 🟦 科技模式（Cyber Tech） */
+/* ============================
+   🟦 科技模式
+============================ */
 .theme-tech {
     background: #0a0f1f;
     color: #8bd3ff;
@@ -545,7 +529,9 @@ body {
     filter: drop-shadow(0 0 35px #00eaff);
 }
 
-/* 🎨 卡通模式（Cartoon） */
+/* ============================
+   🎨 卡通模式
+============================ */
 .theme-cartoon {
     background: #fff7d1;
     color: #333;
@@ -581,7 +567,9 @@ body {
     filter: drop-shadow(0 0 25px #ffcc00);
 }
 
-/* ☀️ 亮色模式（Light） */
+/* ============================
+   ☀️ 亮色模式
+============================ */
 .theme-light {
     background: #f7f7f7;
     color: #222;
@@ -615,42 +603,6 @@ body {
 
 .theme-light .cd-wrapper {
     filter: drop-shadow(0 0 25px #1DB954);
-}
-
-/* 🌙 深色模式（Dark） */
-.theme-dark {
-    background: #0f0f0f;
-    color: #f2f2f2;
-}
-
-.theme-dark .sidebar {
-    background: #1a1a1a;
-    border-right: 1px solid #333;
-}
-
-.theme-dark .player-area {
-    background: #181818;
-}
-
-.theme-dark #playlist li,
-.theme-dark #categories li {
-    background: #222;
-    color: #eee;
-}
-
-.theme-dark #playlist li:hover,
-.theme-dark #categories li:hover {
-    background: #333;
-}
-
-.theme-dark #playlist li.active,
-.theme-dark #categories li.active {
-    background: #444;
-    color: #fff;
-}
-
-.theme-dark .cd-wrapper {
-    filter: drop-shadow(0 0 25px #888);
 }
 
 /* ============================
@@ -702,7 +654,7 @@ body {
     color: white;
 }
 
-/* 🌸 櫻花模式遊戲配色 */
+/* 櫻花模式遊戲配色 */
 .theme-sakura #game-canvas {
     background: #ffeaf4;
 }
@@ -715,7 +667,7 @@ body {
     background: #ff8fb3;
 }
 
-/* 🎨 卡通模式遊戲配色 */
+/* 卡通模式遊戲配色 */
 .theme-cartoon #game-canvas {
     background: #fff7d1;
 }
