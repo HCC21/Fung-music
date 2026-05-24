@@ -249,42 +249,100 @@ body {
 @media (max-width: 768px) {
 
     body {
-        overflow: auto;
+        overflow-y: auto;
+        background: #000;
     }
 
+    /* 整體改為上下排列 */
     .container {
         flex-direction: column;
         height: auto;
     }
 
+    /* Sidebar 改成「可收合」風格 */
     .sidebar {
         width: 100%;
         height: auto;
+        padding: 15px;
         text-align: center;
-        padding-bottom: 10px;
+        border-bottom: 1px solid #333;
     }
 
+    /* 搜尋框更大更好按 */
+    .search-box {
+        width: 90%;
+        margin: 0 auto 15px;
+        font-size: 18px;
+        padding: 12px;
+    }
+
+    /* Playlist 更寬、更易按 */
+    #playlist {
+        width: 95%;
+        max-height: 50vh;
+        margin: 10px auto;
+    }
+
+    #playlist li {
+        padding: 14px;
+        font-size: 18px;
+    }
+
+    /* Player 區域置中 */
     .player-area {
-        padding-top: 20px;
+        padding-top: 10px;
+        width: 100%;
+        align-items: center;
     }
 
+    /* CD 大小調整 */
     .cd-wrapper {
-        width: 220px;
-        height: 220px;
-    }
-
-    .cd {
         width: 200px;
         height: 200px;
     }
 
-    .controls button {
-        padding: 10px 14px;
-        font-size: 18px;
+    .cd {
+        width: 180px;
+        height: 180px;
     }
 
+    /* 控制按鈕更大 */
+    .controls button {
+        padding: 12px 16px;
+        font-size: 22px;
+    }
+
+    /* 進度條更寬 */
     #progress {
-        width: 70%;
+        width: 80%;
+    }
+
+    /* 留言區手機優化 */
+    #comment-section {
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    #comment-input {
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    #comment-submit {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+        margin-top: 8px;
+    }
+
+    /* 小遊戲畫面自動縮放 */
+    #game-canvas {
+        width: 300px;
+        height: 300px;
+    }
+
+    .game-box {
+        transform: scale(0.9);
     }
 }
 
