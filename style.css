@@ -104,7 +104,7 @@ body {
     background: #000;
     padding: 20px;
     overflow-y: auto;
-    height: 100vh; /* ⭐ 修正排版 */
+    height: 100vh;
     box-sizing: border-box;
 }
 
@@ -153,7 +153,7 @@ body {
 ============================ */
 .player-area {
     flex: 1;
-    display: flex;              /* ⭐ 置中排版 */
+    display: flex;
     flex-direction: column;
     align-items: center;
     padding-top: 40px;
@@ -238,13 +238,13 @@ body {
 ============================ */
 #playlist {
     width: 80%;
-    max-height: 40vh;   /* ⭐ 防止推亂排版 */
+    max-height: 40vh;
     overflow-y: auto;
     margin-top: 20px;
 }
 
 /* ============================
-   🎵 手機版優化
+   🎵 手機版優化（強化版）
 ============================ */
 @media (max-width: 768px) {
 
@@ -253,22 +253,20 @@ body {
         background: #000;
     }
 
-    /* 整體改為上下排列 */
     .container {
         flex-direction: column;
         height: auto;
     }
 
-    /* Sidebar 改成「可收合」風格 */
     .sidebar {
         width: 100%;
         height: auto;
-        padding: 15px;
         text-align: center;
+        padding: 15px;
+        padding-bottom: 10px;
         border-bottom: 1px solid #333;
     }
 
-    /* 搜尋框更大更好按 */
     .search-box {
         width: 90%;
         margin: 0 auto 15px;
@@ -276,7 +274,6 @@ body {
         padding: 12px;
     }
 
-    /* Playlist 更寬、更易按 */
     #playlist {
         width: 95%;
         max-height: 50vh;
@@ -288,14 +285,12 @@ body {
         font-size: 18px;
     }
 
-    /* Player 區域置中 */
     .player-area {
         padding-top: 10px;
         width: 100%;
         align-items: center;
     }
 
-    /* CD 大小調整 */
     .cd-wrapper {
         width: 200px;
         height: 200px;
@@ -306,18 +301,15 @@ body {
         height: 180px;
     }
 
-    /* 控制按鈕更大 */
     .controls button {
         padding: 12px 16px;
         font-size: 22px;
     }
 
-    /* 進度條更寬 */
     #progress {
         width: 80%;
     }
 
-    /* 留言區手機優化 */
     #comment-section {
         width: 95%;
         margin: 20px auto;
@@ -335,7 +327,6 @@ body {
         margin-top: 8px;
     }
 
-    /* 小遊戲畫面自動縮放 */
     #game-canvas {
         width: 300px;
         height: 300px;
@@ -374,6 +365,7 @@ body {
     0% { transform: scale(0.6); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
+
 /* ============================
    🎛️ 管理員後台排版
 ============================ */
@@ -471,6 +463,7 @@ body {
 #admin-close:hover {
     background: #555;
 }
+
 /* ============================
    🌈 多主題系統（正式版）
 ============================ */
@@ -481,9 +474,7 @@ body {
     color: #fff;
 }
 
-/* ============================
-   🌸 櫻花模式
-============================ */
+/* 🌸 櫻花模式 */
 .theme-sakura {
     background: #ffeaf4;
     color: #5a2a3c;
@@ -497,7 +488,6 @@ body {
     background: #ffeaf4;
 }
 
-/* Playlist + Categories */
 .theme-sakura #playlist li,
 .theme-sakura #categories li {
     background: #ffe0ed;
@@ -515,14 +505,11 @@ body {
     color: white;
 }
 
-/* CD 光暈 */
 .theme-sakura .cd-wrapper {
     filter: drop-shadow(0 0 30px #ff8fb3);
 }
 
-/* ============================
-   🟦 科技模式（Cyber Tech）
-============================ */
+/* 🟦 科技模式（Cyber Tech） */
 .theme-tech {
     background: #0a0f1f;
     color: #8bd3ff;
@@ -558,9 +545,7 @@ body {
     filter: drop-shadow(0 0 35px #00eaff);
 }
 
-/* ============================
-   🎨 卡通模式（Cartoon）
-============================ */
+/* 🎨 卡通模式（Cartoon） */
 .theme-cartoon {
     background: #fff7d1;
     color: #333;
@@ -596,9 +581,7 @@ body {
     filter: drop-shadow(0 0 25px #ffcc00);
 }
 
-/* ============================
-   ☀️ 亮色模式（Light）
-============================ */
+/* ☀️ 亮色模式（Light） */
 .theme-light {
     background: #f7f7f7;
     color: #222;
@@ -634,9 +617,7 @@ body {
     filter: drop-shadow(0 0 25px #1DB954);
 }
 
-/* ============================
-   🌙 深色模式（Dark）
-============================ */
+/* 🌙 深色模式（Dark） */
 .theme-dark {
     background: #0f0f0f;
     color: #f2f2f2;
@@ -670,168 +651,8 @@ body {
 
 .theme-dark .cd-wrapper {
     filter: drop-shadow(0 0 25px #888);
-}/* ============================
-   🌈 多主題系統（正式版）
-============================ */
-
-/* ⭐ 預設主題 */
-.theme-default {
-    background: #121212;
-    color: #fff;
 }
 
-/* ============================
-   🌸 櫻花模式
-============================ */
-.theme-sakura {
-    background: #ffeaf4;
-    color: #5a2a3c;
-}
-
-.theme-sakura .sidebar {
-    background: #ffd6e8;
-}
-
-.theme-sakura .player-area {
-    background: #ffeaf4;
-}
-
-/* Playlist + Categories */
-.theme-sakura #playlist li,
-.theme-sakura #categories li {
-    background: #ffe0ed;
-    color: #5a2a3c;
-}
-
-.theme-sakura #playlist li:hover,
-.theme-sakura #categories li:hover {
-    background: #ffbcd6;
-}
-
-.theme-sakura #playlist li.active,
-.theme-sakura #categories li.active {
-    background: #ff8fb3;
-    color: white;
-}
-
-/* CD 光暈 */
-.theme-sakura .cd-wrapper {
-    filter: drop-shadow(0 0 30px #ff8fb3);
-}
-
-/* ============================
-   🟦 科技模式（Cyber Tech）
-============================ */
-.theme-tech {
-    background: #0a0f1f;
-    color: #8bd3ff;
-}
-
-.theme-tech .sidebar {
-    background: #0d1228;
-    border-right: 1px solid #1e2a4a;
-}
-
-.theme-tech .player-area {
-    background: #0a0f1f;
-}
-
-.theme-tech #playlist li,
-.theme-tech #categories li {
-    background: #111a33;
-    color: #8bd3ff;
-}
-
-.theme-tech #playlist li:hover,
-.theme-tech #categories li:hover {
-    background: #1a2647;
-}
-
-.theme-tech #playlist li.active,
-.theme-tech #categories li.active {
-    background: #00eaff;
-    color: #00121a;
-}
-
-.theme-tech .cd-wrapper {
-    filter: drop-shadow(0 0 35px #00eaff);
-}
-
-/* ============================
-   🎨 卡通模式（Cartoon）
-============================ */
-.theme-cartoon {
-    background: #fff7d1;
-    color: #333;
-}
-
-.theme-cartoon .sidebar {
-    background: #ffe9a3;
-}
-
-.theme-cartoon .player-area {
-    background: #fff7d1;
-}
-
-.theme-cartoon #playlist li,
-.theme-cartoon #categories li {
-    background: #ffe9a3;
-    color: #333;
-    border-radius: 12px;
-}
-
-.theme-cartoon #playlist li:hover,
-.theme-cartoon #categories li:hover {
-    background: #ffd86b;
-}
-
-.theme-cartoon #playlist li.active,
-.theme-cartoon #categories li.active {
-    background: #ffcc00;
-    color: #000;
-}
-
-.theme-cartoon .cd-wrapper {
-    filter: drop-shadow(0 0 25px #ffcc00);
-}
-
-/* ============================
-   ☀️ 亮色模式（Light）
-============================ */
-.theme-light {
-    background: #f7f7f7;
-    color: #222;
-}
-
-.theme-light .sidebar {
-    background: #ffffff;
-    border-right: 1px solid #ddd;
-}
-
-.theme-light .player-area {
-    background: #f7f7f7;
-}
-
-.theme-light #playlist li,
-.theme-light #categories li {
-    background: #e6e6e6;
-    color: #222;
-}
-
-.theme-light #playlist li:hover,
-.theme-light #categories li:hover {
-    background: #d4d4d4;
-}
-
-.theme-light #playlist li.active,
-.theme-light #categories li.active {
-    background: #1DB954;
-    color: white;
-}
-
-.theme-light .cd-wrapper {
-    filter: drop-shadow(0 0 25px #1DB954);
-}
 /* ============================
    🎮 小遊戲 Modal
 ============================ */
@@ -880,6 +701,7 @@ body {
     text-align: center;
     color: white;
 }
+
 /* 🌸 櫻花模式遊戲配色 */
 .theme-sakura #game-canvas {
     background: #ffeaf4;
@@ -892,6 +714,7 @@ body {
 .theme-sakura .game-close {
     background: #ff8fb3;
 }
+
 /* 🎨 卡通模式遊戲配色 */
 .theme-cartoon #game-canvas {
     background: #fff7d1;
