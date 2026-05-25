@@ -425,6 +425,9 @@ loginBtn.addEventListener("click", async () => {
 
   loginScreen.style.display = "none";
   welcomeText.textContent = `🎵 歡迎你，${name}`;
+document.getElementById("categories-select").value = "all";
+generatePlaylist("all", "");
+
 
   if (name === ADMIN_NAME) {
     adminPasswordInput.style.display = "block";
