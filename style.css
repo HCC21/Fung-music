@@ -847,4 +847,17 @@ body {
     0% { transform: scale(0.85); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
+/* 🎵 固定播放清單高度 + 自動捲動 */
+#playlist-buttons {
+    max-height: 320px;   /* ⭐ 你可以改成 250 / 300 / 350 */
+    overflow-y: auto;
+    padding-right: 6px;  /* 避免捲動條遮住文字 */
+}
+
+/* 📱 手機版高度再小一點 */
+@media (max-width: 768px) {
+    #playlist-buttons {
+        max-height: 240px;
+    }
+}
 
