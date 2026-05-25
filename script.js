@@ -170,9 +170,24 @@ function generatePlaylist(filterCat = "all", keyword = "") {
       if (!allowed.includes(currentUser)) return;
     }
 
+    // 🎵 建立按鈕（加入封面 + 名字）
     const btn = document.createElement("button");
-    btn.textContent = song.name;
+    btn.classList.add("playlist-item");
     btn.dataset.realIndex = realIndex;
+
+    btn.innerHTML = `
+      <img src="${song.cover}" class="playlist-cover">
+      <span class="playlist-title">${song.name}</span>
+    `;
+
+    // ⭐ 自動取色（封面 dominant color）
+    const img = new Image();
+    img.src = song.cover;
+    img.onload = () => {
+      const color = getDominantColor(img);
+      btn.style.background = `rgba(${color.r}, ${color.g}, ${color.b}, 0.25)`;
+      btn.style.borderColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.45)`;
+    };
 
     btn.addEventListener("click", () => playSong(realIndex));
 
@@ -685,4 +700,30 @@ function startCartoonGame() {
   }
 
   update();
+}
+function getDominantColor(image) {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = image.width;
+  canvas.height = image.height;
+
+  ctx.drawImage(image, 0, 0);
+
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+  let r = 0, g = 0, b = 0, count = 0;
+
+  for (let i = 0; i < data.length; i += 20) {
+    r += data[i];
+    g += data[i + 1];
+    b += data[i + 2];
+    count++;
+  }
+
+  return {
+    r: Math.floor(r / count),
+    g: Math.floor(g / count),
+    b: Math.floor(b / count)
+  };
 }

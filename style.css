@@ -297,6 +297,19 @@ body {
         max-height: 240px;
     }
 }
+/* 封面縮圖（最佳尺寸） */
+.playlist-cover {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+@media (max-width: 768px) {
+    .playlist-cover {
+        width: 38px;
+        height: 38px;
+    }
+}
 
 /* ============================
    🎮 小遊戲 Modal
