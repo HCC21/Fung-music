@@ -266,6 +266,13 @@ body {
         max-height: none !important;
         overflow: visible !important;
     }
+@media (max-width: 768px) {
+    .player-area {
+        justify-content: flex-start;   /* ⭐ 由置中改為頂部開始 */
+        padding-top: 20px;             /* ⭐ 減少空白 */
+    }
+}
+
 }   /* ←⭐ 這個大括號你之前漏咗 */
 
 
