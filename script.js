@@ -568,10 +568,7 @@ loginBtn.addEventListener("click", async () => {
     await loadAdminHistory();
   }
 
-  generatePlaylist(); // ⭐ 登入後生成播放清單
-btn.addEventListener("click", () => {
-  playSong(realIndex);
-});
+  generatePlaylist(); 
 
   showWelcomePopup(name);
 });

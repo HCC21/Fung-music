@@ -120,13 +120,6 @@ const songsData = [
     cat: "other",
     allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
 },
-{
-    name: "沒有你的愛",
-    src: "music/manman/沒有你的愛.mp3",
-    cover: "covers/man5.jpg",
-    cat: "other",
-    allowedUsers: ["fungfung", "manman"]   // ⭐ 正確寫法
-},
  {   name: "不想獨自快樂",
     src: "music/manman/不想獨自快樂.mp3",
     cover: "covers/man7.jpg",
