@@ -125,7 +125,7 @@ body {
     flex-direction: column;
     align-items: center;
     padding-top: 40px;
-    overflow-y: hidden;
+    overflow-y: visible;
 }
 
 .cd-wrapper {
@@ -254,20 +254,16 @@ body {
     }
 }
 
-/* 📱 手機版播放清單 */
 @media (max-width: 768px) {
-    #playlist-buttons {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* ⭐ 兩欄 */
-        gap: 14px;
-        width: 100%;
-    }
-
-    #playlist-buttons button {
-        width: 100%;
-        font-size: 16px;
-        padding: 16px;
-    }
+#playlist-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* ⭐ 手機版兩欄 */
+    gap: 14px;
+    width: 100%;
+}
+#playlist-section {
+    max-height: none !important;   /* ⭐ 取消高度限制 */
+    overflow: visible !important;  /* ⭐ 允許內容完全顯示 */
 }
 
 /* ============================
