@@ -374,13 +374,37 @@ body {
 }
 
 /* 頂部選單：手機自動換行 + 可滑動 */
+/* 頂部選單固定一行 + 左右滑動 */
 .sidebar {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    left: 0;
+    background: #000;
+    padding: 12px 15px;
+
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px;
-    overflow-x: auto;
+    flex-wrap: nowrap;        /* ❗ 不換行 */
+    align-items: center;
+    gap: 20px;
+
+    overflow-x: auto;         /* ❗ 左右滑動 */
+    white-space: nowrap;      /* ❗ 所有元素保持一行 */
+    scrollbar-width: none;    /* 隱藏捲軸（Firefox） */
 }
+
+.sidebar::-webkit-scrollbar {
+    display: none;            /* 隱藏捲軸（Chrome / Safari） */
+}
+@media (max-width: 768px) {
+    .sidebar {
+        flex-wrap: nowrap;    /* ❗ 手機都唔換行 */
+        overflow-x: scroll;
+        padding-bottom: 10px;
+    }
+}
+
 
 /* 搜尋框在手機放大 */
 @media (max-width: 768px) {
