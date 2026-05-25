@@ -154,12 +154,8 @@ body {
         flex-wrap: nowrap;    
         overflow-x: scroll;
         padding-bottom: 10px;
-    }
-    .sidebar select {
-        padding: 12px 16px;
-        font-size: 17px;
-    }
-}
+    
+   }
 
 /* ============================
    🎵 Player Area
