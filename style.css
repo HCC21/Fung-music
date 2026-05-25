@@ -6,67 +6,44 @@ body {
     background: #121212;
     color: #fff;
     font-family: Arial, sans-serif;
-    overflow: hidden;
-}
-
-/* 動態背景 */
-.dynamic-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    filter: blur(40px) brightness(0.4);
-    z-index: -1;
-}
-
-#fireworks {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 99999;
+    overflow-x: hidden;
 }
 
 /* ============================
-   🎵 全屏登入頁（已修正）
+   🎵 登入畫面（置中＋手機美化）
 ============================ */
 .login-screen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background: #000;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    background: #000;
     z-index: 999;
-    transition: opacity 0.6s ease;
-}
-
-.login-screen.fade-out {
-    opacity: 0;
 }
 
 .login-box {
     text-align: center;
-    background: #181818;
+    background: rgba(0,0,0,0.75);
     padding: 35px 30px;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: 0 0 20px #000;
-    width: 260px; /* ⭐ 固定寬度，避免太大 */
+    width: 260px;
+    backdrop-filter: blur(12px);
+    animation: loginPop 0.6s ease;
 }
 
-.login-box h1 {
-    margin-bottom: 20px;
+@keyframes loginPop {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-/* ⭐ 限制輸入框寬度（約 10 字） */
 #username-input,
 #password-input {
-    width: 180px;   /* ⭐ 約 10 字 */
+    width: 180px;
     padding: 12px;
     border-radius: 8px;
     border: none;
@@ -75,7 +52,6 @@ body {
     text-align: center;
 }
 
-/* ⭐ 登入按鈕放在密碼下面，寬度一致 */
 #login-btn {
     padding: 12px 20px;
     background: #1DB954;
@@ -84,74 +60,104 @@ body {
     font-size: 18px;
     cursor: pointer;
     transition: 0.2s;
-    width: 180px; /* ⭐ 與輸入框一致 */
-    margin-top: 5px;
+    width: 180px;
 }
 
 #login-btn:hover {
     background: #1ed760;
 }
 
-/* ============================
-   🎵 主容器
-============================ */
-.container {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    box-sizing: border-box;
+/* 📱 手機登入美化 */
+@media (max-width: 768px) {
+    .login-screen {
+        padding: 0 20px;
+        background: linear-gradient(135deg, #000, #1a1a1a);
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 320px;
+        padding: 30px 25px;
+    }
+
+    #username-input,
+    #password-input {
+        width: 100%;
+        font-size: 18px;
+        padding: 14px;
+    }
+
+    #login-btn {
+        width: 100%;
+        padding: 14px;
+        font-size: 20px;
+    }
 }
 
 /* ============================
-   🎵 Sidebar
+   🎵 頂部橫向導航列（取代左側 Sidebar）
 ============================ */
 .sidebar {
-    width: 260px;
-    background: #000;
-    padding: 20px;
-    overflow-y: auto;
-    height: 100vh;
-    box-sizing: border-box;
-}
-
-.sidebar h2, .sidebar h3 {
-    margin-bottom: 15px;
-}
-
-/* 搜尋框 */
-.search-box {
     width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: none;
-    margin-bottom: 15px;
-    background: #222;
-    color: #fff;
+    height: auto;
+    position: sticky;
+    top: 0;
+    left: 0;
+    background: #000;
+    padding: 12px 15px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+    z-index: 999;
+    border-bottom: 1px solid #222;
 }
 
-/* Playlist & Categories */
-#categories li,
-#playlist li {
-    list-style: none;
-    padding: 10px;
-    margin: 5px 0;
+.sidebar h2,
+.sidebar h3,
+.sidebar ul,
+.sidebar select,
+.sidebar input,
+.sidebar button {
+    margin: 0;
+    display: inline-block;
+}
+
+/* 搜尋框縮小 */
+.search-box {
+    width: 150px;
+}
+
+/* 🎵 下拉選單（分類 + 遊戲 + 主題） */
+.sidebar select {
+    padding: 10px 14px;
     background: #181818;
-    border-radius: 6px;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 8px;
+    font-size: 15px;
     cursor: pointer;
-    transition: 0.2s;
 }
 
-#categories li:hover,
-#playlist li:hover {
-    background: #333;
+.sidebar select:focus {
+    outline: none;
+    border-color: #1DB954;
+    box-shadow: 0 0 8px #1DB954;
 }
 
-/* ⭐ 播放中高亮 */
-#playlist li.active {
-    background: #1DB954;
-    color: #000;
-    font-weight: bold;
-    transform: scale(1.03);
+/* 📱 手機版可滑動 */
+@media (max-width: 768px) {
+    .sidebar {
+        overflow-x: scroll;
+        padding-bottom: 10px;
+    }
+
+    .sidebar select {
+        padding: 12px 16px;
+        font-size: 17px;
+    }
 }
 
 /* ============================
@@ -166,7 +172,6 @@ body {
     overflow-y: auto;
 }
 
-/* CD 光暈效果 */
 .cd-wrapper {
     width: 320px;
     height: 320px;
@@ -175,7 +180,6 @@ body {
     filter: drop-shadow(0 0 40px #1DB954);
 }
 
-/* CD 旋轉 */
 .cd {
     width: 280px;
     height: 280px;
@@ -190,9 +194,6 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* ============================
-   🎵 進度條
-============================ */
 .progress-container {
     display: flex;
     align-items: center;
@@ -206,9 +207,6 @@ body {
     width: 60%;
 }
 
-/* ============================
-   🎵 控制按鈕
-============================ */
 .controls {
     margin-top: 20px;
 }
@@ -228,398 +226,71 @@ body {
     background: #1ed760;
 }
 
-/* ⭐ 播放按鈕動畫 */
-.play-btn.playing {
-    animation: pulse 1s infinite ease-in-out;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.12); }
-    100% { transform: scale(1); }
-}
-
 /* ============================
-   🎵 Playlist 區域
+   ⭐ 留言區
 ============================ */
-#playlist {
-    height: 300px;
-    overflow-y: auto;
-}
-#login-history {
-    height: 300px;
-    overflow-y: auto;
-    padding-right: 5px; /* 讓捲動條不會遮住文字 */
-}
-/* ============================
-   🎵 手機版優化
-============================ */
-@media (max-width: 768px) {
-
-    body {
-        overflow: auto;
-    }
-
-    .container {
-        flex-direction: column;
-        height: auto;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        text-align: center;
-        padding-bottom: 10px;
-    }
-
-    .player-area {
-        padding-top: 20px;
-    }
-
-    .cd-wrapper {
-        width: 220px;
-        height: 220px;
-    }
-
-    .cd {
-        width: 200px;
-        height: 200px;
-    }
-
-    .controls button {
-        padding: 10px 14px;
-        font-size: 18px;
-    }
-
-    #progress {
-        width: 70%;
-    }
-}
-
-/* ============================
-   🎉 登入後歡迎提示
-============================ */
-.welcome-popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 900;
-}
-
-.welcome-box {
-    background: rgba(0,0,0,0.85);
-    padding: 30px 40px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 0 20px #000;
-    animation: popIn 0.5s ease;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* ============================
-   🎛️ 管理員後台排版
-============================ */
-.admin-panel {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 420px;
-    max-height: 80vh;
-    overflow-y: auto;
-    background: #181818;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
-    z-index: 9999;
-    color: #fff;
-}
-
-.admin-panel h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.admin-panel h3 {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    border-left: 4px solid #1DB954;
-    padding-left: 8px;
-}
-
-.admin-panel ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.admin-panel li {
-    background: #222;
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.admin-panel li button {
-    background: #ff4d4d;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    color: #fff;
-}
-
-.admin-panel li button:hover {
-    background: #ff6666;
-}
-
-.admin-panel input {
-    width: 100%;
+#comment-section textarea {
+    border-radius: 8px;
     padding: 10px;
-    border-radius: 6px;
     border: none;
-    margin-bottom: 10px;
-    background: #222;
-    color: #fff;
+    resize: none;
 }
 
-#add-user-btn {
-    width: 100%;
-    padding: 12px;
+#comment-submit {
+    margin-top: 8px;
+    padding: 10px 15px;
     background: #1DB954;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    margin-top: 5px;
 }
 
-#add-user-btn:hover {
-    background: #1ed760;
+/* ============================
+   🎵 播放清單固定高度
+============================ */
+#playlist-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 6px;
 }
 
-#admin-close {
-    width: 100%;
+#playlist-buttons button {
     padding: 12px;
-    background: #444;
+    background: linear-gradient(135deg, #1DB954, #1ed760);
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 15px;
-}
-
-#admin-close:hover {
-    background: #555;
-}
-
-/* ============================
-   🌈 多主題系統（正式版）
-============================ */
-
-/* ⭐ 預設主題 */
-.theme-default {
-    background: #121212;
-    color: #fff;
-}
-
-/* ============================
-   🌸 櫻花模式
-============================ */
-.theme-sakura {
-    background: #ffeaf4;
-    color: #5a2a3c;
-}
-
-.theme-sakura .sidebar {
-    background: #ffd6e8;
-}
-
-.theme-sakura .player-area {
-    background: #ffeaf4;
-}
-
-.theme-sakura #playlist li,
-.theme-sakura #categories li {
-    background: #ffe0ed;
-    color: #5a2a3c;
-}
-
-.theme-sakura #playlist li:hover,
-.theme-sakura #categories li:hover {
-    background: #ffbcd6;
-}
-
-.theme-sakura #playlist li.active,
-.theme-sakura #categories li.active {
-    background: #ff8fb3;
-    color: white;
-}
-
-.theme-sakura .cd-wrapper {
-    filter: drop-shadow(0 0 30px #ff8fb3);
-}
-
-/* ============================
-   🟦 科技模式（Cyber Tech）
-============================ */
-.theme-tech {
-    background: #0a0f1f;
-    color: #8bd3ff;
-}
-
-.theme-tech .sidebar {
-    background: #0d1228;
-    border-right: 1px solid #1e2a4a;
-}
-
-.theme-tech .player-area {
-    background: #0a0f1f;
-}
-
-.theme-tech #playlist li,
-.theme-tech #categories li {
-    background: #111a33;
-    color: #8bd3ff;
-}
-
-.theme-tech #playlist li:hover,
-.theme-tech #categories li:hover {
-    background: #1a2647;
-}
-
-.theme-tech #playlist li.active,
-.theme-tech #categories li.active {
-    background: #00eaff;
-    color: #00121a;
-}
-
-.theme-tech .cd-wrapper {
-    filter: drop-shadow(0 0 35px #00eaff);
-}
-
-/* ============================
-   🎨 卡通模式（Cartoon）
-============================ */
-.theme-cartoon {
-    background: #fff7d1;
-    color: #333;
-}
-
-.theme-cartoon .sidebar {
-    background: #ffe9a3;
-}
-
-.theme-cartoon .player-area {
-    background: #fff7d1;
-}
-
-.theme-cartoon #playlist li,
-.theme-cartoon #categories li {
-    background: #ffe9a3;
-    color: #333;
     border-radius: 12px;
-}
-
-.theme-cartoon #playlist li:hover,
-.theme-cartoon #categories li:hover {
-    background: #ffd86b;
-}
-
-.theme-cartoon #playlist li.active,
-.theme-cartoon #categories li.active {
-    background: #ffcc00;
     color: #000;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.theme-cartoon .cd-wrapper {
-    filter: drop-shadow(0 0 25px #ffcc00);
+#playlist-buttons button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35);
 }
 
-/* ============================
-   ☀️ 亮色模式（Light）
-============================ */
-.theme-light {
-    background: #f7f7f7;
-    color: #222;
+#playlist-buttons button.active {
+    background: white;
+    color: #1DB954;
+    border: 2px solid #1DB954;
+    box-shadow: 0 0 12px #1DB954;
 }
 
-.theme-light .sidebar {
-    background: #ffffff;
-    border-right: 1px solid #ddd;
-}
-
-.theme-light .player-area {
-    background: #f7f7f7;
-}
-
-.theme-light #playlist li,
-.theme-light #categories li {
-    background: #e6e6e6;
-    color: #222;
-}
-
-.theme-light #playlist li:hover,
-.theme-light #categories li:hover {
-    background: #d4d4d4;
-}
-
-.theme-light #playlist li.active,
-.theme-light #categories li.active {
-    background: #1DB954;
-    color: white;
-}
-
-.theme-light .cd-wrapper {
-    filter: drop-shadow(0 0 25px #1DB954);
-}
-
-/* ============================
-   🌙 深色模式（Dark）
-============================ */
-.theme-dark {
-    background: #0f0f0f;
-    color: #f2f2f2;
-}
-
-.theme-dark .sidebar {
-    background: #1a1a1a;
-    border-right: 1px solid #333;
-}
-
-.theme-dark .player-area {
-    background: #181818;
-}
-
-.theme-dark #playlist li,
-.theme-dark #categories li {
-    background: #222;
-    color: #eee;
-}
-
-.theme-dark #playlist li:hover,
-.theme-dark #categories li:hover {
-    background: #333;
-}
-
-.theme-dark #playlist li.active,
-.theme-dark #categories li.active {
-    background: #444;
-    color: #fff;
-}
-
-.theme-dark .cd-wrapper {
-    filter: drop-shadow(0 0 25px #888);
+/* 📱 手機版 2 欄 */
+@media (max-width: 768px) {
+    #playlist-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        max-height: 240px;
+    }
 }
 
 /* ============================
@@ -669,210 +340,4 @@ body {
     margin-top: 10px;
     text-align: center;
     color: white;
-}
-
-/* 🌸 櫻花模式遊戲配色 */
-.theme-sakura #game-canvas {
-    background: #ffeaf4;
-}
-
-.theme-sakura .game-box {
-    background: #ffd6e8;
-}
-
-.theme-sakura .game-close {
-    background: #ff8fb3;
-}
-
-/* 🎨 卡通模式遊戲配色 */
-.theme-cartoon #game-canvas {
-    background: #fff7d1;
-}
-
-.theme-cartoon .game-box {
-    background: #ffe9a3;
-}
-
-.theme-cartoon .game-close {
-    background: #ffcc00;
-    color: #000;
-}
-/* 🎵 播放清單按鈕樣式 */
-#playlist-buttons button {
-    width: 100%;
-    padding: 12px;
-    margin: 6px 0;
-    background: #1DB954;
-    border: none;
-    border-radius: 8px;
-    color: #000;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-#playlist-buttons button:hover {
-    background: #1ed760;
-    transform: scale(1.03);
-}
-
-#playlist-buttons button.active {
-    background: #fff;
-    color: #1DB954;
-    font-weight: bold;
-    border: 2px solid #1DB954;
-}
-/* 🎵 播放清單按鈕：4 欄網格 */
-#playlist-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-top: 10px;
-}
-
-#playlist-buttons button {
-    padding: 12px;
-    background: #1DB954;
-    border: none;
-    border-radius: 8px;
-    color: #000;
-    font-size: 15px;
-    cursor: pointer;
-    transition: 0.2s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#playlist-buttons button:hover {
-    background: #1ed760;
-    transform: scale(1.05);
-}
-
-#playlist-buttons button.active {
-    background: #fff;
-    color: #1DB954;
-    font-weight: bold;
-    border: 2px solid #1DB954;
-}
-
-/* 📱 手機版自動變成 2 欄 */
-@media (max-width: 768px) {
-    #playlist-buttons {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-#playlist-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-}
-
-#playlist-buttons button {
-    padding: 12px;
-    background: linear-gradient(135deg, #1DB954, #1ed760);
-    border: none;
-    border-radius: 12px;
-    color: #000;
-    font-size: 15px;
-    cursor: pointer;
-    transition: 0.25s;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#playlist-buttons button:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.35);
-}
-
-#playlist-buttons button.active {
-    background: white;
-    color: #1DB954;
-    border: 2px solid #1DB954;
-    box-shadow: 0 0 12px #1DB954;
-}
-
-@media (max-width: 768px) {
-    #playlist-buttons {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-/* 🎵 完整置中登入畫面（手機 + 電腦） */
-.login-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh; /* ⭐ 保證垂直置中 */
-    display: flex;
-    justify-content: center; /* ⭐ 水平置中 */
-    align-items: center;     /* ⭐ 垂直置中 */
-    background: #000;
-    z-index: 999;
-}
-    .login-box {
-        width: 100%;
-        max-width: 320px;
-        padding: 30px 25px;
-        border-radius: 16px;
-        background: rgba(0,0,0,0.75);
-        backdrop-filter: blur(12px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-        animation: loginPop 0.6s ease;
-    }
-
-    .login-box h1 {
-        font-size: 26px;
-        margin-bottom: 15px;
-    }
-
-    #username-input,
-    #password-input {
-        width: 100%;
-        font-size: 18px;
-        padding: 14px;
-        border-radius: 10px;
-    }
-
-    #login-btn {
-        width: 100%;
-        padding: 14px;
-        font-size: 20px;
-        border-radius: 10px;
-        margin-top: 10px;
-    }
-}
-
-/* ✨ 登入框彈出動畫 */
-@keyframes loginPop {
-    0% { transform: scale(0.85); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-/* 🎵 固定播放清單高度 + 自動捲動 */
-#playlist-buttons {
-    max-height: 320px;   /* ⭐ 你可以改成 250 / 300 / 350 */
-    overflow-y: auto;
-    padding-right: 6px;  /* 避免捲動條遮住文字 */
-}
-
-/* 📱 手機版高度再小一點 */
-@media (max-width: 768px) {
-    #playlist-buttons {
-        max-height: 240px;
-    }
-}
-
-@media (max-width: 768px) {
-    .login-screen {
-        padding: 0 20px; /* ⭐ 防止太貼邊 */
-    }
-
-    .login-box {
-        width: 100%;
-        max-width: 320px;
-    }
 }
