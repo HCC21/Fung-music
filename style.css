@@ -257,11 +257,16 @@ body {
 /* 📱 手機版播放清單 */
 @media (max-width: 768px) {
     #playlist-buttons {
-        grid-template-columns: repeat(2, 1fr);
-        }
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* ⭐ 兩欄 */
+        gap: 14px;
+        width: 100%;
+    }
+
     #playlist-buttons button {
+        width: 100%;
         font-size: 16px;
-        padding: 14px;
+        padding: 16px;
     }
 }
 
