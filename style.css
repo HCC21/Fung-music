@@ -131,15 +131,10 @@ body {
 .cd-wrapper {
     width: 320px;
     height: 320px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto 20px;
     border-radius: 50%;
     filter: drop-shadow(0 0 40px #1DB954);
-    margin-left: auto;
-    margin-right: auto;
-}
-
-}
+   }
 
 .cd {
     width: 280px;
@@ -186,18 +181,6 @@ body {
 .controls button:hover {
     background: #1ed760;
 }
-@media (max-width: 768px) {
-    .cd-wrapper {
-        width: 240px;
-        height: 240px;
-    }
-
-    .cd {
-        width: 200px;
-        height: 200px;
-    }
-}
-
 
 /* ============================
    ⭐ 留言區
