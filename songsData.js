@@ -522,7 +522,7 @@ const songsData = [
     cover: "covers/man9.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
-}
+},
     { name: "遲來的春天", src: "music/遲來的春天.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
     { name: "感情的段落", src: "music/感情的段落.mp3", cover: "covers/cover1.jpg", cat: "female" },
     { name: "愛情是一種法國甜品", src: "music/愛情是一種法國甜品.mp3", cover: "covers/cover6.jpg", cat: "female" },
