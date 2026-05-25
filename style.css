@@ -10,7 +10,7 @@ body {
 }
 
 /* ============================
-   🎵 登入畫面（置中＋手機美化）
+   🎵 登入畫面
 ============================ */
 .login-screen {
     position: fixed;
@@ -95,7 +95,7 @@ body {
 }
 
 /* ============================
-   🎵 頂部橫向導航列（取代左側 Sidebar）
+   🎵 頂部橫向導航列（固定一行 + 左右滑動）
 ============================ */
 .sidebar {
     width: 100%;
@@ -105,32 +105,23 @@ body {
     left: 0;
     background: #000;
     padding: 12px 15px;
+
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap;        /* ❗ 不換行 */
     align-items: center;
     gap: 20px;
-    overflow-x: auto;
-    white-space: nowrap;
-    z-index: 999;
+
+    overflow-x: auto;         /* ❗ 左右滑動 */
+    white-space: nowrap;      /* ❗ 保持一行 */
+    scrollbar-width: none;    /* Firefox 隱藏捲軸 */
     border-bottom: 1px solid #222;
+    z-index: 999;
 }
 
-.sidebar h2,
-.sidebar h3,
-.sidebar ul,
-.sidebar select,
-.sidebar input,
-.sidebar button {
-    margin: 0;
-    display: inline-block;
+.sidebar::-webkit-scrollbar {
+    display: none;            /* Chrome / Safari 隱藏捲軸 */
 }
 
-/* 搜尋框縮小 */
-.search-box {
-    width: 150px;
-}
-
-/* 🎵 下拉選單（分類 + 遊戲 + 主題） */
 .sidebar select {
     padding: 10px 14px;
     background: #181818;
@@ -147,15 +138,20 @@ body {
     box-shadow: 0 0 8px #1DB954;
 }
 
-/* 📱 手機版可滑動 */
+.search-box {
+    width: 150px;
+}
 
+/* 📱 手機版 */
 @media (max-width: 768px) {
     .sidebar {
-        flex-wrap: nowrap;    
-        overflow-x: scroll;
         padding-bottom: 10px;
-    
-   }
+    }
+    .sidebar select {
+        font-size: 17px;
+        padding: 12px 16px;
+    }
+}
 
 /* ============================
    🎵 Player Area
@@ -243,10 +239,7 @@ body {
 }
 
 /* ============================
-   🎵 播放清單固定高度
-============================ */
-/* ============================
-   🍏 Apple Music 風格播放清單（最終版）
+   🍏 Apple Music 播放清單
 ============================ */
 #playlist-buttons {
     display: grid;
@@ -255,11 +248,9 @@ body {
     padding: 10px 0;
 }
 
-/* 按鈕玻璃效果 */
 #playlist-buttons button {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 18px;
     padding: 14px;
@@ -271,14 +262,12 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
-/* Hover：柔光 + 微放大 */
 #playlist-buttons button:hover {
     background: rgba(255, 255, 255, 0.28);
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-/* Active：Apple Music 粉紅色 */
 #playlist-buttons button.active {
     background: #ffffff;
     color: #ff2d55;
@@ -287,13 +276,6 @@ body {
     transform: scale(1.06);
 }
 
-/* 📱 手機版 2 欄 */
-@media (max-width: 768px) {
-    #playlist-buttons {
-        grid-template-columns: repeat(2, 1fr);
-        max-height: 240px;
-    }
-}
 /* 封面縮圖（最佳尺寸） */
 .playlist-cover {
     width: 32px;
@@ -301,10 +283,23 @@ body {
     border-radius: 8px;
     object-fit: cover;
 }
+
 @media (max-width: 768px) {
     .playlist-cover {
         width: 38px;
         height: 38px;
+    }
+}
+
+/* 📱 手機版播放清單 */
+@media (max-width: 768px) {
+    #playlist-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        max-height: 260px;
+    }
+    #playlist-buttons button {
+        font-size: 16px;
+        padding: 14px;
     }
 }
 
@@ -351,175 +346,79 @@ body {
     display: block;
 }
 
-#game-ui {
-    margin-top: 10px;
-    text-align: center;
-    color: white;
-}
 /* ============================
-   📱 全站手機 RWD 優化
+   ⭐ 曾經登入過的朋友
 ============================ */
-
-/* 主容器自動填滿，不會超出螢幕 */
-.container {
-    width: 100%;
-    max-width: 100%;
+#login-history {
+    max-height: 120px;
+    overflow-y: auto;
+    padding-right: 6px;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
+    list-style: none;
 }
 
-/* 頂部選單：手機自動換行 + 可滑動 */
-/* 頂部選單固定一行 + 左右滑動 */
-.sidebar {
-    width: 100%;
-    height: auto;
-    position: sticky;
-    top: 0;
-    left: 0;
-    background: #000;
-    padding: 12px 15px;
-
-    display: flex;
-    flex-wrap: nowrap;        /* ❗ 不換行 */
-    align-items: center;
-    gap: 20px;
-
-    overflow-x: auto;         /* ❗ 左右滑動 */
-    white-space: nowrap;      /* ❗ 所有元素保持一行 */
-    scrollbar-width: none;    /* 隱藏捲軸（Firefox） */
+#login-history li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 6px 0;
+    border-bottom: 1px solid #333;
+    font-size: 15px;
 }
 
-.sidebar::-webkit-scrollbar {
-    display: none;            /* 隱藏捲軸（Chrome / Safari） */
-}
-
-/* 搜尋框在手機放大 */
 @media (max-width: 768px) {
-    .search-box {
-        width: 100% !important;
-        font-size: 18px;
-        padding: 12px;
+    #login-history {
+        max-height: 100px;
     }
-}
-
-/* 下拉選單在手機放大 */
-@media (max-width: 768px) {
-    .sidebar select {
-        width: 100%;
-        font-size: 18px;
-        padding: 12px;
-    }
-}
-
-/* 播放器區域自動縮放 */
-.player-area {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
-/* CD 圖片自動縮細 */
-@media (max-width: 768px) {
-    .cd-wrapper {
-        width: 220px;
-        height: 220px;
-    }
-    .cd {
-        width: 200px;
-        height: 200px;
-    }
-}
-
-/* 播放按鈕放大 */
-@media (max-width: 768px) {
-    .controls button {
-        padding: 14px;
-        font-size: 22px;
-    }
-}
-
-/* 進度條放大 */
-@media (max-width: 768px) {
-    #progress {
-        width: 70%;
-    }
-}
-
-/* 留言區自動填滿 */
-#comment-section {
-    width: 100%;
-}
-
-/* 播放清單：手機 2 欄 */
-@media (max-width: 768px) {
-    #playlist-buttons {
-        grid-template-columns: repeat(2, 1fr) !important;
-        max-height: 260px;
-    }
-}
-
-/* 播放清單按鈕放大 */
-@media (max-width: 768px) {
-    #playlist-buttons button {
+    #login-history li {
         font-size: 16px;
-        padding: 14px;
     }
 }
 
-/* 遊戲 Modal 在手機自動縮放 */
-@media (max-width: 768px) {
-    #game-canvas {
-        width: 300px !important;
-        height: 300px !important;
-    }
-}
+/* ============================
+   🎨 主題系統
+============================ */
 .theme-sakura {
     background: #ffe6f2;
     color: #660033;
 }
-
 .theme-sakura .sidebar {
     background: #ffb3d9;
 }
-
 .theme-sakura .cd-wrapper {
     filter: drop-shadow(0 0 25px #ff66b3);
 }
+
 .theme-tech {
     background: #0a0f1f;
     color: #66ccff;
 }
-
 .theme-tech .sidebar {
     background: #001a33;
 }
-
 .theme-tech .cd-wrapper {
     filter: drop-shadow(0 0 25px #00aaff);
 }
+
 .theme-cartoon {
     background: #fff7d6;
     color: #ff6600;
 }
-
 .theme-cartoon .sidebar {
     background: #ffe0a3;
 }
-
 .theme-cartoon .cd-wrapper {
     filter: drop-shadow(0 0 25px #ff9900);
 }
+
 .theme-light {
     background: #ffffff;
     color: #000;
 }
-
 .theme-light .sidebar {
     background: #f2f2f2;
 }
-
 .theme-light .cd-wrapper {
     filter: drop-shadow(0 0 25px #999);
 }
@@ -528,54 +427,20 @@ body {
     background: #000;
     color: #fff;
 }
-
 .theme-dark .sidebar {
     background: #111;
 }
-
 .theme-dark .cd-wrapper {
     filter: drop-shadow(0 0 25px #1DB954);
 }
+
 .theme-default {
     background: #121212;
     color: #fff;
 }
-
 .theme-default .sidebar {
     background: #000;
 }
-
 .theme-default .cd-wrapper {
     filter: drop-shadow(0 0 25px #1DB954);
-}
-/* ============================
-   ⭐ 曾經登入過的朋友（固定高度 + 可捲動）
-============================ */
-#login-history {
-    max-height: 120px;      /* 固定高度 */
-    overflow-y: auto;       /* 超出時可向上推拉 */
-    padding-right: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-/* 每個朋友一行（不換行） */
-#login-history li {
-    white-space: nowrap;        /* 不換行 */
-    overflow: hidden;           /* 超出隱藏 */
-    text-overflow: ellipsis;    /* 超出顯示 ... */
-    padding: 6px 0;
-    border-bottom: 1px solid #333;
-    font-size: 15px;
-}
-
-/* 手機版更易閱讀 */
-@media (max-width: 768px) {
-    #login-history {
-        max-height: 100px;
-    }
-    #login-history li {
-        font-size: 16px;
-    }
 }
