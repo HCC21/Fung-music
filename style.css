@@ -97,9 +97,6 @@ body {
 /* ============================
    🎵 頂部橫向導航列（固定一行 + 左右滑動）
 ============================ */
-/* ============================
-   🎵 頂部橫向導航列（固定一行 + 左右滑動）
-============================ */
 .sidebar {
     width: 100%;
     height: auto;
@@ -148,11 +145,18 @@ body {
 /* 📱 手機版 */
 @media (max-width: 768px) {
     .sidebar {
-        padding-bottom: 10px;
+        flex-wrap: nowrap !important;   /* ⭐ 不換行 */
+        white-space: nowrap !important; /* ⭐ 不換行 */
+        overflow-x: auto !important;    /* ⭐ 左右滑動 */
+        overflow-y: hidden !important;
     }
+
+    .search-box {
+        width: 150px !important;        /* ⭐ 保持原本大小 */
+    }
+
     .sidebar select {
-        font-size: 17px;
-        padding: 12px 16px;
+        width: auto !important;         /* ⭐ 不要全寬 */
     }
 }
 
