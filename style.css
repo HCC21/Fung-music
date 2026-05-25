@@ -444,4 +444,107 @@ body {
         height: 300px !important;
     }
 }
+.theme-sakura {
+    background: #ffe6f2;
+    color: #660033;
+}
 
+.theme-sakura .sidebar {
+    background: #ffb3d9;
+}
+
+.theme-sakura .cd-wrapper {
+    filter: drop-shadow(0 0 25px #ff66b3);
+}
+.theme-tech {
+    background: #0a0f1f;
+    color: #66ccff;
+}
+
+.theme-tech .sidebar {
+    background: #001a33;
+}
+
+.theme-tech .cd-wrapper {
+    filter: drop-shadow(0 0 25px #00aaff);
+}
+.theme-cartoon {
+    background: #fff7d6;
+    color: #ff6600;
+}
+
+.theme-cartoon .sidebar {
+    background: #ffe0a3;
+}
+
+.theme-cartoon .cd-wrapper {
+    filter: drop-shadow(0 0 25px #ff9900);
+}
+.theme-light {
+    background: #ffffff;
+    color: #000;
+}
+
+.theme-light .sidebar {
+    background: #f2f2f2;
+}
+
+.theme-light .cd-wrapper {
+    filter: drop-shadow(0 0 25px #999);
+}
+
+.theme-dark {
+    background: #000;
+    color: #fff;
+}
+
+.theme-dark .sidebar {
+    background: #111;
+}
+
+.theme-dark .cd-wrapper {
+    filter: drop-shadow(0 0 25px #1DB954);
+}
+.theme-default {
+    background: #121212;
+    color: #fff;
+}
+
+.theme-default .sidebar {
+    background: #000;
+}
+
+.theme-default .cd-wrapper {
+    filter: drop-shadow(0 0 25px #1DB954);
+}
+/* ============================
+   ⭐ 曾經登入過的朋友（固定高度 + 可捲動）
+============================ */
+#login-history {
+    max-height: 120px;      /* 固定高度 */
+    overflow-y: auto;       /* 超出時可向上推拉 */
+    padding-right: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* 每個朋友一行（不換行） */
+#login-history li {
+    white-space: nowrap;        /* 不換行 */
+    overflow: hidden;           /* 超出隱藏 */
+    text-overflow: ellipsis;    /* 超出顯示 ... */
+    padding: 6px 0;
+    border-bottom: 1px solid #333;
+    font-size: 15px;
+}
+
+/* 手機版更易閱讀 */
+@media (max-width: 768px) {
+    #login-history {
+        max-height: 100px;
+    }
+    #login-history li {
+        font-size: 16px;
+    }
+}
