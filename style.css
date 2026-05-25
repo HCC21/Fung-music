@@ -255,16 +255,19 @@ body {
 }
 
 @media (max-width: 768px) {
-#playlist-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* ⭐ 手機版兩欄 */
-    gap: 14px;
-    width: 100%;
-}
-#playlist-section {
-    max-height: none !important;   /* ⭐ 取消高度限制 */
-    overflow: visible !important;  /* ⭐ 允許內容完全顯示 */
-}
+    #playlist-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        width: 100%;
+    }
+
+    #playlist-section {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+}   /* ←⭐ 這個大括號你之前漏咗 */
+
 
 /* ============================
    🎮 小遊戲 Modal
