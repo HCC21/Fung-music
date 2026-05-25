@@ -290,7 +290,20 @@ audio.addEventListener("timeupdate", () => {
   currentTimeText.textContent = formatTime(audio.currentTime);
   durationText.textContent = formatTime(audio.duration);
 });
+audio.addEventListener("ended", () => {
+  if (songs.length === 0) return;
 
+  // 找出目前播放的歌曲在 playlist 裡的 index
+  const currentBtnIndex = songs.findIndex(
+    btn => parseInt(btn.dataset.realIndex) === currentIndex
+  );
+
+  // 播放 playlist 裡的下一首
+  const nextBtn = songs[(currentBtnIndex + 1) % songs.length];
+  const nextRealIndex = parseInt(nextBtn.dataset.realIndex);
+
+  playSong(nextRealIndex);
+});
 progress.addEventListener("input", () => {
   if (!audio.duration) return;
   audio.currentTime = (progress.value / 100) * audio.duration;
