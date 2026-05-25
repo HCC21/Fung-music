@@ -449,19 +449,163 @@ logoutBtn.addEventListener("click", () => {
 /* ============================
    ⭐ 管理員後台
 ============================ */
-adminBtn.addEventListener("click", () => {
+adminBtn.addEventListener("click", async () => {
   const adminPass = adminPasswordInput.value.trim();
 
   if (adminPass === ADMIN_PASSWORD) {
-    adminPanel.style.display = "block";
+
+    adminPanel.style.display = "block";  // 先顯示後台
+
+    await loadAllLoginHistory();         // 載入登入紀錄
+    await loadAllUsers();                // ⭐ 第八步：載入所有用戶名單
+
   } else {
     alert("管理員密碼錯誤！");
   }
-});
-
-adminClose.addEventListener("click", () => {
+});adminClose.addEventListener("click", () => {
   adminPanel.style.display = "none";
 });
+
+async function loadAllLoginHistory() {
+  const list = document.getElementById("admin-login-history");
+  if (!list) return;
+
+  const { data: history } = await supabase
+    .from("login_history")
+    .select("*")
+    .order("last_login", { ascending: false });
+
+  list.innerHTML = "";
+
+  if (!history || history.length === 0) {
+    list.innerHTML = "<li>沒有任何登入紀錄</li>";
+    return;
+  }
+
+  history.forEach((item) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${item.name}</strong>
+      <br>登入 ${item.count} 次
+      <br>最後登入：${new Date(item.last_login).toLocaleString()}
+    `;
+    list.appendChild(li);
+  });
+}
+
+async function loadAllowedUsers() {
+  const list = document.getElementById("allowed-users-list");
+  if (!list) return;
+
+  const { data, error } = await supabase
+    .from("login_history")
+    .select("name")
+    .order("name", { ascending: true });
+
+  list.innerHTML = "";
+
+  if (error || !data) {
+    list.innerHTML = "<li>讀取錯誤</li>";
+    return;
+  }
+
+  // 去除重複 + 排除管理員
+  const uniqueUsers = [...new Set(data.map(u => u.name))]
+    .filter(name => name !== "fungfung");
+
+  if (uniqueUsers.length === 0) {
+    list.innerHTML = "<li>沒有用戶</li>";
+    return;
+  }
+
+  uniqueUsers.forEach(name => {
+    const li = document.createElement("li");
+    li.textContent = name;
+    list.appendChild(li);
+  });
+}
+async function loadAllUsers() {
+  const list = document.getElementById("user-list");
+  if (!list) return;
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .order("id", { ascending: true });
+
+  list.innerHTML = "";
+
+  if (error) {
+    list.innerHTML = "<li>讀取錯誤：" + error.message + "</li>";
+    return;
+  }
+
+  data.forEach(user => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${user.name}</strong>
+      ${user.name === "fungfung" ? "(管理員)" : ""}
+      <div class="user-actions">
+        <button onclick="resetPassword(${user.id})">重設密碼</button>
+        <button onclick="deleteUser(${user.id})">刪除</button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+}
+document.getElementById("add-user-btn").addEventListener("click", async () => {
+  const name = prompt("輸入新用戶名稱：");
+  if (!name) return;
+
+  const password = prompt("設定初始密碼：");
+  if (!password) return;
+
+  const { error } = await supabase.from("users").insert([
+    { name: name.trim(), password: password.trim() }
+  ]);
+
+  if (error) {
+    alert("新增失敗：" + error.message);
+    return;
+  }
+
+  alert("新增成功！");
+  loadAllUsers();
+});
+async function resetPassword(id) {
+  const newPass = prompt("輸入新密碼：");
+  if (!newPass) return;
+
+  const { error } = await supabase
+    .from("users")
+    .update({ password: newPass })
+    .eq("id", id);
+
+  if (error) {
+    alert("重設失敗：" + error.message);
+    return;
+  }
+
+  alert("密碼已重設");
+  loadAllUsers();
+}
+async function deleteUser(id) {
+  if (!confirm("確定要刪除這個用戶嗎？")) return;
+
+  const { error } = await supabase
+    .from("users")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("刪除失敗：" + error.message);
+    return;
+  }
+
+  alert("已刪除");
+  loadAllUsers();
+}
+
 
 /* ============================
    ⭐ 小遊戲（下拉選單）
@@ -726,4 +870,39 @@ function getDominantColor(image) {
     g: Math.floor(g / count),
     b: Math.floor(b / count)
   };
+}
+async function loadAllLoginHistory() {
+  const list = document.getElementById("admin-login-history");
+
+  if (!list) {
+    console.error("admin-login-history 不存在！");
+    return;
+  }
+
+  const { data: history, error } = await supabase
+    .from("login_history")
+    .select("*")
+    .order("last_login", { ascending: false });
+
+  list.innerHTML = "";
+
+  if (error) {
+    list.innerHTML = "<li>讀取錯誤</li>";
+    return;
+  }
+
+  if (!history || history.length === 0) {
+    list.innerHTML = "<li>沒有任何登入紀錄</li>";
+    return;
+  }
+
+  history.forEach((item) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${item.name}</strong>
+      <br>登入 ${item.count} 次
+      <br>最後登入：${new Date(item.last_login).toLocaleString()}
+    `;
+    list.appendChild(li);
+  });
 }
