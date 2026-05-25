@@ -341,3 +341,107 @@ body {
     text-align: center;
     color: white;
 }
+/* ============================
+   📱 全站手機 RWD 優化
+============================ */
+
+/* 主容器自動填滿，不會超出螢幕 */
+.container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 頂部選單：手機自動換行 + 可滑動 */
+.sidebar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+    overflow-x: auto;
+}
+
+/* 搜尋框在手機放大 */
+@media (max-width: 768px) {
+    .search-box {
+        width: 100% !important;
+        font-size: 18px;
+        padding: 12px;
+    }
+}
+
+/* 下拉選單在手機放大 */
+@media (max-width: 768px) {
+    .sidebar select {
+        width: 100%;
+        font-size: 18px;
+        padding: 12px;
+    }
+}
+
+/* 播放器區域自動縮放 */
+.player-area {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* CD 圖片自動縮細 */
+@media (max-width: 768px) {
+    .cd-wrapper {
+        width: 220px;
+        height: 220px;
+    }
+    .cd {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+/* 播放按鈕放大 */
+@media (max-width: 768px) {
+    .controls button {
+        padding: 14px;
+        font-size: 22px;
+    }
+}
+
+/* 進度條放大 */
+@media (max-width: 768px) {
+    #progress {
+        width: 70%;
+    }
+}
+
+/* 留言區自動填滿 */
+#comment-section {
+    width: 100%;
+}
+
+/* 播放清單：手機 2 欄 */
+@media (max-width: 768px) {
+    #playlist-buttons {
+        grid-template-columns: repeat(2, 1fr) !important;
+        max-height: 260px;
+    }
+}
+
+/* 播放清單按鈕放大 */
+@media (max-width: 768px) {
+    #playlist-buttons button {
+        font-size: 16px;
+        padding: 14px;
+    }
+}
+
+/* 遊戲 Modal 在手機自動縮放 */
+@media (max-width: 768px) {
+    #game-canvas {
+        width: 300px !important;
+        height: 300px !important;
+    }
+}
+
