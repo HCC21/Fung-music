@@ -85,23 +85,26 @@ body {
         background: url("covers/cover3.jpg") center/cover no-repeat;
     }
     .login-screen::before {
-        background: rgba(0,0,0,0.55); /* 手機版遮罩深啲 */
+        background: rgba(0,0,0,0.55);
     }
 
     .login-box {
         width: 100%;
         max-width: 320px;
         padding: 30px 25px;
+        margin-left: auto;   /* ⭐ 確保置中 */
+        margin-right: auto;
     }
 
     #username-input,
     #password-input {
-        width: 100%;        /* 滿版 */
-        max-width: 260px;   /* ⭐ 但唔會太闊 */
+        width: 100%;
+        max-width: 260px;
         font-size: 18px;
         padding: 14px;
         margin-left: auto;
-        margin-right: auto; /* ⭐ 確保置中 */
+        margin-right: auto;
+        display: block;      /* ⭐ 更穩定置中 */
     }
 
     #login-btn {
