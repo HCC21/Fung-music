@@ -220,6 +220,8 @@ document
    🎵 播放歌曲
 ============================ */
 function playSong(realIndex) {
+let listenTimer = null;
+let hasCounted = false;
   const song = songsData[realIndex];
   if (!song) return;
 
@@ -230,6 +232,18 @@ function playSong(realIndex) {
   title.textContent = song.name;
 
   audio.play();
+// ⭐ 重置計時
+clearTimeout(listenTimer);
+hasCounted = false;
+
+// ⭐ 聽滿 60 秒才計數
+listenTimer = setTimeout(() => {
+  if (!hasCounted) {
+    increasePlayCount(song.name);
+    hasCounted = true;
+  }
+}, 60000);
+
   cover.style.animationPlayState = "running";
 
   playBtn.textContent = "⏸️";
@@ -242,6 +256,28 @@ function playSong(realIndex) {
 
   loadComments(song.name, currentUser);
 }
+async function increasePlayCount(songName) {
+  const { data: existing } = await supabase
+    .from("song_plays")
+    .select("*")
+    .eq("songName", songName)
+    .single();
+
+  if (existing) {
+    await supabase
+      .from("song_plays")
+      .update({ count: existing.count + 1 })
+      .eq("songName", songName);
+  } else {
+    await supabase
+      .from("song_plays")
+      .insert({ songName, count: 1 });
+  }
+
+  // ⭐ 更新 playlist 顯示
+  updatePlaylistCount(songName);
+}
+
 
 /* ============================
    ⭐ 播放中高亮
@@ -425,6 +461,7 @@ loginBtn.addEventListener("click", async () => {
 
   loginScreen.style.display = "none";
   welcomeText.textContent = `🎵 歡迎你，${name}`;
+autoScrollSidebar();
 document.getElementById("categories-select").value = "all";
 generatePlaylist("all", "");
 
@@ -921,4 +958,18 @@ async function loadAllLoginHistory() {
     `;
     list.appendChild(li);
   });
+}
+function autoScrollSidebar() {
+  const bar = document.querySelector(".sidebar");
+  if (!bar) return;
+
+  let scrollPos = 0;
+
+  setInterval(() => {
+    scrollPos += 1; // ⭐ 每次向左移動 1px
+    if (scrollPos >= bar.scrollWidth) {
+      scrollPos = 0; // ⭐ 去到最尾就返去開頭
+    }
+    bar.scrollLeft = scrollPos;
+  }, 50); // ⭐ 速度（越細越快）
 }
