@@ -107,7 +107,8 @@ body {
     align-items: center;
     gap: 20px;
 
-    overflow-x: scroll;       /* ⭐ 允許橫向捲動 */
+    overflow-x: auto;
+    scrollbar-gutter: stable;
     overflow-y: hidden;       /* ⭐ 禁止直向捲動 */
     white-space: nowrap;      /* ⭐ 保持一行 */
 
@@ -286,8 +287,6 @@ body {
     }
 }
 
-}   /* ←⭐ 這個大括號你之前漏咗 */
-
 
 /* ============================
    🎮 小遊戲 Modal
@@ -332,7 +331,6 @@ body {
     display: block;
 }
 
-}
 
 /* ============================
    🎨 主題系統
