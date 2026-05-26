@@ -18,11 +18,22 @@ body {
     left: 0;
     width: 100%;
     height: 100vh;
+    background: url("covers/cover3.jpg") center/cover no-repeat;  /* ⭐ 背景圖 */
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #000;
+
     z-index: 999;
+}
+.login-screen::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);   /* ⭐ 黑色透明遮罩 */
+    z-index: -1;
 }
 
 .login-box {
@@ -44,6 +55,7 @@ body {
 #username-input,
 #password-input {
     width: 180px;
+    max-width: 80%;      /* ⭐ 防止太闊 */
     padding: 12px;
     border-radius: 8px;
     border: none;
@@ -51,7 +63,6 @@ body {
     font-size: 16px;
     text-align: center;
 }
-
 #login-btn {
     padding: 12px 20px;
     background: #1DB954;
@@ -71,7 +82,10 @@ body {
 @media (max-width: 768px) {
     .login-screen {
         padding: 0 20px;
-        background: linear-gradient(135deg, #000, #1a1a1a);
+        background: url("covers/cover3.jpg") center/cover no-repeat;
+    }
+    .login-screen::before {
+        background: rgba(0,0,0,0.55); /* 手機版遮罩深啲 */
     }
 
     .login-box {
@@ -82,9 +96,12 @@ body {
 
     #username-input,
     #password-input {
-        width: 100%;
+        width: 100%;        /* 滿版 */
+        max-width: 260px;   /* ⭐ 但唔會太闊 */
         font-size: 18px;
         padding: 14px;
+        margin-left: auto;
+        margin-right: auto; /* ⭐ 確保置中 */
     }
 
     #login-btn {
