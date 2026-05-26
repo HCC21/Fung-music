@@ -98,7 +98,7 @@ body {
    🎵 Sidebar（只有橫向捲軸，不要直向捲軸）
 ============================ */
 .sidebar {
-    width: 100;
+    width: 100%;
     background: #000;
     padding: 12px 15px;
 
@@ -286,6 +286,8 @@ body {
     }
 }
 
+}   /* ←⭐ 這個大括號你之前漏咗 */
+
 
 /* ============================
    🎮 小遊戲 Modal
@@ -330,6 +332,45 @@ body {
     display: block;
 }
 
+/* ============================
+   ⭐ 曾經登入過的朋友
+============================ */
+#login-history {
+    max-height: 120px;
+    overflow-y: hidden;
+    padding-right: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#login-history li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 6px 0;
+    border-bottom: 1px solid #333;
+    font-size: 15px;
+}
+
+/* 📱 手機版：讓「曾經登入過的朋友」固定在 sidebar 上方 */
+@media (max-width: 768px) {
+    #login-history {
+        order: -1;              /* ⭐ 移到最上面 */
+        width: 100%;
+        max-height: 140px;
+        overflow-y: hidden;
+        background: rgba(255,255,255,0.05);
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    #login-history li {
+        font-size: 16px;
+        padding: 6px 0;
+        border-bottom: 1px solid #333;
+    }
+}
 
 /* ============================
    🎨 主題系統
@@ -368,8 +409,8 @@ body {
 }
 /* ⭐ 管理員後台：允許登入的用戶名單（固定高度，只顯示 4 名） */
 #allowed-users-list {
-    max-height: 160px;
-    overflow-y: auto;      /* ⭐ 可以上下捲動 */
+    max-height: 160px;      /* 約 4 個 li 的高度 */
+    overflow-y: hidden;       /* 可上下捲動 */
     padding: 10px;
     background: #111;
     border: 1px solid #333;
@@ -382,13 +423,12 @@ body {
     font-size: 16px;
 }
 #user-list {
-    max-height: 160px;
-    overflow-y: auto;      /* ⭐ 可以上下捲動 */
-    padding: 10px;
+    max-height: 200px; /* 約 4 個用戶 */
+    overflow-y: hidden;
     background: #111;
+    padding: 10px;
     border: 1px solid #333;
     border-radius: 8px;
-    max-width: 260px;
 }
 
 #user-list li {
@@ -402,3 +442,4 @@ body {
     padding: 4px 8px;
     font-size: 14px;
 }
+
