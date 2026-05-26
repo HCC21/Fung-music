@@ -107,8 +107,7 @@ body {
     align-items: center;
     gap: 20px;
 
-    overflow-x: auto;
-    scrollbar-gutter: stable;
+    overflow-x: auto;       /* ⭐ 允許橫向捲動 */
     overflow-y: hidden;       /* ⭐ 禁止直向捲動 */
     white-space: nowrap;      /* ⭐ 保持一行 */
 
@@ -181,6 +180,10 @@ body {
 
 .controls button:hover {
     background: #1ed760;
+}
+.container {
+    display: flex;
+    width: 100%;
 }
 
 /* ============================
