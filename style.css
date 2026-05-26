@@ -98,7 +98,7 @@ body {
    🎵 Sidebar（只有橫向捲軸，不要直向捲軸）
 ============================ */
 .sidebar {
-    width: 100%;
+    width: 100vm;
     background: #000;
     padding: 12px 15px;
 
@@ -107,7 +107,7 @@ body {
     align-items: center;
     gap: 20px;
 
-    overflow-x: auto;       /* ⭐ 允許橫向捲動 */
+    overflow-x: scroll;       /* ⭐ 允許橫向捲動 */
     overflow-y: hidden;       /* ⭐ 禁止直向捲動 */
     white-space: nowrap;      /* ⭐ 保持一行 */
 
@@ -180,10 +180,6 @@ body {
 
 .controls button:hover {
     background: #1ed760;
-}
-.container {
-    display: flex;
-    width: 100%;
 }
 
 /* ============================
