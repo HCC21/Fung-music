@@ -299,6 +299,7 @@ body {
         max-height: none !important;
         overflow: visible !important;
     }
+}
 @media (max-width: 768px) {
     .player-area {
         justify-content: flex-start;   /* ⭐ 由置中改為頂部開始 */
@@ -443,23 +444,30 @@ body {
     font-size: 16px;
 }
 #user-list {
-    max-height: 200px; /* 約 4 個用戶 */
-    overflow-y: hidden;
-    background: #111;
+    max-height: 200px;
+    overflow-y: auto;
     padding: 10px;
+    background: #111;
     border: 1px solid #333;
     border-radius: 8px;
+
+    max-width: 260px;   /* ⭐⭐ 收窄寬度（你可以改 240 / 220 / 200） */
 }
 
 #user-list li {
     padding: 8px 0;
     border-bottom: 1px solid #333;
     font-size: 16px;
+    white-space: normal; /* ⭐ 避免長名字撐爆 */
+}
+
+.user-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;     /* ⭐ 按鈕太多自動換行 */
 }
 
 .user-actions button {
-    margin-left: 10px;
     padding: 4px 8px;
     font-size: 14px;
 }
-

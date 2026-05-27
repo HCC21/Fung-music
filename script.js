@@ -8,28 +8,19 @@ const SUPABASE_KEY =
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ============================
-   ⭐ 管理員設定
+   🚪 未登入 → 自動跳回 login.html
 ============================ */
-const ADMIN_NAME = "fungfung";
-const ADMIN_PASSWORD = "790614";
+const friendName = localStorage.getItem("friendName");
+if (!friendName) {
+  window.location.href = "login.html";
+}
 
 /* ============================
    🎵 DOM 元素
 ============================ */
-const loginScreen = document.getElementById("login-screen");
-const loginBtn = document.getElementById("login-btn");
-const usernameInput = document.getElementById("username-input");
-const passwordInput = document.getElementById("password-input");
-
 const welcomeText = document.getElementById("welcome-text");
 const welcomePopup = document.getElementById("welcome-popup");
 const welcomePopupText = document.getElementById("welcome-popup-text");
-
-const adminPasswordInput = document.getElementById("admin-password");
-const adminBtn = document.getElementById("admin-btn");
-
-const adminPanel = document.getElementById("admin-panel");
-const adminClose = document.getElementById("admin-close");
 
 const logoutBtn = document.getElementById("logout-btn");
 
@@ -47,16 +38,27 @@ const prevBtn = document.getElementById("prev");
 const playBtn = document.getElementById("play");
 const nextBtn = document.getElementById("next");
 
+const adminPasswordInput = document.getElementById("admin-password");
+const adminBtn = document.getElementById("admin-btn");
+const adminPanel = document.getElementById("admin-panel");
+const adminClose = document.getElementById("admin-close");
 const adminNotice = document.getElementById("admin-notice");
+if (friendName === "fungfung") {
+  adminPasswordInput.style.display = "block";
+  adminBtn.style.display = "block";
+}
 
 /* ============================
-   🎉 登入提示
+   🎉 歡迎彈窗
 ============================ */
 function showWelcomePopup(name) {
   welcomePopupText.textContent = `🎉 歡迎你，${name}！`;
   welcomePopup.style.display = "flex";
   setTimeout(() => (welcomePopup.style.display = "none"), 2500);
 }
+
+welcomeText.textContent = `你好，${friendName}！`;
+showWelcomePopup(friendName);
 
 /* ============================
    ⭐ 儲存登入紀錄
@@ -87,15 +89,17 @@ async function saveLoginHistory(name) {
   }
 }
 
+saveLoginHistory(friendName);
+
 /* ============================
-   ⭐ 顯示登入紀錄
+   ⭐ 顯示登入紀錄（sidebar）
 ============================ */
 async function showLoginHistory(name) {
   const historyList = document.getElementById("login-history");
 
   let query = supabase.from("login_history").select("*");
 
-  if (name !== ADMIN_NAME) {
+  if (name !== "fungfung") {
     query = query.eq("name", name);
   }
 
@@ -123,15 +127,13 @@ async function showLoginHistory(name) {
   });
 }
 
+showLoginHistory(friendName);
+
 /* ============================
-   🔔 通知系統
+   🔔 通知系統（管理員）
 ============================ */
 async function checkNotifications() {
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-
-  if (currentUser !== ADMIN_NAME) {
+  if (friendName !== "fungfung") {
     adminNotice.style.display = "none";
     return;
   }
@@ -143,23 +145,18 @@ async function checkNotifications() {
 
   adminNotice.style.display = data.length > 0 ? "block" : "none";
 }
+
 setInterval(checkNotifications, 5000);
 
 /* ============================
    ⭐ 播放清單
 ============================ */
 let currentIndex = -1;
-let songs = [];
 
 function generatePlaylist(filterCat = "all", keyword = "") {
-  const container = document.getElementById("playlist-buttons");
-  container.innerHTML = "";
+  playlistButtons.innerHTML = "";
 
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-
-  songs = [];
+  const currentUser = friendName.toLowerCase();
 
   songsData.forEach((song, realIndex) => {
     if (keyword && !song.name.toLowerCase().includes(keyword)) return;
@@ -170,17 +167,15 @@ function generatePlaylist(filterCat = "all", keyword = "") {
       if (!allowed.includes(currentUser)) return;
     }
 
-    // 🎵 建立按鈕（加入封面 + 名字）
     const btn = document.createElement("button");
     btn.classList.add("playlist-item");
     btn.dataset.realIndex = realIndex;
 
     btn.innerHTML = `
       <img src="${song.cover}" class="playlist-cover">
-      <span class="playlist-title">${song.name}</span>
+      <span>${song.name}</span>
     `;
 
-    // ⭐ 自動取色（封面 dominant color）
     const img = new Image();
     img.src = song.cover;
     img.onload = () => {
@@ -191,13 +186,14 @@ function generatePlaylist(filterCat = "all", keyword = "") {
 
     btn.addEventListener("click", () => playSong(realIndex));
 
-    container.appendChild(btn);
-    songs.push(btn);
+    playlistButtons.appendChild(btn);
   });
 }
 
+generatePlaylist();
+
 /* ============================
-   🔍 搜尋（同步分類）
+   🔍 搜尋
 ============================ */
 searchBox.addEventListener("input", () => {
   const keyword = searchBox.value.trim().toLowerCase();
@@ -206,7 +202,7 @@ searchBox.addEventListener("input", () => {
 });
 
 /* ============================
-   ⭐ 分類（下拉選單）
+   ⭐ 分類
 ============================ */
 document
   .getElementById("categories-select")
@@ -219,9 +215,10 @@ document
 /* ============================
    🎵 播放歌曲
 ============================ */
-function playSong(realIndex) {
 let listenTimer = null;
 let hasCounted = false;
+
+function playSong(realIndex) {
   const song = songsData[realIndex];
   if (!song) return;
 
@@ -232,30 +229,23 @@ let hasCounted = false;
   title.textContent = song.name;
 
   audio.play();
-// ⭐ 重置計時
-clearTimeout(listenTimer);
-hasCounted = false;
-
-// ⭐ 聽滿 60 秒才計數
-listenTimer = setTimeout(() => {
-  if (!hasCounted) {
-    increasePlayCount(song.name);
-    hasCounted = true;
-  }
-}, 60000);
-
   cover.style.animationPlayState = "running";
-
   playBtn.textContent = "⏸️";
 
+  clearTimeout(listenTimer);
+  hasCounted = false;
+
+  listenTimer = setTimeout(() => {
+    if (!hasCounted) {
+      increasePlayCount(song.name);
+      hasCounted = true;
+    }
+  }, 60000);
+
   highlightSong();
-
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-
-  loadComments(song.name, currentUser);
+  loadComments(song.name, friendName);
 }
+
 async function increasePlayCount(songName) {
   const { data: existing } = await supabase
     .from("song_plays")
@@ -269,22 +259,18 @@ async function increasePlayCount(songName) {
       .update({ count: existing.count + 1 })
       .eq("songName", songName);
   } else {
-    await supabase
-      .from("song_plays")
-      .insert({ songName, count: 1 });
+    await supabase.from("song_plays").insert({ songName, count: 1 });
   }
-
-  // ⭐ 更新 playlist 顯示
-  updatePlaylistCount(songName);
 }
-
 
 /* ============================
    ⭐ 播放中高亮
 ============================ */
 function highlightSong() {
-  songs.forEach((btn) => btn.classList.remove("active"));
-  songs.forEach((btn) => {
+  const buttons = document.querySelectorAll(".playlist-item");
+  buttons.forEach((btn) => btn.classList.remove("active"));
+
+  buttons.forEach((btn) => {
     if (parseInt(btn.dataset.realIndex) === currentIndex) {
       btn.classList.add("active");
     }
@@ -307,13 +293,11 @@ playBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
-  if (songs.length === 0) return;
-  playSong((currentIndex + 1) % songs.length);
+  playSong((currentIndex + 1) % songsData.length);
 });
 
 prevBtn.addEventListener("click", () => {
-  if (songs.length === 0) return;
-  playSong((currentIndex - 1 + songs.length) % songs.length);
+  playSong((currentIndex - 1 + songsData.length) % songsData.length);
 });
 
 /* ============================
@@ -326,20 +310,11 @@ audio.addEventListener("timeupdate", () => {
   currentTimeText.textContent = formatTime(audio.currentTime);
   durationText.textContent = formatTime(audio.duration);
 });
+
 audio.addEventListener("ended", () => {
-  if (songs.length === 0) return;
-
-  // 找出目前播放的歌曲在 playlist 裡的 index
-  const currentBtnIndex = songs.findIndex(
-    btn => parseInt(btn.dataset.realIndex) === currentIndex
-  );
-
-  // 播放 playlist 裡的下一首
-  const nextBtn = songs[(currentBtnIndex + 1) % songs.length];
-  const nextRealIndex = parseInt(nextBtn.dataset.realIndex);
-
-  playSong(nextRealIndex);
+  playSong((currentIndex + 1) % songsData.length);
 });
+
 progress.addEventListener("input", () => {
   if (!audio.duration) return;
   audio.currentTime = (progress.value / 100) * audio.duration;
@@ -368,7 +343,7 @@ async function loadComments(songName, currentUser) {
   if (!comments) return;
 
   comments.forEach((c) => {
-    if (currentUser === ADMIN_NAME) {
+    if (currentUser === "fungfung") {
       showComment(c, list);
       return;
     }
@@ -399,14 +374,9 @@ document.getElementById("comment-submit").addEventListener("click", async () => 
   const message = input.value.trim();
   if (!message) return;
 
-  const currentUser = (localStorage.getItem("friendName") || "")
-    .trim()
-    .toLowerCase();
-  const songName = title.textContent;
-
   await supabase.from("comments").insert({
-    songName,
-    user: currentUser,
+    songName: title.textContent,
+    user: friendName,
     message,
     replyTo: input.dataset.replyTo || null,
     isRead: false,
@@ -416,7 +386,7 @@ document.getElementById("comment-submit").addEventListener("click", async () => 
   input.value = "";
   input.dataset.replyTo = "";
 
-  loadComments(songName, currentUser);
+  loadComments(title.textContent, friendName);
 });
 
 document.addEventListener("click", (e) => {
@@ -439,47 +409,6 @@ document
   });
 
 /* ============================
-   ⭐ 登入
-============================ */
-loginBtn.addEventListener("click", async () => {
-  const name = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  const { data: user, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("name", name)
-    .eq("password", password)
-    .single();
-
-  if (error || !user) {
-    alert("❌ 名字或密碼錯誤！");
-    return;
-  }
-
-  localStorage.setItem("friendName", name);
-
-  loginScreen.style.display = "none";
-  welcomeText.textContent = `🎵 歡迎你，${name}`;
-autoScrollSidebar();
-document.getElementById("categories-select").value = "all";
-generatePlaylist("all", "");
-
-
-  if (name === ADMIN_NAME) {
-    adminPasswordInput.style.display = "block";
-    adminBtn.style.display = "block";
-  }
-
-  await saveLoginHistory(name);
-  await showLoginHistory(name);
-  await checkNotifications();
-
-  generatePlaylist();
-  showWelcomePopup(name);
-});
-
-/* ============================
    ⭐ 登出
 ============================ */
 logoutBtn.addEventListener("click", () => {
@@ -488,15 +417,7 @@ logoutBtn.addEventListener("click", () => {
 
   localStorage.removeItem("friendName");
 
-  adminPasswordInput.style.display = "none";
-  adminBtn.style.display = "none";
-  adminPanel.style.display = "none";
-
-  loginScreen.style.display = "flex";
-  welcomeText.textContent = "🎵 Fung Fung Music";
-
-  document.getElementById("login-history").innerHTML = "";
-  adminNotice.style.display = "none";
+  window.location.href = "login.html";
 });
 
 /* ============================
@@ -505,23 +426,24 @@ logoutBtn.addEventListener("click", () => {
 adminBtn.addEventListener("click", async () => {
   const adminPass = adminPasswordInput.value.trim();
 
-  if (adminPass === ADMIN_PASSWORD) {
-
-    adminPanel.style.display = "block";  // 先顯示後台
-
-    await loadAllLoginHistory();         // 載入登入紀錄
-    await loadAllUsers();                // ⭐ 第八步：載入所有用戶名單
-
+  if (adminPass === "790614") {
+    adminPanel.style.display = "block";
+    await loadAllLoginHistory();
+    await loadAllUsers();
   } else {
     alert("管理員密碼錯誤！");
   }
-});adminClose.addEventListener("click", () => {
+});
+
+adminClose.addEventListener("click", () => {
   adminPanel.style.display = "none";
 });
 
+/* ============================
+   ⭐ 管理員：所有登入紀錄
+============================ */
 async function loadAllLoginHistory() {
   const list = document.getElementById("admin-login-history");
-  if (!list) return;
 
   const { data: history } = await supabase
     .from("login_history")
@@ -546,40 +468,11 @@ async function loadAllLoginHistory() {
   });
 }
 
-async function loadAllowedUsers() {
-  const list = document.getElementById("allowed-users-list");
-  if (!list) return;
-
-  const { data, error } = await supabase
-    .from("login_history")
-    .select("name")
-    .order("name", { ascending: true });
-
-  list.innerHTML = "";
-
-  if (error || !data) {
-    list.innerHTML = "<li>讀取錯誤</li>";
-    return;
-  }
-
-  // 去除重複 + 排除管理員
-  const uniqueUsers = [...new Set(data.map(u => u.name))]
-    .filter(name => name !== "fungfung");
-
-  if (uniqueUsers.length === 0) {
-    list.innerHTML = "<li>沒有用戶</li>";
-    return;
-  }
-
-  uniqueUsers.forEach(name => {
-    const li = document.createElement("li");
-    li.textContent = name;
-    list.appendChild(li);
-  });
-}
+/* ============================
+   ⭐ 管理員：用戶管理
+============================ */
 async function loadAllUsers() {
   const list = document.getElementById("user-list");
-  if (!list) return;
 
   const { data, error } = await supabase
     .from("users")
@@ -593,7 +486,7 @@ async function loadAllUsers() {
     return;
   }
 
-  data.forEach(user => {
+  data.forEach((user) => {
     const li = document.createElement("li");
     li.innerHTML = `
       <strong>${user.name}</strong>
@@ -606,6 +499,7 @@ async function loadAllUsers() {
     list.appendChild(li);
   });
 }
+
 document.getElementById("add-user-btn").addEventListener("click", async () => {
   const name = prompt("輸入新用戶名稱：");
   if (!name) return;
@@ -614,7 +508,7 @@ document.getElementById("add-user-btn").addEventListener("click", async () => {
   if (!password) return;
 
   const { error } = await supabase.from("users").insert([
-    { name: name.trim(), password: password.trim() }
+    { name: name.trim(), password: password.trim() },
   ]);
 
   if (error) {
@@ -625,6 +519,7 @@ document.getElementById("add-user-btn").addEventListener("click", async () => {
   alert("新增成功！");
   loadAllUsers();
 });
+
 async function resetPassword(id) {
   const newPass = prompt("輸入新密碼：");
   if (!newPass) return;
@@ -642,13 +537,11 @@ async function resetPassword(id) {
   alert("密碼已重設");
   loadAllUsers();
 }
+
 async function deleteUser(id) {
   if (!confirm("確定要刪除這個用戶嗎？")) return;
 
-  const { error } = await supabase
-    .from("users")
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("users").delete().eq("id", id);
 
   if (error) {
     alert("刪除失敗：" + error.message);
@@ -658,7 +551,6 @@ async function deleteUser(id) {
   alert("已刪除");
   loadAllUsers();
 }
-
 
 /* ============================
    ⭐ 小遊戲（下拉選單）
@@ -898,6 +790,10 @@ function startCartoonGame() {
 
   update();
 }
+
+/* ============================
+   ⭐ 封面 dominant color
+============================ */
 function getDominantColor(image) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -924,52 +820,42 @@ function getDominantColor(image) {
     b: Math.floor(b / count)
   };
 }
-async function loadAllLoginHistory() {
-  const list = document.getElementById("admin-login-history");
 
-  if (!list) {
-    console.error("admin-login-history 不存在！");
-    return;
-  }
-
-  const { data: history, error } = await supabase
-    .from("login_history")
-    .select("*")
-    .order("last_login", { ascending: false });
-
-  list.innerHTML = "";
-
-  if (error) {
-    list.innerHTML = "<li>讀取錯誤</li>";
-    return;
-  }
-
-  if (!history || history.length === 0) {
-    list.innerHTML = "<li>沒有任何登入紀錄</li>";
-    return;
-  }
-
-  history.forEach((item) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${item.name}</strong>
-      <br>登入 ${item.count} 次
-      <br>最後登入：${new Date(item.last_login).toLocaleString()}
-    `;
-    list.appendChild(li);
-  });
-}
+/* ============================
+   ⭐ Sidebar 自動橫向捲動
+============================ */
 function autoScrollSidebar() {
   const bar = document.querySelector(".sidebar");
   if (!bar) return;
 
   let scrollPos = 0;
+  let autoScroll = true;   // ⭐ 是否自動捲動
+  let timer = null;
+
+  function startAutoScroll() {
+    autoScroll = true;
+  }
+
+  function stopAutoScroll() {
+    autoScroll = false;
+    clearTimeout(timer);
+    timer = setTimeout(startAutoScroll, 3000); // ⭐ 停 3 秒後再自動捲動
+  }
+
+  // ⭐ 手動捲動時暫停自動捲動
+  bar.addEventListener("wheel", stopAutoScroll);
+  bar.addEventListener("touchstart", stopAutoScroll);
+  bar.addEventListener("touchmove", stopAutoScroll);
+  bar.addEventListener("mousedown", stopAutoScroll);
 
   setInterval(() => {
-    scrollPos += 1; // ⭐ 每次向左移動 1px
+    if (!autoScroll) return;
+
+    scrollPos += 1;
     if (scrollPos >= bar.scrollWidth) {
-      scrollPos = 0; // ⭐ 去到最尾就返去開頭
+      scrollPos = 0;
     }
     bar.scrollLeft = scrollPos;
-  }, 50); // ⭐ 速度（越細越快）
+  }, 50);
 }
+
