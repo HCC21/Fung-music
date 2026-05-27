@@ -1,0 +1,18 @@
+<svg width="260" height="260" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(30,10)">
+    <!-- 臂管 -->
+    <rect x="0" y="40" width="180" height="10" rx="5" fill="#d0d0d0"/>
+    <rect x="0" y="45" width="180" height="4" fill="#999"/>
+
+    <!-- 轉軸 -->
+    <circle cx="0" cy="45" r="14" fill="#444"/>
+    <circle cx="0" cy="45" r="9" fill="#222"/>
+
+    <!-- 唱頭 -->
+    <rect x="180" y="35" width="35" height="20" rx="4" fill="#222"/>
+    <rect x="180" y="40" width="35" height="10" fill="#000"/>
+
+    <!-- 針尖 -->
+    <polygon points="215,45 225,48 215,51" fill="#c00"/>
+  </g>
+</svg>

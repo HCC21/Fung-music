@@ -84,8 +84,10 @@
 
  <div class="player-area">
     <div class="cd-wrapper">
-      <img id="cover" src="covers/default.jpg" class="cd">
-    </div>
+  <img id="cover" src="covers/default.jpg" class="cd">
+  <img id="tonearm" src="tonearm.svg" class="tonearm">
+</div>
+
     <h2 id="title">選擇一首歌播放</h2>
     <audio id="audio"></audio>
  
@@ -95,11 +97,14 @@
       <span id="duration">0:00</span>
     </div>
 
-    <div class="controls">
-      <button id="prev">⏮️</button>
-      <button id="play" class="play-btn">▶️</button>
-      <button id="next">⏭️</button>
-    </div>
+ <div class="controls">
+  <button id="prev">⏮️</button>
+  <button id="play" class="play-btn">▶️</button>
+  <button id="stop">⏹️</button>     <!-- ⭐ Stop Key -->
+  <button id="random">🔀</button>   <!-- ⭐ Random Key -->
+  <button id="next">⏭️</button>
+</div>
+
 
     <!-- ⭐ 留言區 -->
     <div id="comment-section" style="margin-top: 20px;">

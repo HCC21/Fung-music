@@ -134,32 +134,45 @@ body {
    🎵 Player Area
 ============================ */
 .player-area {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 40px;
-    overflow-y: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ⭐ 水平置中 */
+  text-align: center;    /* ⭐ 文字也置中 */
 }
-
-.cd-wrapper {
-    width: 320px;
-    height: 320px;
-    margin: 0 auto 20px;
-    border-radius: 50%;
-    filter: drop-shadow(0 0 40px #1DB954);
-   }
-
 .cd {
     width: 280px;
     height: 280px;
+    aspect-ratio: 1 / 1;   /* ⭐ 永遠保持正方形 */
     border-radius: 50%;
     object-fit: cover;
     animation: rotate 6s linear infinite;
     animation-play-state: paused;
 }
 
+.cd-wrapper {
+  position: relative;
+  width: 280px;   /* ⭐ 必須跟 CD 一樣 */
+  height: 280px;  /* ⭐ 必須跟 CD 一樣 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0; /* ⭐ 防止被壓扁 */
+}
+
+.tonearm {
+  position: absolute;
+  width: 200px;              /* 唱臂長度 */
+  left: -70px;               /* ⭐ 從左邊伸進來 */
+  bottom: -20px;             /* ⭐ 從下方伸進來 */
+  transform-origin: 170px 40px; /* ⭐ 旋轉中心在唱臂尾端（靠近 CD） */
+  transform: rotate(35deg);  /* ⭐ 預設抬起角度（左下 → 右上） */
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.tonearm.playing {
+  transform: rotate(5deg);   /* ⭐ 播放時放下，靠近唱片 */
+}
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -196,6 +209,30 @@ body {
 .controls button:hover {
     background: #1ed760;
 }
+.cd-wrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tonearm {
+  position: absolute;
+  width: 200px;
+  left: -80px;          /* 左下位置你可以微調 */
+  bottom: -60px;        /* 貼近 CD 底部 */
+  transform-origin: 15% 20%;  /* ⭐ 旋轉中心在「尾部」，不是針頭 */
+  transform: rotate(45deg);   /* 抬起 */
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.tonearm.playing {
+  transform: rotate(10deg);   /* 放下 */
+}
+
 
 /* ============================
    ⭐ 留言區
@@ -346,46 +383,6 @@ body {
     width: 400px;
     height: 400px;
     display: block;
-}
-
-/* ============================
-   ⭐ 曾經登入過的朋友
-============================ */
-#login-history {
-    max-height: 120px;
-    overflow-y: hidden;
-    padding-right: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#login-history li {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 6px 0;
-    border-bottom: 1px solid #333;
-    font-size: 15px;
-}
-
-/* 📱 手機版：讓「曾經登入過的朋友」固定在 sidebar 上方 */
-@media (max-width: 768px) {
-    #login-history {
-        order: -1;              /* ⭐ 移到最上面 */
-        width: 100%;
-        max-height: 140px;
-        overflow-y: hidden;
-        background: rgba(255,255,255,0.05);
-        padding: 10px;
-        border-radius: 8px;
-    }
-
-    #login-history li {
-        font-size: 16px;
-        padding: 6px 0;
-        border-bottom: 1px solid #333;
-    }
 }
 
 /* ============================

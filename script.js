@@ -228,6 +228,7 @@ function playSong(realIndex) {
   cover.src = song.cover;
   title.textContent = song.name;
 
+  // ⭐ 自動播放（但不放下唱針，交給控制器處理）
   audio.play();
   cover.style.animationPlayState = "running";
   playBtn.textContent = "⏸️";
@@ -246,22 +247,39 @@ function playSong(realIndex) {
   loadComments(song.name, friendName);
 }
 
-async function increasePlayCount(songName) {
-  const { data: existing } = await supabase
-    .from("song_plays")
-    .select("*")
-    .eq("songName", songName)
-    .single();
+/* ============================
+   🎧 Stop Key
+============================ */
+document.getElementById("stop").addEventListener("click", () => {
+  audio.pause();
+  audio.currentTime = 0;
 
-  if (existing) {
-    await supabase
-      .from("song_plays")
-      .update({ count: existing.count + 1 })
-      .eq("songName", songName);
-  } else {
-    await supabase.from("song_plays").insert({ songName, count: 1 });
-  }
-}
+  cover.style.animationPlayState = "paused";
+  tonearm.classList.remove("playing");
+
+  title.textContent = "已停止播放";
+});
+
+/* ============================
+   🔀 Random Key
+============================ */
+document.getElementById("random").addEventListener("click", () => {
+  tonearm.classList.remove("playing");
+  cover.style.animationPlayState = "paused";
+
+  setTimeout(() => {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * songsData.length);
+    } while (newIndex === currentIndex);
+
+    playSong(newIndex);
+
+    audio.play();
+    cover.style.animationPlayState = "running";
+    tonearm.classList.add("playing");
+  }, 400);
+});
 
 /* ============================
    ⭐ 播放中高亮
@@ -278,28 +296,65 @@ function highlightSong() {
 }
 
 /* ============================
-   🎵 播放器控制
+   🎵 播放器控制（唯一正確版本）
 ============================ */
 playBtn.addEventListener("click", () => {
   if (audio.paused) {
-    audio.play();
-    cover.style.animationPlayState = "running";
-    playBtn.textContent = "⏸️";
+
+    // ⭐ 播放前先抬起唱針
+    tonearm.classList.remove("playing");
+    cover.style.animationPlayState = "paused";
+
+    setTimeout(() => {
+      audio.play();
+      cover.style.animationPlayState = "running";
+      playBtn.textContent = "⏸️";
+
+      // ⭐ 唱針放下
+      tonearm.classList.add("playing");
+    }, 400);
+
   } else {
+
+    // ⭐ 暫停（不會再被第二個事件覆蓋）
     audio.pause();
     cover.style.animationPlayState = "paused";
     playBtn.textContent = "▶️";
+    tonearm.classList.remove("playing");
   }
 });
 
+/* ============================
+   ⏭️ 下一首
+============================ */
 nextBtn.addEventListener("click", () => {
-  playSong((currentIndex + 1) % songsData.length);
+  tonearm.classList.remove("playing");
+  cover.style.animationPlayState = "paused";
+
+  setTimeout(() => {
+    playSong((currentIndex + 1) % songsData.length);
+
+    audio.play();
+    cover.style.animationPlayState = "running";
+    tonearm.classList.add("playing");
+  }, 400);
 });
 
+/* ============================
+   ⏮️ 上一首
+============================ */
 prevBtn.addEventListener("click", () => {
-  playSong((currentIndex - 1 + songsData.length) % songsData.length);
-});
+  tonearm.classList.remove("playing");
+  cover.style.animationPlayState = "paused";
 
+  setTimeout(() => {
+    playSong((currentIndex - 1 + songsData.length) % songsData.length);
+
+    audio.play();
+    cover.style.animationPlayState = "running";
+    tonearm.classList.add("playing");
+  }, 400);
+});
 /* ============================
    ⭐ 進度條
 ============================ */
@@ -828,34 +883,42 @@ function autoScrollSidebar() {
   const bar = document.querySelector(".sidebar");
   if (!bar) return;
 
-  let scrollPos = 0;
-  let autoScroll = true;   // ⭐ 是否自動捲動
-  let timer = null;
+  let autoScroll = true;
+  let direction = 1; // 1 = 向右, -1 = 向左
 
-  function startAutoScroll() {
-    autoScroll = true;
-  }
-
-  function stopAutoScroll() {
+  // 按一下 sidebar 就永久停下來
+  bar.addEventListener("click", () => {
     autoScroll = false;
-    clearTimeout(timer);
-    timer = setTimeout(startAutoScroll, 3000); // ⭐ 停 3 秒後再自動捲動
-  }
-
-  // ⭐ 手動捲動時暫停自動捲動
-  bar.addEventListener("wheel", stopAutoScroll);
-  bar.addEventListener("touchstart", stopAutoScroll);
-  bar.addEventListener("touchmove", stopAutoScroll);
-  bar.addEventListener("mousedown", stopAutoScroll);
+  });
 
   setInterval(() => {
     if (!autoScroll) return;
 
-    scrollPos += 1;
-    if (scrollPos >= bar.scrollWidth) {
-      scrollPos = 0;
-    }
-    bar.scrollLeft = scrollPos;
-  }, 50);
-}
+    bar.scrollLeft += direction;
 
+    // 捲到最右 → 改向左
+    if (bar.scrollLeft + bar.clientWidth >= bar.scrollWidth) {
+      direction = -1;
+    }
+
+    // 捲到最左 → 改向右
+    if (bar.scrollLeft <= 0) {
+      direction = 1;
+    }
+  }, 30);
+}
+const cd = document.querySelector(".cd");
+const tonearm = document.getElementById("tonearm");
+
+if (audio.paused) {
+  audio.play();
+  cd.style.animationPlayState = "running";
+  tonearm.classList.add("playing");
+} else {
+  audio.pause();
+  cd.style.animationPlayState = "paused";
+  tonearm.classList.remove("playing");
+}
+window.addEventListener("load", () => {
+  autoScrollSidebar();
+});
