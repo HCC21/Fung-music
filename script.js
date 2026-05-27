@@ -24,7 +24,7 @@ const welcomePopupText = document.getElementById("welcome-popup-text");
 
 const logoutBtn = document.getElementById("logout-btn");
 
-const playlistButtons = document.getElementById("playlist-buttons");
+const playlistContainer = document.getElementById("playlist-buttons");
 const searchBox = document.getElementById("search");
 
 const audio = document.getElementById("audio");
@@ -37,12 +37,18 @@ const durationText = document.getElementById("duration");
 const prevBtn = document.getElementById("prev");
 const playBtn = document.getElementById("play");
 const nextBtn = document.getElementById("next");
+const randomBtn = document.getElementById("random");
+const stopBtn = document.getElementById("stop");
 
 const adminPasswordInput = document.getElementById("admin-password");
 const adminBtn = document.getElementById("admin-btn");
 const adminPanel = document.getElementById("admin-panel");
 const adminClose = document.getElementById("admin-close");
 const adminNotice = document.getElementById("admin-notice");
+
+const cd = document.querySelector(".cd");
+const tonearm = document.getElementById("tonearm");
+
 if (friendName === "fungfung") {
   adminPasswordInput.style.display = "block";
   adminBtn.style.display = "block";
@@ -143,22 +149,25 @@ async function checkNotifications() {
     .select("id")
     .eq("isRead", false);
 
-  adminNotice.style.display = data.length > 0 ? "block" : "none";
+  adminNotice.style.display = data && data.length > 0 ? "block" : "none";
 }
 
 setInterval(checkNotifications, 5000);
 
 /* ============================
-   ⭐ 播放清單
+   ⭐ 播放清單（以歌單為唯一來源）
 ============================ */
 let currentIndex = -1;
+let listenTimer = null;
+let hasCounted = false;
 
 function generatePlaylist(filterCat = "all", keyword = "") {
-  playlistButtons.innerHTML = "";
+  playlistContainer.innerHTML = "";
 
   const currentUser = friendName.toLowerCase();
+  let displayIndex = -1;
 
-  songsData.forEach((song, realIndex) => {
+  songsData.forEach((song) => {
     if (keyword && !song.name.toLowerCase().includes(keyword)) return;
     if (filterCat !== "all" && song.cat !== filterCat) return;
 
@@ -167,9 +176,15 @@ function generatePlaylist(filterCat = "all", keyword = "") {
       if (!allowed.includes(currentUser)) return;
     }
 
+    displayIndex++;
+    const thisIndex = displayIndex;
+
     const btn = document.createElement("button");
     btn.classList.add("playlist-item");
-    btn.dataset.realIndex = realIndex;
+
+    btn.setAttribute("data-src", song.src);
+    btn.setAttribute("data-name", song.name);
+    btn.setAttribute("data-cover", song.cover);
 
     btn.innerHTML = `
       <img src="${song.cover}" class="playlist-cover">
@@ -184,9 +199,12 @@ function generatePlaylist(filterCat = "all", keyword = "") {
       btn.style.borderColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.45)`;
     };
 
-    btn.addEventListener("click", () => playSong(realIndex));
+    btn.addEventListener("click", () => {
+      currentIndex = thisIndex;
+      playFromPlaylist(thisIndex);
+    });
 
-    playlistButtons.appendChild(btn);
+    playlistContainer.appendChild(btn);
   });
 }
 
@@ -213,112 +231,79 @@ document
   });
 
 /* ============================
-   🎵 播放歌曲
+   🎵 播放歌曲（從歌單）
 ============================ */
-let listenTimer = null;
-let hasCounted = false;
+function playFromPlaylist(index) {
+  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const btn = buttons[index];
+  if (!btn) return;
 
-function playSong(realIndex) {
-  const song = songsData[realIndex];
-  if (!song) return;
+  currentIndex = index;
 
-  currentIndex = realIndex;
+  const songSrc = btn.getAttribute("data-src");
+  const songName = btn.getAttribute("data-name");
+  const songCover = btn.getAttribute("data-cover");
 
-  audio.src = song.src;
-  cover.src = song.cover;
-  title.textContent = song.name;
+  audio.src = songSrc;
+  cover.src = songCover;
+  title.textContent = songName;
 
-  // ⭐ 自動播放（但不放下唱針，交給控制器處理）
   audio.play();
   cover.style.animationPlayState = "running";
+  cd.style.animationPlayState = "running";
   playBtn.textContent = "⏸️";
+  tonearm.classList.add("playing");
 
   clearTimeout(listenTimer);
   hasCounted = false;
-
   listenTimer = setTimeout(() => {
-    if (!hasCounted) {
-      increasePlayCount(song.name);
+    if (!hasCounted && typeof increasePlayCount === "function") {
+      increasePlayCount(songName);
       hasCounted = true;
     }
   }, 60000);
 
-  highlightSong();
-  loadComments(song.name, friendName);
+  buttons.forEach((b) => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  loadComments(songName, friendName);
 }
 
 /* ============================
    🎧 Stop Key
 ============================ */
-document.getElementById("stop").addEventListener("click", () => {
+stopBtn.addEventListener("click", () => {
   audio.pause();
   audio.currentTime = 0;
 
   cover.style.animationPlayState = "paused";
+  cd.style.animationPlayState = "paused";
   tonearm.classList.remove("playing");
+  playBtn.textContent = "▶️";
 
   title.textContent = "已停止播放";
 });
 
 /* ============================
-   🔀 Random Key
-============================ */
-document.getElementById("random").addEventListener("click", () => {
-  tonearm.classList.remove("playing");
-  cover.style.animationPlayState = "paused";
-
-  setTimeout(() => {
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * songsData.length);
-    } while (newIndex === currentIndex);
-
-    playSong(newIndex);
-
-    audio.play();
-    cover.style.animationPlayState = "running";
-    tonearm.classList.add("playing");
-  }, 400);
-});
-
-/* ============================
-   ⭐ 播放中高亮
-============================ */
-function highlightSong() {
-  const buttons = document.querySelectorAll(".playlist-item");
-  buttons.forEach((btn) => btn.classList.remove("active"));
-
-  buttons.forEach((btn) => {
-    if (parseInt(btn.dataset.realIndex) === currentIndex) {
-      btn.classList.add("active");
-    }
-  });
-}
-
-/* ============================
-   🎵 播放器控制（唯一正確版本）
+   ▶️ 播放 / 暫停
 ============================ */
 playBtn.addEventListener("click", () => {
   if (audio.paused) {
-
-    // ⭐ 播放前先抬起唱針
     tonearm.classList.remove("playing");
     cover.style.animationPlayState = "paused";
+    cd.style.animationPlayState = "paused";
 
     setTimeout(() => {
       audio.play();
       cover.style.animationPlayState = "running";
+      cd.style.animationPlayState = "running";
       playBtn.textContent = "⏸️";
-
-      // ⭐ 唱針放下
       tonearm.classList.add("playing");
     }, 400);
-
   } else {
-
-    // ⭐ 暫停（不會再被第二個事件覆蓋）
     audio.pause();
     cover.style.animationPlayState = "paused";
+    cd.style.animationPlayState = "paused";
     playBtn.textContent = "▶️";
     tonearm.classList.remove("playing");
   }
@@ -328,15 +313,16 @@ playBtn.addEventListener("click", () => {
    ⏭️ 下一首
 ============================ */
 nextBtn.addEventListener("click", () => {
+  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  if (!buttons.length) return;
+
   tonearm.classList.remove("playing");
   cover.style.animationPlayState = "paused";
+  cd.style.animationPlayState = "paused";
 
   setTimeout(() => {
-    playSong((currentIndex + 1) % songsData.length);
-
-    audio.play();
-    cover.style.animationPlayState = "running";
-    tonearm.classList.add("playing");
+    currentIndex = (currentIndex + 1 + buttons.length) % buttons.length;
+    playFromPlaylist(currentIndex);
   }, 400);
 });
 
@@ -344,17 +330,41 @@ nextBtn.addEventListener("click", () => {
    ⏮️ 上一首
 ============================ */
 prevBtn.addEventListener("click", () => {
+  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  if (!buttons.length) return;
+
   tonearm.classList.remove("playing");
   cover.style.animationPlayState = "paused";
+  cd.style.animationPlayState = "paused";
 
   setTimeout(() => {
-    playSong((currentIndex - 1 + songsData.length) % songsData.length);
-
-    audio.play();
-    cover.style.animationPlayState = "running";
-    tonearm.classList.add("playing");
+    currentIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+    playFromPlaylist(currentIndex);
   }, 400);
 });
+
+/* ============================
+   🔀 Random
+============================ */
+randomBtn.addEventListener("click", () => {
+  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  if (!buttons.length) return;
+
+  tonearm.classList.remove("playing");
+  cover.style.animationPlayState = "paused";
+  cd.style.animationPlayState = "paused";
+
+  setTimeout(() => {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * buttons.length);
+    } while (buttons.length > 1 && newIndex === currentIndex);
+
+    currentIndex = newIndex;
+    playFromPlaylist(currentIndex);
+  }, 400);
+});
+
 /* ============================
    ⭐ 進度條
 ============================ */
@@ -367,7 +377,10 @@ audio.addEventListener("timeupdate", () => {
 });
 
 audio.addEventListener("ended", () => {
-  playSong((currentIndex + 1) % songsData.length);
+  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  if (!buttons.length) return;
+  currentIndex = (currentIndex + 1 + buttons.length) % buttons.length;
+  playFromPlaylist(currentIndex);
 });
 
 progress.addEventListener("input", () => {
@@ -658,6 +671,9 @@ function resetGameEvents() {
 /* ============================
    🌸 櫻花接花
 ============================ */
+let sakuraPetalTimer = null;
+let sakuraTimer = null;
+
 function startSakuraGame() {
   const canvas = document.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
@@ -743,6 +759,8 @@ function startSakuraGame() {
 /* ============================
    🎨 卡通跳跳樂
 ============================ */
+let cartoonObstacleTimer = null;
+
 function startCartoonGame() {
   const canvas = document.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
@@ -860,7 +878,10 @@ function getDominantColor(image) {
 
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-  let r = 0, g = 0, b = 0, count = 0;
+  let r = 0,
+    g = 0,
+    b = 0,
+    count = 0;
 
   for (let i = 0; i < data.length; i += 20) {
     r += data[i];
@@ -872,7 +893,7 @@ function getDominantColor(image) {
   return {
     r: Math.floor(r / count),
     g: Math.floor(g / count),
-    b: Math.floor(b / count)
+    b: Math.floor(b / count),
   };
 }
 
@@ -884,9 +905,8 @@ function autoScrollSidebar() {
   if (!bar) return;
 
   let autoScroll = true;
-  let direction = 1; // 1 = 向右, -1 = 向左
+  let direction = 1;
 
-  // 按一下 sidebar 就永久停下來
   bar.addEventListener("click", () => {
     autoScroll = false;
   });
@@ -896,29 +916,19 @@ function autoScrollSidebar() {
 
     bar.scrollLeft += direction;
 
-    // 捲到最右 → 改向左
     if (bar.scrollLeft + bar.clientWidth >= bar.scrollWidth) {
       direction = -1;
     }
 
-    // 捲到最左 → 改向右
     if (bar.scrollLeft <= 0) {
       direction = 1;
     }
   }, 30);
 }
-const cd = document.querySelector(".cd");
-const tonearm = document.getElementById("tonearm");
 
-if (audio.paused) {
-  audio.play();
-  cd.style.animationPlayState = "running";
-  tonearm.classList.add("playing");
-} else {
-  audio.pause();
-  cd.style.animationPlayState = "paused";
-  tonearm.classList.remove("playing");
-}
+/* ============================
+   ⭐ 載入時啟動
+============================ */
 window.addEventListener("load", () => {
   autoScrollSidebar();
 });
