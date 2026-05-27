@@ -18,11 +18,10 @@ body {
     left: 0;
     width: 100%;
     height: 100vh;
-    background: url("covers/cover3.jpg") center/cover no-repeat;  /* ⭐ 背景圖 */
+    background: url("covers/cover3.jpg") center/cover no-repeat;
     display: flex;
     justify-content: center;
     align-items: center;
-
     z-index: 999;
 }
 .login-screen::before {
@@ -32,7 +31,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.45);   /* ⭐ 黑色透明遮罩 */
+    background: rgba(0,0,0,0.45);
     z-index: -1;
 }
 
@@ -55,7 +54,7 @@ body {
 #username-input,
 #password-input {
     width: 180px;
-    max-width: 80%;      /* ⭐ 防止太闊 */
+    max-width: 80%;
     padding: 12px;
     border-radius: 8px;
     border: none;
@@ -63,6 +62,7 @@ body {
     font-size: 16px;
     text-align: center;
 }
+
 #login-btn {
     padding: 12px 20px;
     background: #1DB954;
@@ -73,21 +73,18 @@ body {
     transition: 0.2s;
     width: 180px;
 }
-
 #login-btn:hover {
     background: #1ed760;
 }
 
 /* 📱 手機登入美化 */
 @media (max-width: 768px) {
-
   .login-screen {
-    display: flex;
-    justify-content: center;   /* ⭐ 水平置中 */
-    align-items: center;       /* ⭐ 垂直置中 */
-    width: 100vw;              /* ⭐ 必須：確保佔滿整個螢幕 */
-    height: 100vh;             /* ⭐ 必須：垂直置中 */
-    padding: 0;                /* ⭐ 移除左右 padding，避免偏移 */
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
     margin: 0;
     box-sizing: border-box;
     position: relative;
@@ -95,9 +92,9 @@ body {
   }
 
   .login-box {
-    width: 90%;                /* ⭐ 自動縮放 */
-    max-width: 320px;          /* ⭐ 不會太闊 */
-    margin: 0 auto;            /* ⭐ 再次保證置中 */
+    width: 90%;
+    max-width: 320px;
+    margin: 0 auto;
     padding: 30px 25px;
   }
 
@@ -109,23 +106,21 @@ body {
     margin-right: auto;
   }
 }
+
 /* ============================
-   🎵 Sidebar（只有橫向捲軸，不要直向捲軸）
+   🎵 Sidebar（橫向捲動）
 ============================ */
 .sidebar {
     width: 100%;
     background: #000;
     padding: 12px 15px;
-
     display: flex;
-    flex-wrap: nowrap;        /* ❗ 不換行 */
+    flex-wrap: nowrap;
     align-items: center;
     gap: 20px;
-
-    overflow-x: scroll;       /* ⭐ 允許橫向捲動 */
-    overflow-y: hidden;       /* ⭐ 禁止直向捲動 */
-    white-space: nowrap;      /* ⭐ 保持一行 */
-
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
     border-bottom: 1px solid #222;
     z-index: 999;
 }
@@ -136,66 +131,63 @@ body {
 .player-area {
   display: flex;
   flex-direction: column;
-  align-items: center;   /* ⭐ 水平置中 */
-  text-align: center;    /* ⭐ 文字也置中 */
+  align-items: center;
+  text-align: center;
 }
+
+/* ⭐ CD 永遠保持正方形 + 不變形 */
 .cd {
     width: 280px;
     height: 280px;
-    aspect-ratio: 1 / 1;   /* ⭐ 永遠保持正方形 */
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     object-fit: cover;
     animation: rotate 6s linear infinite;
     animation-play-state: paused;
 }
 
+/* ⭐ 唯一正確的 CD wrapper（避免橢圓） */
 .cd-wrapper {
   position: relative;
-  width: 280px;   /* ⭐ 必須跟 CD 一樣 */
-  height: 280px;  /* ⭐ 必須跟 CD 一樣 */
+  width: 280px;
+  height: 280px;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-shrink: 0; /* ⭐ 防止被壓扁 */
+  flex-shrink: 0;
 }
 
+/* ============================
+   🎚️ 唱針（左下角 + 正確旋轉中心）
+============================ */
 .tonearm {
   position: absolute;
-  width: 200px;              /* 唱臂長度 */
-  left: -70px;               /* ⭐ 從左邊伸進來 */
-  bottom: -20px;             /* ⭐ 從下方伸進來 */
-  transform-origin: 170px 40px; /* ⭐ 旋轉中心在唱臂尾端（靠近 CD） */
-  transform: rotate(35deg);  /* ⭐ 預設抬起角度（左下 → 右上） */
+  width: 200px;
+  left: -80px;          
+  bottom: -60px;        
+  transform-origin: 15% 20%;  /* ⭐ 旋轉中心在尾部 */
+  transform: rotate(45deg);   /* ⭐ 抬起 */
   transition: transform 0.6s ease;
   pointer-events: none;
 }
 
 .tonearm.playing {
-  transform: rotate(5deg);   /* ⭐ 播放時放下，靠近唱片 */
+  transform: rotate(10deg);   /* ⭐ 放下 */
 }
+
+/* ============================
+   📀 CD 旋轉動畫
+============================ */
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
 
-.progress-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin: 15px auto;
-    width: 80%;
-}
-
-#progress {
-    width: 60%;
-}
-
-.controls {
-    margin-top: 20px;
-}
-
+/* ============================
+   🎛️ 控制按鈕（彈跳 + 亮光）
+============================ */
 .controls button {
+    position: relative;
     background: #1DB954;
     border: none;
     padding: 12px 18px;
@@ -203,37 +195,57 @@ body {
     border-radius: 50%;
     font-size: 20px;
     cursor: pointer;
-    transition: 0.2s;
+    overflow: hidden;
+    transition: transform 0.15s ease, background 0.2s;
 }
 
-.controls button:hover {
-    background: #1ed760;
-}
-.cd-wrapper {
-  position: relative;
-  width: 260px;
-  height: 260px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* ⭐ 按下彈跳 */
+.controls button:active {
+    transform: scale(0.85);
+    background: #17a84a;
 }
 
-.tonearm {
-  position: absolute;
-  width: 200px;
-  left: -80px;          /* 左下位置你可以微調 */
-  bottom: -60px;        /* 貼近 CD 底部 */
-  transform-origin: 15% 20%;  /* ⭐ 旋轉中心在「尾部」，不是針頭 */
-  transform: rotate(45deg);   /* 抬起 */
-  transition: transform 0.6s ease;
-  pointer-events: none;
+/* ⭐ 亮光掃過 */
+.controls button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.35);
+    transform: skewX(-20deg);
+    transition: left 0.25s ease;
+}
+.controls button:active::after {
+    left: 120%;
 }
 
-.tonearm.playing {
-  transform: rotate(10deg);   /* 放下 */
+/* ============================
+   📀 CD 微震動
+============================ */
+@keyframes cdShake {
+  0% { transform: rotate(0deg) translateX(0); }
+  50% { transform: rotate(0deg) translateX(2px); }
+  100% { transform: rotate(0deg) translateX(0); }
 }
 
+.controls button:active ~ .player-area .cd-wrapper .cd {
+  animation: cdShake 0.12s ease;
+}
 
+/* ============================
+   🎚️ 唱針微震動
+============================ */
+@keyframes needleTap {
+  0% { transform: rotate(var(--needle-angle, 10deg)); }
+  50% { transform: rotate(calc(var(--needle-angle, 10deg) + 2deg)); }
+  100% { transform: rotate(var(--needle-angle, 10deg)); }
+}
+
+.controls button:active ~ .player-area .cd-wrapper #tonearm.playing {
+  animation: needleTap 0.15s ease;
+}
 /* ============================
    ⭐ 留言區
 ============================ */
@@ -275,6 +287,12 @@ body {
     cursor: pointer;
     transition: 0.25s ease;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    text-align: left;
 }
 
 #playlist-buttons button:hover {
@@ -290,21 +308,13 @@ body {
     box-shadow: 0 0 14px rgba(255, 45, 85, 0.8);
     transform: scale(1.06);
 }
-#playlist-buttons button {
-    display: flex;                 /* ⭐ 讓內容左右排列 */
-    align-items: center;           /* ⭐ 垂直置中 */
-    justify-content: flex-start;   /* ⭐ 左對齊 */
-    gap: 12px;                     /* ⭐ 圖片與文字距離 */
-    text-align: left;              /* ⭐ 文字靠左 */
-}
 
 #playlist-buttons button span {
-    flex: 1;                       /* ⭐ 文字佔滿右邊空間 */
+    flex: 1;
     display: block;
 }
 
-
-/* 封面縮圖（最佳尺寸） */
+/* ⭐ 封面縮圖 */
 .playlist-cover {
     width: 32px;
     height: 32px;
@@ -319,9 +329,9 @@ body {
     }
 }
 
+/* ⭐ 手機版 Playlist 排列 */
 @media (max-width: 768px) {
     #playlist-buttons {
-        display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 14px;
         width: 100%;
@@ -332,15 +342,14 @@ body {
         overflow: visible !important;
     }
 }
+
+/* ⭐ 手機版 Player Area */
 @media (max-width: 768px) {
     .player-area {
-        justify-content: flex-start;   /* ⭐ 由置中改為頂部開始 */
-        padding-top: 20px;             /* ⭐ 減少空白 */
+        justify-content: flex-start;
+        padding-top: 20px;
     }
 }
-
-
-
 
 /* ============================
    🎮 小遊戲 Modal
@@ -420,10 +429,13 @@ body {
 .theme-cartoon .cd-wrapper {
     filter: drop-shadow(0 0 25px #ff9900);
 }
-/* ⭐ 管理員後台：允許登入的用戶名單（固定高度，只顯示 4 名） */
+
+/* ============================
+   ⭐ 管理員後台
+============================ */
 #allowed-users-list {
-    max-height: 160px;      /* 約 4 個 li 的高度 */
-    overflow-y: hidden;       /* 可上下捲動 */
+    max-height: 160px;
+    overflow-y: hidden;
     padding: 10px;
     background: #111;
     border: 1px solid #333;
@@ -435,6 +447,7 @@ body {
     border-bottom: 1px solid #333;
     font-size: 16px;
 }
+
 #user-list {
     max-height: 200px;
     overflow-y: auto;
@@ -442,24 +455,24 @@ body {
     background: #111;
     border: 1px solid #333;
     border-radius: 8px;
-
-    max-width: 260px;   /* ⭐⭐ 收窄寬度（你可以改 240 / 220 / 200） */
+    max-width: 260px;
 }
 
 #user-list li {
     padding: 8px 0;
     border-bottom: 1px solid #333;
     font-size: 16px;
-    white-space: normal; /* ⭐ 避免長名字撐爆 */
+    white-space: normal;
 }
 
 .user-actions {
     display: flex;
     gap: 6px;
-    flex-wrap: wrap;     /* ⭐ 按鈕太多自動換行 */
+    flex-wrap: wrap;
 }
 
 .user-actions button {
     padding: 4px 8px;
     font-size: 14px;
 }
+
