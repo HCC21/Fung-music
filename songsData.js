@@ -405,55 +405,55 @@ const songsData = [
 },
   {  name: "沒有你的愛",
     src: "music/manman/沒有你的愛.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "男人最痛",
     src: "music/manman/男人最痛.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man3.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "男朋友",
     src: "music/manman/男朋友.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
  {   name: "身體健康",
     src: "music/manman/身體健康.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man1.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
   {  name: "那裡天空不下雨",
     src: "music/manman/那裡天空不下雨.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man2.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
   {  name: "那誰",
     src: "music/manman/那誰.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man3.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "來夜方長",
     src: "music/manman/來夜方長.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man4.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "刻不容緩",
     src: "music/manman/刻不容緩.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
  {   name: "刻不容緩2",
     src: "music/manman/刻不容緩2.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
@@ -465,55 +465,55 @@ const songsData = [
 },
   {  name: "幸福車站",
     src: "music/manman/幸福車站.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man8.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "放生",
     src: "music/manman/放生.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man1.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "明天你是否依然愛我",
     src: "music/manman/明天你是否依然愛我.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man2.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
  {   name: "明明白白我的心",
     src: "music/manman/明明白白我的心.mp3",
-    cover: "covers/man2.jpg",
+    cover: "covers/man3.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
   {  name: "明知故犯",
     src: "music/manman/明知故犯.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man4.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },
   {  name: "易愛難收",
     src: "music/manman/易愛難收.mp3",
-    cover: "covers/man1.jpg",
+    cover: "covers/man5.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "花火",
     src: "music/manman/花火.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man6.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "長夜My love goodnight",
     src: "music/manman/長夜My love goodnight.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man7.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "長相廝守",
     src: "music/manman/長夜My love goodnight.mp3",
-    cover: "covers/man9.jpg",
+    cover: "covers/man8.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
@@ -522,6 +522,505 @@ const songsData = [
     cover: "covers/man9.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
+},
+{ name: "愛在陽光空氣",
+  src: "music/manman/愛在陽光空氣.mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛自那天遇上",
+  src: "music/manman/愛自那天遇上.mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛妳",
+  src: "music/manman/愛妳.mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛的太遲",
+  src: "music/manman/愛的太遲.mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛的故事上集",
+  src: "music/manman/愛的故事上集.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "新的世界 阿拉丁",
+  src: "music/manman/新的世界 阿拉丁.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "會錯意敏唱",
+  src: "music/manman/會錯意敏唱.mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "歲月如歌",
+  src: "music/manman/歲月如歌.mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "滄海遺珠",
+  src: "music/manman/滄海遺珠.mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "痴心眼內",
+  src: "music/manman/痴心眼內.mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "聖誕串燒",
+  src: "music/manman/聖誕串燒.mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "萬千寵愛在一身",
+  src: "music/manman/萬千寵愛在一身.mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "載歌載舞詐肚痛",
+  src: "music/manman/載歌載舞詐肚痛.mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "夢中天使",
+  src: "music/manman/夢中天使.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "夢想成真",
+  src: "music/manman/夢想成真.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "對你太在乎",
+  src: "music/manman/對你太在乎.mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "遙遠的她",
+  src: "music/manman/對你太在乎.mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "漣漪",
+  src: "music/manman/漣漪.mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "酷愛",
+  src: "music/manman/酷愛.mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+}
+,
+{ name: "劇場版赤裸的秘密",
+  src: "music/manman/劇場版赤裸的秘密.mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "編舟情歌",
+  src: "music/manman/編舟情歌.mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "誰令你心痴",
+  src: "music/manman/誰令你心痴.mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "鄭伊健串燒",
+  src: "music/manman/鄭伊健串燒.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "鄭伊健串燒2",
+  src: "music/manman/鄭伊健串燒2.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "餘震",
+  src: "music/manman/餘震.mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "凝望(敏唱)",
+  src: "music/manman/凝望(敏唱).mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "擋不住的風情",
+  src: "music/manman/擋不住的風情.mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "選擇",
+  src: "music/manman/選擇.mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "鮮花送玉人",
+  src: "music/manman/鮮花送玉人.mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "藍精靈",
+  src: "music/manman/藍精靈.mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "難的有情人",
+  src: "music/manman/難的有情人.mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "難為正邪定分界",
+  src: "music/manman/難為正邪定分界.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "願你待我真的好",
+  src: "music/manman/願你待我真的好.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "騷靈情歌(敏唱)",
+  src: "music/manman/騷靈情歌(敏唱).mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "護花使者",
+  src: "music/manman/護花使者.mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "歡樂年年",
+  src: "music/manman/歡樂年年.mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "讓昨天再見",
+  src: "music/manman/讓昨天再見.mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "趙學而串燒(敏唱)",
+  src: "music/manman/趙學而串燒(敏唱).mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+{ name: "為你鐘情",
+  src: "music/manman/為你鐘情.mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "相愛很難",
+  src: "music/manman/相愛很難.mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "相聚一刻",
+  src: "music/manman/相聚一刻.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "秋意中等我",
+  src: "music/manman/秋意中等我.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "美中不足",
+  src: "music/manman/美中不足.mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "美麗之最(敏唱)",
+  src: "music/manman/美麗之最(敏唱).mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "恭喜你",
+  src: "music/manman/恭喜你.mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "留給最愛的說話",
+  src: "music/manman/留給最愛的說話.mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "真愛在明天",
+  src: "music/manman/真愛在明天.mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "祝福你(敏唱)",
+  src: "music/manman/祝福你(敏唱).mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+{ name: "脈搏奔流",
+  src: "music/manman/脈搏奔流.mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "閃著淚光慢慢決定",
+  src: "music/manman/閃著淚光慢慢決定.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "高山低谷",
+  src: "music/manman/高山低谷.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "張敬軒串燒",
+  src: "music/manman/張敬軒串燒.mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "從不喜歡孤單一個",
+  src: "music/manman/從不喜歡孤單一個.mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "情未了 (2)",
+  src: "music/manman/情未了 (2).mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "情未了",
+  src: "music/manman/情未了.mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "情是永願著迷",
+  src: "music/manman/情是永願著迷.mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "喇叭牌",
+  src: "music/manman/喇叭牌.mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "最美的第七天(敏唱)",
+  src: "music/manman/最美的第七天(敏唱).mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+{ name: "最愛是誰",
+  src: "music/manman/最愛是誰.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "游龍戲鳳",
+  src: "music/manman/游龍戲鳳.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "畫紙上的戒指",
+  src: "music/manman/畫紙上的戒指.mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "痛愛",
+  src: "music/manman/痛愛.mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "紫玉釵",
+  src: "music/manman/紫玉釵.mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "開始戀愛(敏唱)",
+  src: "music/manman/開始戀愛(敏唱).mp3",
+  cover: "covers/man1.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "開始戀愛",
+  src: "music/manman/開始戀愛.mp3",
+  cover: "covers/man2.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "傻癡癡",
+  src: "music/manman/傻癡癡.mp3",
+  cover: "covers/man3.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "傾心",
+  src: "music/manman/傾心.mp3",
+  cover: "covers/man4.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛不釋手",
+  src: "music/manman/愛不釋手.mp3",
+  cover: "covers/man5.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+{ name: "愛全為你",
+  src: "music/manman/愛全為你.mp3",
+  cover: "covers/man6.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛全為你2",
+  src: "music/manman/愛全為你2.mp3",
+  cover: "covers/man7.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛在心內暖",
+  src: "music/manman/愛在心內暖.mp3",
+  cover: "covers/man8.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
+},
+
+{ name: "愛在心內暖2",
+  src: "music/manman/愛在心內暖2.mp3",
+  cover: "covers/man9.jpg",
+  cat: "other",
+  allowedUsers: ["fungfung","manman"]
 },
     { name: "遲來的春天", src: "music/遲來的春天.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
     { name: "感情的段落", src: "music/感情的段落.mp3", cover: "covers/cover1.jpg", cat: "female" },
