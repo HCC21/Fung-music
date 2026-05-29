@@ -132,10 +132,6 @@ setInterval(checkNotifications, 5000);
 /* ============================
    ⭐ 播放清單（以歌單為唯一來源）
 ============================ */
-let currentIndex = -1;
-let listenTimer = null;
-let hasCounted = false;
-
 function generatePlaylist(filterCat = "all", keyword = "") {
   playlistContainer.innerHTML = "";
 
@@ -143,14 +139,25 @@ function generatePlaylist(filterCat = "all", keyword = "") {
   let displayIndex = -1;
 
   songsData.forEach((song) => {
-    if (keyword && !song.name.toLowerCase().includes(keyword)) return;
-    if (filterCat !== "all" && song.cat !== filterCat) return;
 
-    if (song.allowedUsers && song.allowedUsers !== "all") {
-      const allowed = song.allowedUsers.map((u) => u.toLowerCase());
+    // ⭐ 1. man 權限（最重要）
+    if (song.cat === "man" && currentUser !== "fungfung" && currentUser !== "manman") {
+      return;
+    }
+
+    // ⭐ 2. allowedUsers（如果你以後想用）
+    if (Array.isArray(song.allowedUsers)) {
+      const allowed = song.allowedUsers.map(u => u.toLowerCase());
       if (!allowed.includes(currentUser)) return;
     }
 
+    // ⭐ 3. 搜尋過濾
+    if (keyword && !song.name.toLowerCase().includes(keyword)) return;
+
+    // ⭐ 4. 分類過濾
+    if (filterCat !== "all" && song.cat !== filterCat) return;
+
+    // ⭐ 5. 顯示歌曲
     displayIndex++;
     const thisIndex = displayIndex;
 
@@ -182,8 +189,6 @@ function generatePlaylist(filterCat = "all", keyword = "") {
     playlistContainer.appendChild(btn);
   });
 }
-
-generatePlaylist();
 
 /* ============================
    🔍 搜尋
