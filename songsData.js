@@ -1136,9 +1136,11 @@ const songsData = [
     { name: "離開請關燈", src: "music/離開請關燈.mp3", cover: "covers/cover3.jpg", cat: "female" },
     { name: "魔法奇緣之媽媽知道", src: "music/魔法奇緣之媽媽知道.mp3", cover: "covers/cover5.jpg", cat: "kids" }
 ];
-// ⭐ 自動補上 allowedUsers
+// ⭐ 可擴充版本
+const restrictedCats = ["man", "manman"];
+
 songsData.forEach(song => {
-  if (song.cat === "man") {
+  if (restrictedCats.includes(song.cat)) {
     song.allowedUsers = ["fungfung", "manman"];
   }
 });
