@@ -512,13 +512,13 @@ const songsData = [
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "長相廝守",
-    src: "music/manman/長夜My love goodnight.mp3",
+    src: "music/manman/長相廝守長相廝守.mp3",
     cover: "covers/man8.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
 },{
     name: "幽媾",
-    src: "music/manman/長夜My love goodnight.mp3",
+    src: "music/manman/幽媾.mp3",
     cover: "covers/man9.jpg",
     cat: "other",
     allowedUsers: ["fungfung", "manman"]
@@ -636,7 +636,7 @@ const songsData = [
 },
 
 { name: "遙遠的她",
-  src: "music/manman/對你太在乎.mp3",
+  src: "music/manman/遙遠的她.mp3",
   cover: "covers/man8.jpg",
   cat: "other",
   allowedUsers: ["fungfung","manman"]

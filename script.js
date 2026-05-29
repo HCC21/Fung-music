@@ -97,43 +97,6 @@ async function saveLoginHistory(name) {
 
 saveLoginHistory(friendName);
 
-/* ============================
-   ⭐ 顯示登入紀錄（sidebar）
-============================ */
-async function showLoginHistory(name) {
-  const historyList = document.getElementById("login-history");
-
-  let query = supabase.from("login_history").select("*");
-
-  if (name !== "fungfung") {
-    query = query.eq("name", name);
-  }
-
-  const { data: history } = await query
-    .order("last_login", { ascending: false })
-    .limit(5);
-
-  historyList.innerHTML = "";
-
-  if (!history || history.length === 0) {
-    historyList.innerHTML = "<li>暫時沒有登入紀錄</li>";
-    return;
-  }
-
-  history.forEach((friend) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${friend.name}</strong><br>
-      <small>登入 ${friend.count} 次</small><br>
-      <small>最後登入：${new Date(
-        friend.last_login
-      ).toLocaleString()}</small>
-    `;
-    historyList.appendChild(li);
-  });
-}
-
-showLoginHistory(friendName);
 
 /* ============================
    🔔 通知系統（管理員）
@@ -619,6 +582,7 @@ async function deleteUser(id) {
   alert("已刪除");
   loadAllUsers();
 }
+
 
 /* ============================
    ⭐ 小遊戲（下拉選單）
