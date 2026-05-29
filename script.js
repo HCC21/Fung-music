@@ -69,13 +69,21 @@ showWelcomePopup(friendName);
 /* ============================
    ⭐ 限制「man」分類只有 fungfung & manman 可見
 ============================ */
+/* ============================
+   ⭐ 限制「man / manman」分類只有 fungfung & manman 可見
+============================ */
 window.addEventListener("load", () => {
   const currentUser = friendName.toLowerCase();
-  const manOption = document.querySelector('option[value="man"]');
 
-  if (currentUser !== "fungfung" && currentUser !== "manman") {
-    if (manOption) manOption.remove();   // ← 直接移除
-  }
+  // 要隱藏的分類
+  const restrictedCats = ["man", "manman"];
+
+  restrictedCats.forEach(cat => {
+    const option = document.querySelector(`option[value="${cat}"]`);
+    if (currentUser !== "fungfung" && currentUser !== "manman") {
+      if (option) option.remove();
+    }
+  });
 });
 
 /* ============================
