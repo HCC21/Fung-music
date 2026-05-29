@@ -5,7 +5,7 @@ const SUPABASE_URL = "https://dzaemdhyvcgstidhvykn.supabase.co";
 const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6YWVtZGh5dmNnc3RpZGh2eWtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NzgyMDMsImV4cCI6MjA4NzE1NDIwM30.Rx6vmN3QPnF4vxKIQt6Okid6SYmwrGfyCpom1KtaEo8";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ============================
    🚪 未登入 → 自動跳回 login.html
@@ -65,6 +65,18 @@ function showWelcomePopup(name) {
 
 welcomeText.textContent = `你好，${friendName}！`;
 showWelcomePopup(friendName);
+
+/* ============================
+   ⭐ 限制「其他」分類只有 fungfung & manman 可見
+============================ */
+window.addEventListener("load", () => {
+  const currentUser = friendName.toLowerCase();
+  const otherOption = document.querySelector('option[value="man"]');
+
+  if (currentUser !== "fungfung" && currentUser !== "manman") {
+    if (otherOption) otherOption.style.display = "none";
+  }
+});
 
 /* ============================
    ⭐ 儲存登入紀錄
