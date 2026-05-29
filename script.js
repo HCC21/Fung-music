@@ -67,9 +67,6 @@ welcomeText.textContent = `你好，${friendName}！`;
 showWelcomePopup(friendName);
 
 /* ============================
-   ⭐ 限制「man」分類只有 fungfung & manman 可見
-============================ */
-/* ============================
    ⭐ 限制「man / manman」分類只有 fungfung & manman 可見
 ============================ */
 window.addEventListener("load", () => {
@@ -90,7 +87,7 @@ window.addEventListener("load", () => {
    ⭐ 儲存登入紀錄
 ============================ */
 async function saveLoginHistory(name) {
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseClient
     .from("login_history")
     .select("*")
     .eq("name", name)
@@ -99,7 +96,7 @@ async function saveLoginHistory(name) {
   const nowISO = new Date().toISOString();
 
   if (existing) {
-    await supabase
+    await supabaseClient
       .from("login_history")
       .update({
         count: existing.count + 1,
@@ -107,7 +104,7 @@ async function saveLoginHistory(name) {
       })
       .eq("name", name);
   } else {
-    await supabase.from("login_history").insert({
+    await supabaseClient.from("login_history").insert({
       name: name,
       count: 1,
       last_login: nowISO,
@@ -127,7 +124,7 @@ async function checkNotifications() {
     return;
   }
 
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from("comments")
     .select("id")
     .eq("isRead", false);
@@ -387,7 +384,7 @@ function formatTime(sec) {
    ⭐ 留言系統
 ============================ */
 async function loadComments(songName, currentUser) {
-  const { data: comments } = await supabase
+  const { data: comments } = await supabaseClient
     .from("comments")
     .select("*")
     .eq("songName", songName)
@@ -430,7 +427,7 @@ document.getElementById("comment-submit").addEventListener("click", async () => 
   const message = input.value.trim();
   if (!message) return;
 
-  await supabase.from("comments").insert({
+  await supabaseClient.from("comments").insert({
     songName: title.textContent,
     user: friendName,
     message,
@@ -495,13 +492,14 @@ adminClose.addEventListener("click", () => {
   adminPanel.style.display = "none";
 });
 
+
 /* ============================
    ⭐ 管理員：所有登入紀錄
 ============================ */
 async function loadAllLoginHistory() {
   const list = document.getElementById("admin-login-history");
 
-  const { data: history } = await supabase
+  const { data: history } = await supabaseClient
     .from("login_history")
     .select("*")
     .order("last_login", { ascending: false });
@@ -530,7 +528,7 @@ async function loadAllLoginHistory() {
 async function loadAllUsers() {
   const list = document.getElementById("user-list");
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("users")
     .select("*")
     .order("id", { ascending: true });
@@ -563,7 +561,7 @@ document.getElementById("add-user-btn").addEventListener("click", async () => {
   const password = prompt("設定初始密碼：");
   if (!password) return;
 
-  const { error } = await supabase.from("users").insert([
+  const { error } = await supabaseClient.from("users").insert([
     { name: name.trim(), password: password.trim() },
   ]);
 
@@ -580,7 +578,7 @@ async function resetPassword(id) {
   const newPass = prompt("輸入新密碼：");
   if (!newPass) return;
 
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from("users")
     .update({ password: newPass })
     .eq("id", id);
@@ -597,7 +595,7 @@ async function resetPassword(id) {
 async function deleteUser(id) {
   if (!confirm("確定要刪除這個用戶嗎？")) return;
 
-  const { error } = await supabase.from("users").delete().eq("id", id);
+  const { error } = await supabaseClient.from("users").delete().eq("id", id);
 
   if (error) {
     alert("刪除失敗：" + error.message);
