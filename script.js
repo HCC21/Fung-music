@@ -67,14 +67,14 @@ welcomeText.textContent = `你好，${friendName}！`;
 showWelcomePopup(friendName);
 
 /* ============================
-   ⭐ 限制「其他」分類只有 fungfung & manman 可見
+   ⭐ 限制「man」分類只有 fungfung & manman 可見
 ============================ */
 window.addEventListener("load", () => {
   const currentUser = friendName.toLowerCase();
-  const otherOption = document.querySelector('option[value="man"]');
+  const manOption = document.querySelector('option[value="man"]');
 
   if (currentUser !== "fungfung" && currentUser !== "manman") {
-    if (otherOption) otherOption.style.display = "none";
+    if (manOption) manOption.remove();   // ← 直接移除
   }
 });
 
