@@ -4,6 +4,74 @@
 
 const songsData = [
     { name: "一千個願意", src: "music/一千個願意.mp3", cover: "covers/cover9.jpg", cat: "slow songs" },
+
+{
+    name: "三十日",
+    src: "music/安眠/三十日.mp3",
+    cover: "covers/man1.jpg",
+    cat: "manman",
+  
+},
+ {   name: "天荒愛未老",
+    src: "music/安眠/天荒愛未老.mp3",
+    cover: "covers/man6.jpg",
+    cat: "manman",
+  
+},
+  {  name: "永遠的微笑",
+    src: "music/安眠/永遠的微笑.mp3",
+    cover: "covers/man3.jpg",
+    cat: "manman",
+  
+},
+  {
+    name: "沒有你的愛",
+    src: "music/安眠/沒有你的愛.mp3",
+    cover: "covers/man9.jpg",
+    cat: "manman",
+  
+},
+ {   name: "晴天陰天雨天",
+    src: "music/安眠/晴天陰天雨天.mp3",
+    cover: "covers/man5.jpg",
+    cat: "manman",
+  
+},
+ {   name: "無時空之戀",
+    src: "music/安眠/無時空之戀.mp3",
+    cover: "covers/man8.jpg",
+    cat: "manman",
+},
+  {   name: "找對的人1",
+    src: "music/安眠/找對的人1.mp3",
+    cover: "covers/man4.jpg",
+    cat: "manman",
+},
+ {   name: "找對的人2",
+    src: "music/安眠/找對的人2.mp3",
+    cover: "covers/man5.jpg",
+    cat: "manman",
+},
+ {   name: "找對的人3",
+    src: "music/安眠/找對的人3.mp3",
+    cover: "covers/man6.jpg",
+    cat: "manman",
+},
+ {   name: "找對的人4",
+    src: "music/安眠/找對的人4.mp3",
+    cover: "covers/man7.jpg",
+    cat: "manman",
+},
+ {   name: "沒有你的愛(敏)",
+    src: "music/安眠/晴天陰天雨天.mp3",
+    cover: "covers/man1.jpg",
+    cat: "manman",
+},
+
+
+
+
+
 {
     name: "沒有你的愛",
     src: "music/manman/沒有你的愛.mp3",
