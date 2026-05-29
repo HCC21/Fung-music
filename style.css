@@ -350,6 +350,19 @@ body {
         padding-top: 20px;
     }
 }
+.play-count {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;   /* ⭐ 改成右下角 */
+  font-size: 12px;
+  color:  #007bff;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.playlist-item {
+  position: relative;
+}
 
 /* ============================
    🎮 小遊戲 Modal

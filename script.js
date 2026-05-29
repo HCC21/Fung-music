@@ -83,6 +83,9 @@ window.addEventListener("load", () => {
   });
 });
 
+let listenTimer = null;
+let hasCounted = false;
+
 /* ============================
    ⭐ 儲存登入紀錄
 ============================ */
@@ -173,10 +176,16 @@ function generatePlaylist(filterCat = "all", keyword = "") {
     btn.setAttribute("data-name", song.name);
     btn.setAttribute("data-cover", song.cover);
 
-    btn.innerHTML = `
-      <img src="${song.cover}" class="playlist-cover">
-      <span>${song.name}</span>
-    `;
+btn.innerHTML = `
+  <img src="${song.cover}" class="playlist-cover">
+  <span>${song.name}</span>
+  <div class="play-count">0</div>
+`;
+
+// ⭐ 載入 Supabase 播放次數
+getPlayCount(song.src).then(count => {
+  btn.querySelector(".play-count").textContent = `${count} `;
+});
 
     const img = new Image();
     img.src = song.cover;
@@ -186,14 +195,59 @@ function generatePlaylist(filterCat = "all", keyword = "") {
       btn.style.borderColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.45)`;
     };
 
-    btn.addEventListener("click", () => {
-      currentIndex = thisIndex;
-      playFromPlaylist(thisIndex);
-    });
+btn.addEventListener("click", async () => {
+  currentIndex = thisIndex;
+  playFromPlaylist(thisIndex);
 
+  await increasePlayCount(song.src);
+
+  const newCount = await getPlayCount(song.src);
+  btn.querySelector(".play-count").textContent = `${newCount} 次`;
+});
     playlistContainer.appendChild(btn);
   });
 }
+async function increasePlayCount(src) {
+  // ⭐ 先查詢是否已有紀錄
+  const { data, error } = await supabaseClient
+    .from("song_stats")
+    .select("count")
+    .eq("src", src)
+    .maybeSingle();   // ⭐ 不會報錯（比 single() 更安全）
+
+  if (error) {
+    console.error("查詢錯誤：", error);
+    return;
+  }
+
+  if (!data) {
+    // ⭐ 第一次播放 → 建立紀錄
+    const { error: insertError } = await supabaseClient
+      .from("song_stats")
+      .insert([{ src: src, count: 1 }]);
+
+    if (insertError) console.error("新增錯誤：", insertError);
+  } else {
+    // ⭐ 已存在 → count + 1
+    const { error: updateError } = await supabaseClient
+      .from("song_stats")
+      .update({ count: data.count + 1 })
+      .eq("src", src);
+
+    if (updateError) console.error("更新錯誤：", updateError);
+  }
+}
+async function getPlayCount(src) {
+  const { data, error } = await supabaseClient
+    .from("song_stats")
+    .select("count")
+    .eq("src", src)
+    .maybeSingle();
+
+  if (error || !data) return 0;
+  return data.count;
+}
+
 
 /* ============================
    🔍 搜尋
@@ -239,14 +293,15 @@ function playFromPlaylist(index) {
   playBtn.textContent = "⏸️";
   tonearm.classList.add("playing");
 
-  clearTimeout(listenTimer);
-  hasCounted = false;
-  listenTimer = setTimeout(() => {
-    if (!hasCounted && typeof increasePlayCount === "function") {
-      increasePlayCount(songName);
-      hasCounted = true;
-    }
-  }, 60000);
+ clearTimeout(listenTimer);
+hasCounted = false;
+listenTimer = setTimeout(() => {
+  if (!hasCounted && typeof increasePlayCount === "function") {
+    increasePlayCount(songSrc);
+    hasCounted = true;
+  }
+}, 60000);
+
 
   buttons.forEach((b) => b.classList.remove("active"));
   btn.classList.add("active");
