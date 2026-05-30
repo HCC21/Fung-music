@@ -187,20 +187,13 @@ getPlayCount(song.src).then(count => {
   btn.querySelector(".play-count").textContent = `${count} `;
 });
 
-   const img = new Image();
-img.crossOrigin = "anonymous";   // ⭐ 先加這行（如果圖片有 CORS 就能成功）
-img.src = song.cover;
-
-img.onload = () => {
-  try {
-    const color = getDominantColor(img);
-    btn.style.background = `rgba(${color.r}, ${color.g}, ${color.b}, 0.25)`;
-    btn.style.borderColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.45)`;
-  } catch (e) {
-    console.warn("⚠️ 無法取得 dominant color（跨域圖片）");
-    // ⭐ 不做任何事，至少不會報錯
-  }
-};
+    const img = new Image();
+    img.src = song.cover;
+    img.onload = () => {
+      const color = getDominantColor(img);
+      btn.style.background = `rgba(${color.r}, ${color.g}, ${color.b}, 0.25)`;
+      btn.style.borderColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.45)`;
+    };
 
 btn.addEventListener("click", async () => {
   currentIndex = thisIndex;
@@ -209,7 +202,7 @@ btn.addEventListener("click", async () => {
   await increasePlayCount(song.src);
 
   const newCount = await getPlayCount(song.src);
-  btn.querySelector(".play-count").textContent = `${newCount}`;
+  btn.querySelector(".play-count").textContent = `${newCount} 次`;
 });
     playlistContainer.appendChild(btn);
   });
