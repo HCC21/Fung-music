@@ -982,8 +982,8 @@ const songsData = [
  
 },
 
-{ name: "最美的第七天(敏唱)",
-  src: "music/manman/最美的第七天(敏唱).mp3",
+{ name: "最美的第七天敏",
+  src: "music/manman/最美的第七天敏.mp3",
   cover: "covers/man4.jpg",
   cat: "man",
  
