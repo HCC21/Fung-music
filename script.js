@@ -199,10 +199,8 @@ btn.addEventListener("click", async () => {
   currentIndex = thisIndex;
   playFromPlaylist(thisIndex);
 
-  await increasePlayCount(song.src);
-
   const newCount = await getPlayCount(song.src);
-  btn.querySelector(".play-count").textContent = `${newCount} 次`;
+  btn.querySelector(".play-count").textContent = `${newCount}`;
 });
     playlistContainer.appendChild(btn);
   });
