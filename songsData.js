@@ -983,7 +983,7 @@ const songsData = [
 },
 
 { name: "最美的第七天敏",
-  src: "music/manman/最美的第七天敏.Mp3",
+  src: "music/manman/最美的第七天敏.MP3",
   cover: "covers/man4.jpg",
   cat: "man",
  
