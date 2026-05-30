@@ -63,7 +63,7 @@ const songsData = [
     cat: "manman",
 },
  {   name: "沒有你的愛(敏)",
-    src: "music/安眠/晴天陰天雨天.mp3",
+    src: "music/安眠/沒有你的愛(敏).mp3",
     cover: "covers/man1.jpg",
     cat: "manman",
 },
@@ -170,8 +170,8 @@ const songsData = [
     cat: "man",
   
 },
- {   name: "小老鼠與大花猫 (2)",
-    src: "music/manman/小老鼠與大花猫 (2).mp3",
+ {   name: "小老鼠與大花猫(2)",
+    src: "music/manman/小老鼠與大花猫(2).mp3",
     cover: "covers/man2.jpg",
     cat: "man",
   
@@ -422,12 +422,6 @@ const songsData = [
     cover: "covers/man9.jpg",
     cat: "man",
   
-},{
-    name: "有你明白我(敏唱)",
-    src: "music/manman/有你明白我(敏唱).mp3",
-    cover: "covers/man4.jpg",
-    cat: "man",
-  
 },
  {   name: "我的回憶不是我",
     src: "music/manman/我的回憶不是我.mp3",
@@ -580,7 +574,7 @@ const songsData = [
   
 },{
     name: "長相廝守",
-    src: "music/manman/長相廝守長相廝守.mp3",
+    src: "music/manman/長相廝守.mp3",
     cover: "covers/man8.jpg",
     cat: "man",
   
