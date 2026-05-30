@@ -973,17 +973,5 @@ function autoScrollSidebar() {
 ============================ */
 window.addEventListener("load", () => {
   autoScrollSidebar();
-
-  // ⭐ songsData 確保已經載入後再執行
-  if (typeof songsData !== "undefined" && songsData.length > 0) {
-    generatePlaylist("all", "");
-  } else {
-    // songsData 還沒載入 → 等一下再試
-    const waitSongs = setInterval(() => {
-      if (typeof songsData !== "undefined" && songsData.length > 0) {
-        clearInterval(waitSongs);
-        generatePlaylist("all", "");
-      }
-    }, 100);
-  }
+  generatePlaylist("all", "");
 });
