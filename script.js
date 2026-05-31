@@ -417,46 +417,60 @@ function formatTime(sec) {
 }
 
 /* ============================
-   ⭐ 留言系統
+   ⭐ 完整留言系統（最終版）
 ============================ */
-async function loadComments(songName, currentUser, songSrc) {
-  const cleanSrc = songSrc ? songSrc.split("?")[0] : "";
+async function loadComments(songName, currentUser) {
 
- const { data: comments, error } = await supabaseClient
-  .from("comments")
-  .select("*")
-  .eq("songName", songName)
-  .order("id", { ascending: true });
+  const { data: comments, error } = await supabaseClient
+    .from("comments")
+    .select("*")
+    .eq("songName", songName)
+    .order("id", { ascending: true });
 
   const list = document.getElementById("comment-list");
   list.innerHTML = "";
 
-  if (error || !comments) return;
+  if (error || !comments) {
+    console.log("讀取留言錯誤：", error);
+    return;
+  }
+
+  let replyMessage = null; // ⭐ 記錄是否有人回覆你
 
   comments.forEach((c) => {
+    // ⭐ 管理員看到全部留言
     if (currentUser === "fungfung") {
       showComment(c, list);
-      return;
+    } else {
+      // ⭐ 普通用戶：只看到自己相關的留言
+      if (!c.replyTo) {
+        if (c.user === currentUser) showComment(c, list);
+      } else {
+        if (c.replyTo === currentUser || c.user === currentUser) {
+          showComment(c, list);
+        }
+      }
     }
 
-    if (!c.replyTo) {
-      if (c.user === currentUser) showComment(c, list);
-      return;
-    }
-
-    if (c.replyTo === currentUser || c.user === currentUser) {
-      showComment(c, list);
+    // ⭐ 回覆通知
+    if (c.replyTo === currentUser) {
+      replyMessage = `${c.user} 回覆了你：${c.message}`;
     }
   });
 
+  // ⭐ 顯示回覆通知
+  const notice = document.getElementById("reply-notice");
+  notice.textContent = replyMessage ? replyMessage : "";
+
+  // ⭐ 管理員標記已讀
   if (currentUser === "fungfung") {
     await supabaseClient
       .from("comments")
       .update({ isRead: true })
-      .eq("songName", songName)
-      .or(`songSrc.eq.${cleanSrc},songSrc.is.null`);
+      .eq("songName", songName);
   }
 }
+
 function showComment(c, list) {
   const li = document.createElement("li");
   li.innerHTML = `
@@ -472,21 +486,33 @@ document.getElementById("comment-submit").addEventListener("click", async () => 
   const message = input.value.trim();
   if (!message) return;
 
-  await supabaseClient.from("comments").insert({
+  // ⭐ 正確寫入 Supabase（用 songName）
+  const { error } = await supabaseClient.from("comments").insert({
     songName: title.textContent,
-   songSrc: audio.src.split("?")[0],
     user: friendName,
     message,
     replyTo: input.dataset.replyTo || null,
-    isRead: false,               // ⭐ 永遠 false
+    isRead: false,
     time: new Date().toLocaleString(),
   });
+
+  if (error) {
+    alert("留言寫入失敗：" + error.message);
+    console.log(error);
+    return;
+  }
 
   input.value = "";
   input.dataset.replyTo = "";
 
-  loadComments(title.textContent, friendName, audio.src);
+  // ⭐ 重新載入留言
+  loadComments(title.textContent, friendName);
+
+  // ⭐ 顯示提示文字
+  const hint = document.getElementById("comment-hint");
+  hint.textContent = `「${title.textContent}」已有留言：${message}`;
 });
+
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("reply-btn")) {
     const replyUser = e.target.dataset.user;
@@ -497,6 +523,53 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/* ============================
+   ⭐ 送出留言
+============================ */
+document.getElementById("comment-submit").addEventListener("click", async () => {
+  const input = document.getElementById("comment-input");
+  const message = input.value.trim();
+  if (!message) return;
+
+  // ⭐ 正確寫入 Supabase（用 songName）
+  const { error } = await supabaseClient.from("comments").insert({
+    songName: title.textContent,          // ⭐ 修正：用 songName
+    user: friendName,
+    message,
+    replyTo: input.dataset.replyTo || null,
+    isRead: false,
+    time: new Date().toLocaleString(),
+  });
+
+  if (error) {
+    alert("留言寫入失敗：" + error.message);
+    console.log(error);
+    return;
+  }
+
+  input.value = "";
+  input.dataset.replyTo = "";
+
+  // ⭐ 重新載入留言
+  loadComments(title.textContent, friendName);
+
+  // ⭐ 顯示提示文字
+  const hint = document.getElementById("comment-hint");
+  hint.textContent = `「${title.textContent}」已有留言：${message}`;
+});
+
+/* ============================
+   ⭐ 回覆功能
+============================ */
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("reply-btn")) {
+    const replyUser = e.target.dataset.user;
+    const input = document.getElementById("comment-input");
+    input.value = `@${replyUser} `;
+    input.dataset.replyTo = replyUser;
+    input.focus();
+  }
+});
 
 
 /* ============================
@@ -593,8 +666,8 @@ async function loadAllUsers() {
       <strong>${user.name}</strong>
       ${user.name === "fungfung" ? "(管理員)" : ""}
       <div class="user-actions">
-        <button onclick="resetPassword(${user.id})">重設密碼</button>
-        <button onclick="deleteUser(${user.id})">刪除</button>
+        <button onclick="resetPassword('${user.id}')">重設密碼</button>
+        <button onclick="deleteUser('${user.id}')">刪除</button>
       </div>
     `;
     list.appendChild(li);
@@ -642,7 +715,10 @@ async function resetPassword(id) {
 async function deleteUser(id) {
   if (!confirm("確定要刪除這個用戶嗎？")) return;
 
-  const { error } = await supabaseClient.from("users").delete().eq("id", id);
+  const { error } = await supabaseClient
+    .from("users")
+    .delete()
+    .eq("id", id);
 
   if (error) {
     alert("刪除失敗：" + error.message);
@@ -652,8 +728,6 @@ async function deleteUser(id) {
   alert("已刪除");
   loadAllUsers();
 }
-
-
 /* ============================
    ⭐ 小遊戲（下拉選單）
 ============================ */
