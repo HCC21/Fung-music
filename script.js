@@ -44,7 +44,6 @@ const adminPasswordInput = document.getElementById("admin-password");
 const adminBtn = document.getElementById("admin-btn");
 const adminPanel = document.getElementById("admin-panel");
 const adminClose = document.getElementById("admin-close");
-const adminNotice = document.getElementById("admin-notice");
 
 const cd = document.querySelector(".cd");
 const tonearm = document.getElementById("tonearm");
@@ -117,25 +116,6 @@ async function saveLoginHistory(name) {
 
 saveLoginHistory(friendName);
 
-
-/* ============================
-   🔔 通知系統（管理員）
-============================ */
-async function checkNotifications() {
-  if (friendName !== "fungfung") {
-    adminNotice.style.display = "none";
-    return;
-  }
-
-  const { data } = await supabaseClient
-    .from("comments")
-    .select("id")
-    .eq("isRead", false);
-
-  adminNotice.style.display = data && data.length > 0 ? "block" : "none";
-}
-
-setInterval(checkNotifications, 5000);
 
 /* ============================
    ⭐ 播放清單（以歌單為唯一來源）
@@ -277,7 +257,8 @@ function playFromPlaylist(index) {
 
   currentIndex = index;
 
-  const songSrc = btn.getAttribute("data-src");
+const rawSrc = btn.getAttribute("data-src");
+const songSrc = rawSrc.split("?")[0];   // ⭐ 去除 ? 後面的參數
   const songName = btn.getAttribute("data-name");
   const songCover = btn.getAttribute("data-cover");
 
@@ -291,20 +272,22 @@ function playFromPlaylist(index) {
   playBtn.textContent = "⏸️";
   tonearm.classList.add("playing");
 
- clearTimeout(listenTimer);
-hasCounted = false;
-listenTimer = setTimeout(() => {
-  if (!hasCounted && typeof increasePlayCount === "function") {
-    increasePlayCount(songSrc);
-    hasCounted = true;
-  }
-}, 60000);
+  // ⭐ 播放 60 秒後才計數（避免 double count）
+  clearTimeout(listenTimer);
+  hasCounted = false;
+  listenTimer = setTimeout(() => {
+    if (!hasCounted && typeof increasePlayCount === "function") {
+      increasePlayCount(songSrc);
+      hasCounted = true;
+    }
+  }, 60000);
 
-
+  // ⭐ UI 標記目前播放中
   buttons.forEach((b) => b.classList.remove("active"));
   btn.classList.add("active");
 
-  loadComments(songName, friendName);
+  // ⭐ 正確載入留言（最重要）
+  loadComments(songName, friendName, songSrc);
 }
 
 /* ============================
@@ -436,17 +419,19 @@ function formatTime(sec) {
 /* ============================
    ⭐ 留言系統
 ============================ */
-async function loadComments(songName, currentUser) {
-  const { data: comments } = await supabaseClient
-    .from("comments")
-    .select("*")
-    .eq("songName", songName)
-    .order("id", { ascending: true });
+async function loadComments(songName, currentUser, songSrc) {
+  const cleanSrc = songSrc ? songSrc.split("?")[0] : "";
+
+ const { data: comments, error } = await supabaseClient
+  .from("comments")
+  .select("*")
+  .eq("songName", songName)
+  .order("id", { ascending: true });
 
   const list = document.getElementById("comment-list");
   list.innerHTML = "";
 
-  if (!comments) return;
+  if (error || !comments) return;
 
   comments.forEach((c) => {
     if (currentUser === "fungfung") {
@@ -454,7 +439,7 @@ async function loadComments(songName, currentUser) {
       return;
     }
 
-    if (!c.replyTo || c.replyTo === "") {
+    if (!c.replyTo) {
       if (c.user === currentUser) showComment(c, list);
       return;
     }
@@ -463,8 +448,15 @@ async function loadComments(songName, currentUser) {
       showComment(c, list);
     }
   });
-}
 
+  if (currentUser === "fungfung") {
+    await supabaseClient
+      .from("comments")
+      .update({ isRead: true })
+      .eq("songName", songName)
+      .or(`songSrc.eq.${cleanSrc},songSrc.is.null`);
+  }
+}
 function showComment(c, list) {
   const li = document.createElement("li");
   li.innerHTML = `
@@ -482,19 +474,19 @@ document.getElementById("comment-submit").addEventListener("click", async () => 
 
   await supabaseClient.from("comments").insert({
     songName: title.textContent,
+   songSrc: audio.src.split("?")[0],
     user: friendName,
     message,
     replyTo: input.dataset.replyTo || null,
-    isRead: false,
+    isRead: false,               // ⭐ 永遠 false
     time: new Date().toLocaleString(),
   });
 
   input.value = "";
   input.dataset.replyTo = "";
 
-  loadComments(title.textContent, friendName);
+  loadComments(title.textContent, friendName, audio.src);
 });
-
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("reply-btn")) {
     const replyUser = e.target.dataset.user;
@@ -504,6 +496,8 @@ document.addEventListener("click", (e) => {
     input.focus();
   }
 });
+
+
 
 /* ============================
    ⭐ 主題切換
