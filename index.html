@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fung Fung Music</title>
   <link rel="stylesheet" href="style.css">
-<link rel="icon" href="favicon.ico">
-
+  <link rel="icon" href="favicon.ico">
 </head>
+
 <body>
+
+<body>
+
+<!-- ⚙️ 管理員後台按鈕（必須放在 body） -->
+<div id="admin-open" style="cursor:pointer; padding:8px;">⚙️ 管理員後台</div>
 
 <!-- 🎉 登入後歡迎提示 -->
 <div id="welcome-popup" class="welcome-popup">
@@ -26,11 +31,12 @@
 <div id="admin-panel" style="display:none;">
     <h2>管理員後台</h2>
 
-    <!-- 登入紀錄 -->
+    <h3>播放紀錄</h3>
+    <ul id="history-list"></ul>
+
     <h3>所有登入紀錄</h3>
     <ul id="admin-login-history"></ul>
 
-    <!-- 用戶管理 -->
     <h3>用戶管理</h3>
     <button id="add-user-btn">新增用戶</button>
     <ul id="user-list"></ul>

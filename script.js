@@ -81,7 +81,6 @@ window.addEventListener("load", () => {
     }
   });
 });
-
 let listenTimer = null;
 let hasCounted = false;
 
@@ -257,8 +256,8 @@ function playFromPlaylist(index) {
 
   currentIndex = index;
 
-const rawSrc = btn.getAttribute("data-src");
-const songSrc = rawSrc.split("?")[0];   // ⭐ 去除 ? 後面的參數
+  const rawSrc = btn.getAttribute("data-src");
+  const songSrc = rawSrc.split("?")[0];   // ⭐ 去除 ? 後面的參數
   const songName = btn.getAttribute("data-name");
   const songCover = btn.getAttribute("data-cover");
 
@@ -271,6 +270,9 @@ const songSrc = rawSrc.split("?")[0];   // ⭐ 去除 ? 後面的參數
   cd.style.animationPlayState = "running";
   playBtn.textContent = "⏸️";
   tonearm.classList.add("playing");
+
+ // ⭐⭐⭐ 正確：在這裡記錄聽歌
+  recordPlayHistory(songName, songSrc, friendName);
 
   // ⭐ 播放 60 秒後才計數（避免 double count）
   clearTimeout(listenTimer);
@@ -1040,4 +1042,114 @@ function autoScrollSidebar() {
 window.addEventListener("load", () => {
   autoScrollSidebar();
   generatePlaylist("all", "");
+});
+// ⭐ 記錄播放紀錄
+async function recordPlayHistory(songName, songSrc, user) {
+  console.log("🎧 記錄播放：", songName, songSrc, user);
+
+  const { error } = await supabaseClient.from("play_history").insert({
+    username: user,
+    songname: songName,
+    songsrc: songSrc,
+    time: new Date().toLocaleString(),
+  });
+
+  if (error) {
+    console.log("❌ 記錄聽歌失敗：", error);
+  } else {
+    console.log("✅ 播放紀錄已寫入");
+
+    // ⭐ 如果後台開緊，就即時刷新播放紀錄列表
+    const panel = document.getElementById("admin-panel");
+    if (panel && panel.style.display === "block") {
+      loadPlayHistory();
+    }
+  }
+}
+
+// ⭐ 後台讀取播放紀錄
+async function loadPlayHistory() {
+  const { data, error } = await supabaseClient
+    .from("play_history")
+    .select("*")
+    .order("id", { ascending: false });
+
+  const list = document.getElementById("history-list");
+  list.innerHTML = "";
+
+  if (error || !data) {
+    list.innerHTML = "<li>讀取錯誤</li>";
+    console.log("❌ 播放紀錄讀取錯誤：", error);
+    return;
+  }
+
+  if (data.length === 0) {
+    list.innerHTML = "<li>暫時沒有播放紀錄</li>";
+    return;
+  }
+
+  data.forEach(h => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${h.username}</strong> 聽了 <strong>${h.songname}</strong>
+      <br><small>${h.time}</small>
+    `;
+    list.appendChild(li);
+  });
+}
+
+// ⭐ 播放歌曲（你現有版本，只加咗註解）
+function playFromPlaylist(index) {
+  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const btn = buttons[index];
+  if (!btn) return;
+
+  currentIndex = index;
+
+  const rawSrc = btn.getAttribute("data-src");
+  const songSrc = rawSrc.split("?")[0];
+  const songName = btn.getAttribute("data-name");
+  const songCover = btn.getAttribute("data-cover");
+
+  audio.src = songSrc;
+  cover.src = songCover;
+  title.textContent = songName;
+
+  audio.play();
+  cover.style.animationPlayState = "running";
+  cd.style.animationPlayState = "running";
+  playBtn.textContent = "⏸️";
+  tonearm.classList.add("playing");
+
+  // ⭐ 播放時記錄
+  recordPlayHistory(songName, songSrc, friendName);
+
+  clearTimeout(listenTimer);
+  hasCounted = false;
+  listenTimer = setTimeout(() => {
+    if (!hasCounted && typeof increasePlayCount === "function") {
+      increasePlayCount(songSrc);
+      hasCounted = true;
+    }
+  }, 60000);
+
+  buttons.forEach((b) => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  loadComments(songName, friendName, songSrc);
+}
+
+document.getElementById("admin-open").addEventListener("click", () => {
+  document.getElementById("admin-panel").style.display = "block";
+
+  // ⭐ 第一次讀取（立即）
+  loadPlayHistory();
+
+  // ⭐ 第二次讀取（0.3 秒後，確保最新）
+  setTimeout(() => {
+    loadPlayHistory();
+  }, 300);
+
+  loadAllLoginHistory();
+  loadAllUsers();
 });

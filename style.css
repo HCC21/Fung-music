@@ -490,4 +490,20 @@ body {
     padding: 4px 8px;
     font-size: 14px;
 }
+#history-list {
+    max-height: 260px;      /* ⭐ 更高 */
+    max-width: 360px;       /* ⭐ 更闊 */
+    overflow-y: auto;       /* ⭐ 上下拉 */
+    padding: 10px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    font-size: 16px;
+    white-space: normal;
+}
 
+/* ⭐ 每一行之間加分隔線 */
+#history-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
