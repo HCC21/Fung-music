@@ -318,9 +318,9 @@ body {
 
 /* ⭐ 封面縮圖 */
 .playlist-cover {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
     object-fit: cover;
 }
 
@@ -516,9 +516,11 @@ body {
 
 /* 每首歌的外框 */
 .playlist-item {
-  position: relative;
+    min-height: 90px;   /* 令每行夠位放大頭像 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-
 /* 👍 12 ▶️ 5 的容器 */
 .info-box {
   position: absolute;
