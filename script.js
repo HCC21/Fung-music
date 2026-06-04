@@ -38,6 +38,16 @@ const prevBtn = document.getElementById("prev");
 const playBtn = document.getElementById("play");
 const nextBtn = document.getElementById("next");
 const randomBtn = document.getElementById("random");
+
+randomBtn.addEventListener("click", () => {
+  isRandomMode = !isRandomMode;
+
+  if (isRandomMode) {
+    randomBtn.style.color = "yellow";   // ⭐ 顯示已開啟
+  } else {
+    randomBtn.style.color = "";         // ⭐ 關閉
+  }
+});
 const stopBtn = document.getElementById("stop");
 
 const adminPasswordInput = document.getElementById("admin-password");
@@ -83,6 +93,8 @@ window.addEventListener("load", () => {
 });
 let listenTimer = null;
 let hasCounted = false;
+let isRandomMode = false;
+
 
 /* ============================
    ⭐ 儲存登入紀錄
@@ -418,6 +430,13 @@ audio.addEventListener("ended", () => {
   if (!buttons.length) return;
   currentIndex = (currentIndex + 1 + buttons.length) % buttons.length;
   playFromPlaylist(currentIndex);
+});
+audio.addEventListener("ended", () => {
+  if (isRandomMode) {
+    playRandomSong();   // ⭐ 自動 Random
+  } else {
+    nextSong();         // ⭐ 正常下一首
+  }
 });
 
 progress.addEventListener("input", () => {
@@ -1269,5 +1288,10 @@ async function loadLikeHistory() {
     `;
     list.appendChild(li);
   }
+}
+function playRandomSong() {
+  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const randomIndex = Math.floor(Math.random() * buttons.length);
+  playFromPlaylist(randomIndex);
 }
 
