@@ -326,8 +326,10 @@ body {
 
 @media (max-width: 768px) {
     .playlist-cover {
-        width: 38px;
-        height: 38px;
+        width: 76px;
+        height: 76px;
+        border-radius: 6px;
+        object-fit: cover;
     }
 }
 
@@ -350,6 +352,13 @@ body {
     .player-area {
         justify-content: flex-start;
         padding-top: 20px;
+    }
+}
+@media (max-width: 768px) {
+    #playlist-buttons button {
+        padding: 10px;
+        gap: 10px;
+        min-height: 90px; /* ⭐ 令每格夠位放大頭像 */
     }
 }
 
