@@ -148,8 +148,8 @@ function generatePlaylist(filterCat = "all", keyword = "") {
     displayIndex++;
     const thisIndex = displayIndex;
 
-    const btn = document.createElement("button");
-    btn.classList.add("playlist-item");
+  const btn = document.createElement("button");
+btn.classList.add("playlist-item");
 
     btn.setAttribute("data-src", song.src);
     btn.setAttribute("data-name", song.name);
@@ -158,8 +158,16 @@ function generatePlaylist(filterCat = "all", keyword = "") {
 btn.innerHTML = `
   <img src="${song.cover}" class="playlist-cover">
   <span>${song.name}</span>
-  <div class="play-count">0</div>
+
+  <div class="info-box">
+    <span class="like-icon" data-src="${song.src}">👍</span>
+    <span class="like-count" id="like-${song.src}">0</span>
+
+    <span class="play-icon">▶️</span>
+    <span class="play-count" id="play-${song.src}">0</span>
+  </div>
 `;
+
 
 // ⭐ 載入 Supabase 播放次數
 getPlayCount(song.src).then(count => {
@@ -174,7 +182,13 @@ getPlayCount(song.src).then(count => {
       btn.style.borderColor = `rgba(${color.r}, ${color.g}, ${color.b}, 0.45)`;
     };
 
-btn.addEventListener("click", async () => {
+btn.addEventListener("click", async (e) => {
+
+  // ⭐ 如果按的是 Like，不要播放歌曲
+  if (e.target.classList.contains("like-icon")) {
+    return;
+  }
+
   currentIndex = thisIndex;
   playFromPlaylist(thisIndex);
 
@@ -515,14 +529,31 @@ document.getElementById("comment-submit").addEventListener("click", async () => 
   hint.textContent = `「${title.textContent}」已有留言：${message}`;
 });
 
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("reply-btn")) {
-    const replyUser = e.target.dataset.user;
-    const input = document.getElementById("comment-input");
-    input.value = `@${replyUser} `;
-    input.dataset.replyTo = replyUser;
-    input.focus();
+document.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("like-icon")) return;
+
+  const songSrc = e.target.getAttribute("data-src");
+  const username = friendName;
+
+  const { data: existing } = await supabaseClient
+    .from("song_likes")
+    .select("*")
+    .eq("song_src", songSrc)
+    .eq("username", username)
+    .maybeSingle();
+
+  if (existing) {
+    await supabaseClient.from("song_likes").delete().eq("id", existing.id);
+    e.target.textContent = "👍";
+  } else {
+    await supabaseClient.from("song_likes").insert({
+      song_src: songSrc,
+      username: username
+    });
+    e.target.textContent = "👍🏻";
   }
+
+  loadLikes();
 });
 
 /* ============================
@@ -603,8 +634,13 @@ adminBtn.addEventListener("click", async () => {
 
   if (adminPass === "790614") {
     adminPanel.style.display = "block";
-    await loadAllLoginHistory();
-    await loadAllUsers();
+
+    // ⭐ 同步載入所有後台資料
+    await loadPlayHistory();     // 播放紀錄
+    await loadAllLoginHistory(); // 登入紀錄
+    await loadAllUsers();        // 用戶管理
+    await loadLikeHistory();     // ⭐ Like 紀錄（你新加的）
+
   } else {
     alert("管理員密碼錯誤！");
   }
@@ -1153,3 +1189,85 @@ document.getElementById("admin-open").addEventListener("click", () => {
   loadAllLoginHistory();
   loadAllUsers();
 });
+
+async function loadLikes() {
+  const { data, error } = await supabaseClient
+    .from("song_likes")
+    .select("song_src");
+
+  if (error) return;
+
+  const countMap = {};
+
+  data.forEach(like => {
+    countMap[like.song_src] = (countMap[like.song_src] || 0) + 1;
+  });
+
+  Object.keys(countMap).forEach(src => {
+    const el = document.getElementById(`like-${src}`);
+    if (el) el.textContent = countMap[src];
+  });
+}
+document.addEventListener("click", async (e) => {
+  if (!e.target.classList.contains("like-icon")) return;
+
+  const songSrc = e.target.getAttribute("data-src");
+  const username = friendName;
+
+  const { data: existing } = await supabaseClient
+    .from("song_likes")
+    .select("*")
+    .eq("song_src", songSrc)
+    .eq("username", username)
+    .maybeSingle();
+
+  if (existing) {
+    // ⭐ 已 Like → 取消 Like
+    await supabaseClient
+      .from("song_likes")
+      .delete()
+      .eq("id", existing.id);
+
+    e.target.textContent = "👍"; // 回復原狀
+  } else {
+    // ⭐ 未 Like → 新增 Like
+    await supabaseClient
+      .from("song_likes")
+      .insert({
+        song_src: songSrc,
+        username: username
+      });
+
+    e.target.textContent = "👍🏻"; // 變成已 Like 樣式
+  }
+
+  loadLikes();
+});
+async function loadLikeHistory() {
+  const list = document.getElementById("like-history-list");
+
+  const { data, error } = await supabaseClient
+    .from("song_likes")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) return;
+
+  list.innerHTML = "";
+
+  for (const h of data) {
+
+    // ⭐ 正確：用 songsData
+    const song = songsData.find(s => s.src === h.song_src);
+    const songname = song ? song.name : h.song_src;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${h.username} Like 了 ${songname}
+      <br>
+      <small>${new Date(h.created_at).toLocaleString()}</small>
+    `;
+    list.appendChild(li);
+  }
+}
+
