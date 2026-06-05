@@ -1209,6 +1209,36 @@ document.getElementById("admin-open").addEventListener("click", () => {
   loadAllUsers();
 });
 
+async function loadLikeHistory() {
+  const list = document.getElementById("like-history-list");
+
+  const { data, error } = await supabaseClient
+    .from("song_likes")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) return;
+
+  list.innerHTML = "";
+
+  for (const h of data) {
+    const song = songsData.find(s => s.src === h.song_src);
+    const songname = song ? song.name : h.song_src;
+
+    // 暫時當 created_at 只有日期
+    const displayDate = h.created_at
+      ? new Date(h.created_at).toLocaleDateString()
+      : "未知日期";
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${h.username} Like 了 ${songname}
+      <br>
+      <small>${displayDate}</small>
+    `;
+    list.appendChild(li);
+  }
+}
 async function loadLikes() {
   const { data, error } = await supabaseClient
     .from("song_likes")
@@ -1241,15 +1271,15 @@ document.addEventListener("click", async (e) => {
     .maybeSingle();
 
   if (existing) {
-    // ⭐ 已 Like → 取消 Like
+    // 已 Like → 取消 Like
     await supabaseClient
       .from("song_likes")
       .delete()
       .eq("id", existing.id);
 
-    e.target.textContent = "👍"; // 回復原狀
+    e.target.textContent = "👍";
   } else {
-    // ⭐ 未 Like → 新增 Like
+    // 未 Like → 新增 Like
     await supabaseClient
       .from("song_likes")
       .insert({
@@ -1257,41 +1287,9 @@ document.addEventListener("click", async (e) => {
         username: username
       });
 
-    e.target.textContent = "👍🏻"; // 變成已 Like 樣式
+    e.target.textContent = "👍🏻";
   }
 
   loadLikes();
 });
-async function loadLikeHistory() {
-  const list = document.getElementById("like-history-list");
-
-  const { data, error } = await supabaseClient
-    .from("song_likes")
-    .select("*")
-    .order("id", { ascending: false });
-
-  if (error) return;
-
-  list.innerHTML = "";
-
-  for (const h of data) {
-
-    // ⭐ 正確：用 songsData
-    const song = songsData.find(s => s.src === h.song_src);
-    const songname = song ? song.name : h.song_src;
-
-    const li = document.createElement("li");
-    li.innerHTML = `
-      ${h.username} Like 了 ${songname}
-      <br>
-      <small>${new Date(h.created_at).toLocaleString()}</small>
-    `;
-    list.appendChild(li);
-  }
-}
-function playRandomSong() {
-  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
-  const randomIndex = Math.floor(Math.random() * buttons.length);
-  playFromPlaylist(randomIndex);
-}
 

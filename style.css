@@ -444,61 +444,10 @@ body {
 /* ============================
    ⭐ 管理員後台
 ============================ */
-#allowed-users-list {
-    max-height: 160px;
-    overflow-y: hidden;
-    padding: 10px;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 8px;
-}
-
-#allowed-users-list li {
-    padding: 6px 0;
-    border-bottom: 1px solid #333;
-    font-size: 16px;
-}
-
-#user-list {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 10px;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 8px;
-    max-width: 260px;
-}
-
-#user-list li {
-    padding: 8px 0;
-    border-bottom: 1px solid #333;
-    font-size: 16px;
-    white-space: normal;
-}
-
-.user-actions {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.user-actions button {
-    padding: 4px 8px;
-    font-size: 14px;
-}
-#history-list {
-    max-height: 260px;      /* ⭐ 更高 */
-    max-width: 360px;       /* ⭐ 更闊 */
-    overflow-y: auto;       /* ⭐ 上下拉 */
-    padding: 10px;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 8px;
-    font-size: 16px;
-    white-space: normal;
-}
-/* ⭐ Like 紀錄（與播放紀錄一致） */
-#like-history-list {
+/* ============================
+   ⭐ 通用清單框架（全部統一）
+   ============================ */
+.admin-box {
     max-height: 260px;
     max-width: 360px;
     overflow-y: auto;
@@ -510,17 +459,56 @@ body {
     white-space: normal;
 }
 
-/* ⭐ 每一行之間加分隔線 */
-#like-history-list li {
+/* ⭐ 每一行分隔線 */
+.admin-box li {
     padding: 8px 0;
     border-bottom: 1px solid #333;
 }
 
 
-/* ⭐ 每一行之間加分隔線 */
-#history-list li {
-    padding: 8px 0;
-    border-bottom: 1px solid #333;
+/* ============================
+   ⭐ Allowed Users（特別高度）
+   ============================ */
+#allowed-users-list {
+    max-height: 160px;   /* 比其他矮 */
+    overflow-y: auto;
+}
+#allowed-users-list li {
+    padding: 6px 0;
+    font-size: 16px;
+}
+
+
+/* ============================
+   ⭐ 用戶管理（統一外觀）
+   ============================ */
+#user-list {
+    max-height: 260px;   /* 統一高度 */
+    max-width: 360px;    /* 統一寬度 */
+}
+#user-list li {
+    white-space: normal;
+}
+
+/* 用戶管理按鈕 */
+.user-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.user-actions button {
+    padding: 4px 8px;
+    font-size: 14px;
+}
+
+
+/* ============================
+   ⭐ 播放紀錄 / Like 紀錄
+   ============================ */
+#history-list,
+#like-history-list,
+#admin-login-history {
+    /* 全部使用 admin-box 樣式 */
 }
 
 /* 每首歌的外框 */
@@ -562,3 +550,20 @@ body {
 .col-box {
     flex: 1;
 }
+.title-row {
+    display: flex;
+    justify-content: flex-start; /* ⭐ 全部靠左 */
+    align-items: center;
+    gap: 10px; /* ⭐ 標題與按鈕之間留少少距離 */
+    margin-bottom: 6px;
+}
+
+.title-row h3 {
+    margin:0;
+}
+
+.title-row button {
+    padding: 4px 8px;
+    font-size: 14px;
+}
+
