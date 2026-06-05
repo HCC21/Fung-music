@@ -147,7 +147,10 @@ const songsData = [
     { name: "聽不到的說話", src: "music/聽不到的說話.mp3", cover: "covers/cover7.jpg", cat: "slow songs" },
     { name: "聽海粵", src: "music/聽海粵.mp3", cover: "covers/cover6.jpg", cat: "female" },
     { name: "薩拉熱窩的羅密歐與茱麗葉", src: "music/薩拉熱窩的羅密歐與茱麗葉.mp3", cover: "covers/cover2.jpg", cat: "female" },
- {  name: "合緊急聯絡人",
+    { name: "給女兒的說話", src: "music/給女兒的說話.mp3", cover: "covers/cover7.jpg", cat: "slow songs" },
+
+
+{  name: "合緊急聯絡人",
     src: "music/安眠/合緊急聯絡人.mp3",
     cover: "covers/man17.jpg",
     cat: "manman"},
@@ -351,6 +354,11 @@ const songsData = [
     src: "music/安眠/載歌載舞&詐肚痛.mp3",
     cover: "covers/man8.jpg",
     cat: "manman"},
+ {   name: "合紅茶館",
+    src: "music/安眠/合紅茶館.mp3",
+    cover: "covers/man10.jpg",
+    cat: "manman"},
+
  {   name: "找對的人1",
     src: "music/安眠/找對的人1.mp3",
     cover: "covers/man4.jpg",
