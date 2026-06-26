@@ -5,7 +5,6 @@
 const songsData = [
     { name: "let go", src: "music/let go.mp3", cover: "covers/man13.jpg", cat: "female" },
     { name: "三個字", src: "music/三個字.mp3", cover: "covers/man12.jpg", cat: "slow songs" },
-    { name: "大開眼戒", src: "music/大開眼戒.mp3", cover: "covers/cover25.jpg", cat: "slow songs" },
     { name: "今生不再現場", src: "music/今生不再現場.mp3", cover: "covers/cover11.jpg", cat: "slow songs" },
     { name: "不灰鞋", src: "music/不灰鞋.mp3", cover: "covers/cover16.jpg", cat: "other" },
     { name: "一隻蚊", src: "music/一隻蚊.mp3", cover: "covers/cover22.jpg", cat: "fast songs" },
