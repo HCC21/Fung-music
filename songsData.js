@@ -119,10 +119,11 @@ const songsData = [
     { name: "從心去愛你", src: "music/從心去愛你.mp3", cover: "covers/cover16.jpg", cat: "slow songs" },
     { name: "從沒這麼愛戀過2011年重新演繹", src: "music/從沒這麼愛戀過2011年重新演繹.mp3", cover: "covers/cover22.jpg", cat: "slow songs" },
     { name: "情緣(阿Sir早晨插曲)", src: "music/情緣(阿Sir早晨插曲).mp3", cover: "covers/cover15.jpg", cat: "slow songs" },
-    { name: "欲斷難斷", src: "music/欲斷難斷.mp3", cover: "covers/cover13.jpg", cat: "陳慧嫻串燒" },
+
+    { name: "欲斷難斷", src: "music/欲斷難斷.mp3", cover: "covers/cover13.jpg", cat: "female" },
     { name: "深情的眼睛", src: "music/深情的眼睛.mp3", cover: "covers/cover14.jpg", cat: "slow songs" },
     { name: "甜蜜十六歲", src: "music/甜蜜十六歲.mp3", cover: "covers/cover26.jpg", cat: "fast songs" },
-    { name: "陳慧嫻串燒", src: "music/陳慧嫻串燒.mp3", cover: "covers/cover21.jpg", cat: "陳慧嫻串燒" },
+    { name: "陳慧嫻串燒", src: "music/陳慧嫻串燒.mp3", cover: "covers/cover21.jpg", cat: "female" },
     { name: "幾許風雨", src: "music/幾許風雨.mp3", cover: "covers/cover20.jpg", cat: "slow songs" },
     { name: "晴天陰天雨天", src: "music/晴天陰天雨天.mp3", cover: "covers/cover23.jpg", cat: "slow songs" },
     { name: "開心華之里", src: "music/開心華之里.mp3", cover: "covers/man15.jpg", cat: "fast songs" },
