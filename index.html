@@ -56,6 +56,51 @@
 </div>
 </div>
 
+<div class="row-box">
+    <div class="col-box">
+        <h3>GitHub 設定 (上傳專用)</h3>
+        <div class="admin-box upload-section">
+            <label>GitHub 帳號名稱：</label>
+            <input type="text" id="gh-username" placeholder="例如：yourname">
+            <label>倉庫名稱 (Repo)：</label>
+            <input type="text" id="gh-repo" placeholder="例如：music-site">
+            <label>GitHub Token：</label>
+            <input type="password" id="gh-token" placeholder="貼上您的 Token">
+            <button id="gh-save-btn" style="margin-top: 10px; width: 100%;">儲存 GitHub 設定</button>
+        </div>
+    </div>
+
+    <div class="col-box">
+        <h3>上傳歌曲 / 更換封面</h3>
+        <div class="admin-box upload-section">
+            <label>歌曲名稱：</label>
+            <input type="text" id="upload-song-name" placeholder="例如：我的歌曲">
+            
+            <label>分類：</label>
+            <select id="upload-song-cat">
+                <option value="slow songs">慢歌</option>
+                <option value="fast songs">快歌</option>
+                <option value="female">女歌男唱</option>
+                <option value="kids">兒歌/卡通</option>
+                <option value="opera">粵曲</option>
+                <option value="festival">節日</option>
+                <option value="other">其他</option>
+                <option value="man">敏敏歌單</option>
+                <option value="manman">合唱歌單</option>
+            </select>
+
+            <label>選擇音檔 (.mp3)：</label>
+            <input type="file" id="upload-song-file" accept="audio/mpeg">
+            
+            <label>選擇封面 (.jpg/.png)：</label>
+            <input type="file" id="upload-cover-file" accept="image/*">
+            
+            <button id="upload-submit-btn" style="margin-top: 10px; width: 100%;">開始上傳</button>
+            <p id="upload-status" style="font-size: 12px; color: #666; margin-top: 5px;"></p>
+        </div>
+    </div>
+</div>
+
 
     <button id="admin-close">關閉</button>
 </div>
@@ -75,8 +120,8 @@
   <option value="opera">粵曲</option>
   <option value="festival">節日</option>
  <option value="other">其他</option>
-  <option value="man">敏敏</option>
-  <option value="manman">安眠歌單</option>
+  <option value="man">敏敏歌單</option>
+  <option value="manman">合唱歌單</option>
 </select>
 
     <input type="text" id="search" placeholder="搜尋歌曲..." class="search-box">

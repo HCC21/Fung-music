@@ -127,6 +127,39 @@ async function saveLoginHistory(name) {
 
 saveLoginHistory(friendName);
 
+/* ============================
+   ⭐ 從 Supabase 讀取動態歌曲
+============================ */
+async function fetchDynamicSongs() {
+  try {
+    const { data: dbSongs, error } = await supabaseClient
+      .from("songs")
+      .select("*");
+    
+    if (error) throw error;
+    
+    if (dbSongs && dbSongs.length > 0) {
+      // 將資料庫中的歌曲合併到現有的 songsData 中（避免重複）
+      dbSongs.forEach(dbSong => {
+        const exists = songsData.some(s => s.src === dbSong.src);
+        if (!exists) {
+          songsData.push({
+            name: dbSong.name,
+            src: dbSong.src,
+            cover: dbSong.cover,
+            cat: dbSong.cat
+          });
+        }
+      });
+    }
+  } catch (err) {
+    console.warn("無法讀取動態歌曲列表：", err.message);
+  }
+}
+
+// 初始化時讀取一次
+fetchDynamicSongs().then(() => generatePlaylist());
+
 
 /* ============================
    ⭐ 播放清單（以歌單為唯一來源）
@@ -700,6 +733,138 @@ async function loadAllLoginHistory() {
 }
 
 /* ============================
+   ⭐ 管理員：GitHub 設定儲存
+============================ */
+const ghUsernameInput = document.getElementById("gh-username");
+const ghRepoInput = document.getElementById("gh-repo");
+const ghTokenInput = document.getElementById("gh-token");
+const ghSaveBtn = document.getElementById("gh-save-btn");
+
+// 載入已儲存的設定
+window.addEventListener("load", () => {
+  ghUsernameInput.value = localStorage.getItem("gh_username") || "";
+  ghRepoInput.value = localStorage.getItem("gh_repo") || "";
+  ghTokenInput.value = localStorage.getItem("gh_token") || "";
+});
+
+ghSaveBtn.addEventListener("click", () => {
+  localStorage.setItem("gh_username", ghUsernameInput.value.trim());
+  localStorage.setItem("gh_repo", ghRepoInput.value.trim());
+  localStorage.setItem("gh_token", ghTokenInput.value.trim());
+  alert("GitHub 設定已儲存至本地瀏覽器！");
+});
+
+/* ============================
+   ⭐ 管理員：上傳歌曲與封面 (GitHub 模式)
+============================ */
+const uploadSubmitBtn = document.getElementById("upload-submit-btn");
+const uploadStatus = document.getElementById("upload-status");
+
+async function uploadToGitHub(file, path) {
+  const username = localStorage.getItem("gh_username");
+  const repo = localStorage.getItem("gh_repo");
+  const token = localStorage.getItem("gh_token");
+
+  if (!username || !repo || !token) {
+    throw new Error("請先設定 GitHub 帳號、倉庫與 Token！");
+  }
+
+  // 將檔案轉換為 Base64
+  const reader = new FileReader();
+  const base64Promise = new Promise((resolve) => {
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.readAsDataURL(file);
+  });
+  const content = await base64Promise;
+
+  const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+  
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Authorization": `token ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: `Upload ${path} via Fung Fung Music`,
+      content: content,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`GitHub 上傳失敗: ${errorData.message}`);
+  }
+
+  // 返回 Raw URL
+  return `https://raw.githubusercontent.com/${username}/${repo}/main/${path}`;
+}
+
+uploadSubmitBtn.addEventListener("click", async () => {
+  const songName = document.getElementById("upload-song-name").value.trim();
+  const songCat = document.getElementById("upload-song-cat").value;
+  const songFile = document.getElementById("upload-song-file").files[0];
+  const coverFile = document.getElementById("upload-cover-file").files[0];
+
+  if (!songName || !songFile) {
+    alert("請輸入歌曲名稱並選擇音檔！");
+    return;
+  }
+
+  uploadStatus.style.display = "block";
+  uploadStatus.style.color = "yellow";
+  uploadStatus.textContent = "正在準備上傳至 GitHub...";
+  uploadSubmitBtn.disabled = true;
+
+  try {
+    // 1. 上傳音檔
+    const songExt = songFile.name.split(".").pop();
+    const songPath = `music/${Date.now()}_${songName}.${songExt}`;
+    uploadStatus.textContent = "正在上傳音檔到 GitHub...";
+    const songUrl = await uploadToGitHub(songFile, songPath);
+
+    // 2. 上傳封面（如果有）
+    let coverUrl = "covers/default.jpg";
+    if (coverFile) {
+      const coverExt = coverFile.name.split(".").pop();
+      const coverPath = `covers/${Date.now()}_${songName}.${coverExt}`;
+      uploadStatus.textContent = "正在上傳封面到 GitHub...";
+      coverUrl = await uploadToGitHub(coverFile, coverPath);
+    }
+
+    // 3. 同步到 Supabase 資料庫（保留資料庫功能以便讀取清單）
+    uploadStatus.textContent = "正在同步資料到資料庫...";
+    const { error: dbError } = await supabaseClient.from("songs").insert([{
+      name: songName,
+      src: songUrl,
+      cover: coverUrl,
+      cat: songCat,
+      uploaded_by: friendName
+    }]);
+
+    if (dbError) {
+      console.warn("資料庫同步失敗，但檔案已上傳到 GitHub。");
+      uploadStatus.style.color = "orange";
+      uploadStatus.textContent = "GitHub 上傳成功，但資料庫同步失敗。";
+    } else {
+      uploadStatus.style.color = "lightgreen";
+      uploadStatus.textContent = "全部上傳成功！檔案已存於 GitHub。";
+      
+      // 動態更新當前頁面
+      songsData.push({ name: songName, src: songUrl, cover: coverUrl, cat: songCat });
+      generatePlaylist(document.getElementById("categories-select").value);
+    }
+
+  } catch (err) {
+    console.error(err);
+    uploadStatus.style.color = "red";
+    uploadStatus.textContent = err.message;
+  } finally {
+    uploadSubmitBtn.disabled = false;
+  }
+});
+
+/* ============================
    ⭐ 管理員：用戶管理
 ============================ */
 async function loadAllUsers() {
@@ -1096,7 +1261,8 @@ function autoScrollSidebar() {
 ============================ */
 window.addEventListener("load", () => {
   autoScrollSidebar();
-  generatePlaylist("all", "");
+  fetchDynamicSongs().then(() => generatePlaylist("all", ""));
+  loadLikes(); // 載入所有歌曲的 Like 數
 });
 // ⭐ 記錄播放紀錄
 async function recordPlayHistory(songName, songSrc, user) {
