@@ -70,33 +70,14 @@
         </div>
     </div>
 
-    <div class="col-box">
-        <h3>上傳歌曲 / 更換封面</h3>
-        <div class="admin-box upload-section">
-            <label>歌曲名稱：</label>
-            <input type="text" id="upload-song-name" placeholder="例如：我的歌曲">
-            
-            <label>分類：</label>
-            <select id="upload-song-cat">
-                <option value="slow songs">慢歌</option>
-                <option value="fast songs">快歌</option>
-                <option value="female">女歌男唱</option>
-                <option value="kids">兒歌/卡通</option>
-                <option value="opera">粵曲</option>
-                <option value="festival">節日</option>
-                <option value="other">其他</option>
-                <option value="man">敏敏歌單</option>
-                <option value="manman">合唱歌單</option>
-            </select>
-
-            <label>選擇音檔 (.mp3)：</label>
-            <input type="file" id="upload-song-file" accept="audio/mpeg">
-            
-            <label>選擇封面 (.jpg/.png)：</label>
-            <input type="file" id="upload-cover-file" accept="image/*">
-            
-            <button id="upload-submit-btn" style="margin-top: 10px; width: 100%;">開始上傳</button>
-            <p id="upload-status" style="font-size: 12px; color: #666; margin-top: 5px;"></p>
+    <div class="col-box" style="max-width: 600px;">
+        <h3>批量上傳歌曲 (最多 6 首)</h3>
+        <div class="admin-box upload-section" style="max-height: 500px;">
+            <div id="batch-upload-container">
+                <!-- 這裡會由 JS 動態生成 6 個上傳組件 -->
+            </div>
+            <button id="upload-submit-btn" style="margin-top: 20px; width: 100%; background: #1DB954; font-weight: bold;">開始批量上傳至 GitHub</button>
+            <p id="upload-status" style="font-size: 14px; color: yellow; margin-top: 10px; text-align: center;"></p>
         </div>
     </div>
 </div>
@@ -120,9 +101,10 @@
   <option value="opera">粵曲</option>
   <option value="festival">節日</option>
  <option value="other">其他</option>
-  <option value="man">敏敏歌單</option>
-  <option value="manman">合唱歌單</option>
-</select>
+  <option value="man">敏敏</option>
+	  <option value="manman">安眠歌單</option>
+	  <option value="my-playlist">⭐ 我的自訂歌單</option>
+	</select>
 
     <input type="text" id="search" placeholder="搜尋歌曲..." class="search-box">
 
@@ -183,11 +165,23 @@
 
 <p id="reply-notice" style="color:orange; font-size:14px; margin-top:10px;"></p>
 
-    <!-- ⭐ 播放清單（移到留言區下方） -->
-    <div id="playlist-section" style="margin-top: 25px;">
-      <h3>播放清單 Playlist</h3>
-      <div id="playlist-buttons"></div>
-    </div>
+	    <!-- ⭐ 我的自訂歌單區域 -->
+	    <div id="my-playlist-section" style="display:none; margin-top: 25px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+	      <div style="display: flex; justify-content: space-between; align-items: center;">
+	        <h3 id="my-playlist-title">我的自訂歌單</h3>
+	        <button id="edit-playlist-name" style="background: none; border: 1px solid #555; color: #ccc; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">修改名稱</button>
+	      </div>
+	      <p style="font-size: 12px; color: #888; margin-bottom: 10px;">點擊歌曲右側的 ➕ 可加入此歌單</p>
+	      <div id="my-playlist-items" style="display: flex; flex-direction: column; gap: 8px;">
+	        <!-- 自訂歌單歌曲會顯示在這裡 -->
+	      </div>
+	    </div>
+
+	    <!-- ⭐ 播放清單（移到留言區下方） -->
+	    <div id="playlist-section" style="margin-top: 25px;">
+	      <h3>播放清單 Playlist</h3>
+	      <div id="playlist-buttons"></div>
+	    </div>
 
   </div>
 </div>

@@ -85,9 +85,10 @@ window.addEventListener("load", () => {
   const restrictedCats = ["man", "manman"];
 
   restrictedCats.forEach(cat => {
-    const option = document.querySelector(`option[value="${cat}"]`);
+    // 檢查主頁面分類選單與上傳頁面分類選單
+    const options = document.querySelectorAll(`option[value="${cat}"]`);
     if (currentUser !== "fungfung" && currentUser !== "manman") {
-      if (option) option.remove();
+      options.forEach(opt => opt.remove());
     }
   });
 });
@@ -100,11 +101,14 @@ let isRandomMode = false;
    ⭐ 儲存登入紀錄
 ============================ */
 async function saveLoginHistory(name) {
-  const { data: existing } = await supabaseClient
+  // ⭐ 統一轉為小寫進行查詢，避免大小寫不一致導致重複建立或無法更新
+  const searchName = name.trim().toLowerCase();
+  
+  const { data: existing, error } = await supabaseClient
     .from("login_history")
     .select("*")
-    .eq("name", name)
-    .single();
+    .ilike("name", searchName) // 使用 ilike 進行不分大小寫的查詢
+    .maybeSingle();
 
   const nowISO = new Date().toISOString();
 
@@ -112,13 +116,13 @@ async function saveLoginHistory(name) {
     await supabaseClient
       .from("login_history")
       .update({
-        count: existing.count + 1,
+        count: (existing.count || 0) + 1,
         last_login: nowISO,
       })
-      .eq("name", name);
+      .eq("id", existing.id); // 使用 ID 更新更精準
   } else {
     await supabaseClient.from("login_history").insert({
-      name: name,
+      name: name, // 保留原始輸入的大小寫作為顯示
       count: 1,
       last_login: nowISO,
     });
@@ -139,8 +143,15 @@ async function fetchDynamicSongs() {
     if (error) throw error;
     
     if (dbSongs && dbSongs.length > 0) {
+      const currentUser = friendName.toLowerCase();
       // 將資料庫中的歌曲合併到現有的 songsData 中（避免重複）
       dbSongs.forEach(dbSong => {
+        // ⭐ 安全檢查：如果歌曲屬於 man 或 manman 分類，且用戶不是授權用戶，則跳過
+        const restrictedCats = ["man", "manman"];
+        if (restrictedCats.includes(dbSong.cat) && currentUser !== "fungfung" && currentUser !== "manman") {
+          return;
+        }
+
         const exists = songsData.some(s => s.src === dbSong.src);
         if (!exists) {
           songsData.push({
@@ -166,6 +177,15 @@ fetchDynamicSongs().then(() => generatePlaylist());
 ============================ */
 function generatePlaylist(filterCat = "all", keyword = "") {
   playlistContainer.innerHTML = "";
+  
+  // 處理自訂歌單顯示
+  const myPlaylistSection = document.getElementById("my-playlist-section");
+  if (filterCat === "my-playlist") {
+    myPlaylistSection.style.display = "block";
+    renderMyPlaylist();
+  } else {
+    myPlaylistSection.style.display = "none";
+  }
 
   const currentUser = friendName.toLowerCase();
   let displayIndex = -1;
@@ -187,7 +207,7 @@ function generatePlaylist(filterCat = "all", keyword = "") {
     if (keyword && !song.name.toLowerCase().includes(keyword)) return;
 
     // ⭐ 4. 分類過濾
-    if (filterCat !== "all" && song.cat !== filterCat) return;
+    if (filterCat !== "all" && filterCat !== "my-playlist" && song.cat !== filterCat) return;
 
     // ⭐ 5. 顯示歌曲
     displayIndex++;
@@ -205,6 +225,7 @@ btn.innerHTML = `
   <span>${song.name}</span>
 
   <div class="info-box">
+    <span class="add-to-my-btn" title="加入我的歌單" data-src="${song.src}">➕</span>
     <span class="like-icon" data-src="${song.src}">👍</span>
     <span class="like-count" id="like-${song.src}">0</span>
 
@@ -755,10 +776,56 @@ ghSaveBtn.addEventListener("click", () => {
 });
 
 /* ============================
-   ⭐ 管理員：上傳歌曲與封面 (GitHub 模式)
+   ⭐ 管理員：批量上傳歌曲 (GitHub 模式)
 ============================ */
+const batchUploadContainer = document.getElementById("batch-upload-container");
 const uploadSubmitBtn = document.getElementById("upload-submit-btn");
 const uploadStatus = document.getElementById("upload-status");
+
+// 動態生成 6 個上傳組件
+function initBatchUploadUI() {
+  if (!batchUploadContainer) return;
+  batchUploadContainer.innerHTML = "";
+  for (let i = 1; i <= 6; i++) {
+    const item = document.createElement("div");
+    item.classList.add("upload-item");
+    item.innerHTML = `
+      <h4>歌曲 ${i}</h4>
+      <div class="upload-grid">
+        <div>
+          <label>歌曲名稱：</label>
+          <input type="text" class="song-name" placeholder="輸入歌名">
+        </div>
+        <div>
+          <label>分類：</label>
+          <select class="song-cat">
+            <option value="slow songs">慢歌</option>
+            <option value="fast songs">快歌</option>
+            <option value="female">女歌男唱</option>
+            <option value="kids">兒歌/卡通</option>
+            <option value="opera">粵曲</option>
+            <option value="festival">節日</option>
+            <option value="other">其他</option>
+            <option value="man">敏敏</option>
+            <option value="manman">安眠歌單</option>
+          </select>
+        </div>
+        <div>
+          <label>音檔 (.mp3)：</label>
+          <input type="file" class="song-file" accept="audio/mpeg">
+        </div>
+        <div>
+          <label>封面 (選填)：</label>
+          <input type="file" class="cover-file" accept="image/*">
+        </div>
+      </div>
+    `;
+    batchUploadContainer.appendChild(item);
+  }
+}
+
+// 呼叫初始化
+initBatchUploadUI();
 
 async function uploadToGitHub(file, path) {
   const username = localStorage.getItem("gh_username");
@@ -769,7 +836,6 @@ async function uploadToGitHub(file, path) {
     throw new Error("請先設定 GitHub 帳號、倉庫與 Token！");
   }
 
-  // 將檔案轉換為 Base64
   const reader = new FileReader();
   const base64Promise = new Promise((resolve) => {
     reader.onload = () => resolve(reader.result.split(",")[1]);
@@ -796,72 +862,85 @@ async function uploadToGitHub(file, path) {
     throw new Error(`GitHub 上傳失敗: ${errorData.message}`);
   }
 
-  // 返回 Raw URL
   return `https://raw.githubusercontent.com/${username}/${repo}/main/${path}`;
 }
 
 uploadSubmitBtn.addEventListener("click", async () => {
-  const songName = document.getElementById("upload-song-name").value.trim();
-  const songCat = document.getElementById("upload-song-cat").value;
-  const songFile = document.getElementById("upload-song-file").files[0];
-  const coverFile = document.getElementById("upload-cover-file").files[0];
+  const items = document.querySelectorAll(".upload-item");
+  const uploadTasks = [];
 
-  if (!songName || !songFile) {
-    alert("請輸入歌曲名稱並選擇音檔！");
+  // 收集所有填寫了歌名與檔案的任務
+  items.forEach((item, index) => {
+    const name = item.querySelector(".song-name").value.trim();
+    const cat = item.querySelector(".song-cat").value;
+    const sFile = item.querySelector(".song-file").files[0];
+    const cFile = item.querySelector(".cover-file").files[0];
+
+    if (name && sFile) {
+      uploadTasks.push({ name, cat, sFile, cFile, index: index + 1 });
+    }
+  });
+
+  if (uploadTasks.length === 0) {
+    alert("請至少填寫一首歌曲的名稱並選擇音檔！");
     return;
   }
 
   uploadStatus.style.display = "block";
   uploadStatus.style.color = "yellow";
-  uploadStatus.textContent = "正在準備上傳至 GitHub...";
   uploadSubmitBtn.disabled = true;
 
-  try {
-    // 1. 上傳音檔
-    const songExt = songFile.name.split(".").pop();
-    const songPath = `music/${Date.now()}_${songName}.${songExt}`;
-    uploadStatus.textContent = "正在上傳音檔到 GitHub...";
-    const songUrl = await uploadToGitHub(songFile, songPath);
+  let successCount = 0;
 
-    // 2. 上傳封面（如果有）
-    let coverUrl = "covers/default.jpg";
-    if (coverFile) {
-      const coverExt = coverFile.name.split(".").pop();
-      const coverPath = `covers/${Date.now()}_${songName}.${coverExt}`;
-      uploadStatus.textContent = "正在上傳封面到 GitHub...";
-      coverUrl = await uploadToGitHub(coverFile, coverPath);
-    }
-
-    // 3. 同步到 Supabase 資料庫（保留資料庫功能以便讀取清單）
-    uploadStatus.textContent = "正在同步資料到資料庫...";
-    const { error: dbError } = await supabaseClient.from("songs").insert([{
-      name: songName,
-      src: songUrl,
-      cover: coverUrl,
-      cat: songCat,
-      uploaded_by: friendName
-    }]);
-
-    if (dbError) {
-      console.warn("資料庫同步失敗，但檔案已上傳到 GitHub。");
-      uploadStatus.style.color = "orange";
-      uploadStatus.textContent = "GitHub 上傳成功，但資料庫同步失敗。";
-    } else {
-      uploadStatus.style.color = "lightgreen";
-      uploadStatus.textContent = "全部上傳成功！檔案已存於 GitHub。";
+  for (const task of uploadTasks) {
+    try {
+      uploadStatus.textContent = `[${task.index}/6] 正在上傳「${task.name}」至 GitHub...`;
       
-      // 動態更新當前頁面
-      songsData.push({ name: songName, src: songUrl, cover: coverUrl, cat: songCat });
-      generatePlaylist(document.getElementById("categories-select").value);
-    }
+      // 1. 上傳音檔
+      const sExt = task.sFile.name.split(".").pop();
+      const sPath = `music/${Date.now()}_${task.name}.${sExt}`;
+      const sUrl = await uploadToGitHub(task.sFile, sPath);
 
-  } catch (err) {
-    console.error(err);
-    uploadStatus.style.color = "red";
-    uploadStatus.textContent = err.message;
-  } finally {
-    uploadSubmitBtn.disabled = false;
+      // 2. 上傳封面
+      let cUrl = "covers/default.jpg";
+      if (task.cFile) {
+        const cExt = task.cFile.name.split(".").pop();
+        const cPath = `covers/${Date.now()}_${task.name}.${cExt}`;
+        cUrl = await uploadToGitHub(task.cFile, cPath);
+      }
+
+      // 3. 同步資料庫
+      const { error: dbError } = await supabaseClient.from("songs").insert([{
+        name: task.name,
+        src: sUrl,
+        cover: cUrl,
+        cat: task.cat,
+        uploaded_by: friendName
+      }]);
+
+      if (!dbError) {
+        successCount++;
+        // 即時加入本地清單
+        songsData.push({ name: task.name, src: sUrl, cover: cUrl, cat: task.cat });
+      }
+    } catch (err) {
+      console.error(`歌曲 ${task.name} 上傳失敗:`, err);
+      uploadStatus.style.color = "red";
+      uploadStatus.textContent = `歌曲「${task.name}」上傳失敗: ${err.message}`;
+      break; // 出錯則停止後續上傳
+    }
   }
+
+  if (successCount === uploadTasks.length) {
+    uploadStatus.style.color = "lightgreen";
+    uploadStatus.textContent = `成功批量上傳 ${successCount} 首歌曲！`;
+    generatePlaylist(document.getElementById("categories-select").value);
+    // 清空輸入框
+    document.querySelectorAll(".song-name").forEach(i => i.value = "");
+    document.querySelectorAll(".song-file").forEach(i => i.value = "");
+    document.querySelectorAll(".cover-file").forEach(i => i.value = "");
+  }
+  uploadSubmitBtn.disabled = false;
 });
 
 /* ============================
@@ -1193,6 +1272,117 @@ function startCartoonGame() {
 
   update();
 }
+
+/* ============================
+   ⭐ 個人化歌單邏輯
+============================ */
+const myPlaylistItemsContainer = document.getElementById("my-playlist-items");
+const myPlaylistTitle = document.getElementById("my-playlist-title");
+const editPlaylistNameBtn = document.getElementById("edit-playlist-name");
+
+// 初始化歌單名稱
+window.addEventListener("load", () => {
+  const savedName = localStorage.getItem(`playlist_name_${friendName}`);
+  if (savedName) myPlaylistTitle.textContent = savedName;
+});
+
+editPlaylistNameBtn.addEventListener("click", () => {
+  const newName = prompt("請輸入新的歌單名稱：", myPlaylistTitle.textContent);
+  if (newName) {
+    myPlaylistTitle.textContent = newName;
+    localStorage.setItem(`playlist_name_${friendName}`, newName);
+  }
+});
+
+// 加入歌單
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("add-to-my-btn")) {
+    e.stopPropagation();
+    const src = e.target.dataset.src;
+    addToMyPlaylist(src);
+  }
+});
+
+function addToMyPlaylist(src) {
+  let myPlaylist = JSON.parse(localStorage.getItem(`playlist_${friendName}`) || "[]");
+  if (myPlaylist.includes(src)) {
+    alert("這首歌已經在您的歌單中囉！");
+    return;
+  }
+  myPlaylist.push(src);
+  localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
+  alert("已成功加入自訂歌單！");
+  if (document.getElementById("categories-select").value === "my-playlist") {
+    renderMyPlaylist();
+  }
+}
+
+function renderMyPlaylist() {
+  myPlaylistItemsContainer.innerHTML = "";
+  let myPlaylist = JSON.parse(localStorage.getItem(`playlist_${friendName}`) || "[]");
+  
+  if (myPlaylist.length === 0) {
+    myPlaylistItemsContainer.innerHTML = "<p style='color:#888; text-align:center; padding:20px;'>您的歌單還是空的，快去加入喜歡的歌吧！</p>";
+    return;
+  }
+
+  myPlaylist.forEach((src, index) => {
+    const song = songsData.find(s => s.src === src);
+    if (!song) return;
+
+    const item = document.createElement("div");
+    item.classList.add("my-playlist-item");
+    item.innerHTML = `
+      <img src="${song.cover}">
+      <div class="song-info">
+        <strong>${song.name}</strong>
+      </div>
+      <div class="actions">
+        <button class="play-my-btn" data-src="${song.src}">▶️</button>
+        <button class="move-up" data-index="${index}">🔼</button>
+        <button class="move-down" data-index="${index}">🔽</button>
+        <button class="remove-my-btn" data-index="${index}" style="color:#ff4d4d;">❌</button>
+      </div>
+    `;
+    myPlaylistItemsContainer.appendChild(item);
+  });
+}
+
+// 處理自訂歌單內的按鈕點擊
+myPlaylistItemsContainer.addEventListener("click", (e) => {
+  const index = parseInt(e.target.dataset.index);
+  let myPlaylist = JSON.parse(localStorage.getItem(`playlist_${friendName}`) || "[]");
+
+  if (e.target.classList.contains("play-my-btn")) {
+    const src = e.target.dataset.src;
+    // 尋找在當前播放清單中的 index 並播放
+    const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+    for (let i = 0; i < buttons.length; i++) {
+      if (buttons[i].getAttribute("data-src") === src) {
+        playFromPlaylist(i);
+        break;
+      }
+    }
+  } else if (e.target.classList.contains("move-up")) {
+    if (index > 0) {
+      [myPlaylist[index], myPlaylist[index - 1]] = [myPlaylist[index - 1], myPlaylist[index]];
+      localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
+      renderMyPlaylist();
+    }
+  } else if (e.target.classList.contains("move-down")) {
+    if (index < myPlaylist.length - 1) {
+      [myPlaylist[index], myPlaylist[index + 1]] = [myPlaylist[index + 1], myPlaylist[index]];
+      localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
+      renderMyPlaylist();
+    }
+  } else if (e.target.classList.contains("remove-my-btn")) {
+    if (confirm("確定要從歌單中移除這首歌嗎？")) {
+      myPlaylist.splice(index, 1);
+      localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
+      renderMyPlaylist();
+    }
+  }
+});
 
 /* ============================
    ⭐ 封面 dominant color
