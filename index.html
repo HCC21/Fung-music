@@ -148,7 +148,25 @@
  <button id="next">⏭️</button>
  <button id="random">🔀</button>   <!-- ⭐ Random Key -->
  
-</div>
+ </div>
+
+    <!-- 🎁 歌曲禮物：遊戲獎勵及播放時飄落效果 -->
+    <div id="song-gifts" class="song-gifts" aria-live="polite"></div>
+    <div id="gift-rain" class="gift-rain" aria-hidden="true"></div>
+    <button id="gift-box-open" class="gift-box-open" type="button">🎁 禮品箱</button>
+    <div id="gift-box-modal" class="gift-box-modal" style="display:none;">
+      <div class="gift-box-card">
+        <button id="gift-box-close" class="gift-box-close" type="button">×</button>
+        <h3>🎁 我的禮品箱</h3>
+        <div id="gift-inventory" class="gift-inventory"></div>
+        <label for="gift-song-select">送到歌曲：</label>
+        <select id="gift-song-select"></select>
+        <label for="gift-type-select">選擇禮物：</label>
+        <select id="gift-type-select"></select>
+        <button id="send-gift-btn" class="send-gift-btn" type="button">送出禮物</button>
+        <p id="gift-box-status" class="gift-box-status"></p>
+      </div>
+    </div>
 
 
     <!-- ⭐ 留言區 -->

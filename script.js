@@ -395,6 +395,7 @@ function playFromPlaylist(index) {
   audio.src = songSrc;
   cover.src = songCover;
   title.textContent = songName;
+  setCurrentSongForGifts(songSrc);
 
   audio.play();
   cover.style.animationPlayState = "running";
@@ -1082,6 +1083,159 @@ async function deleteUser(id) {
   loadAllUsers();
 }
 /* ============================
+   🎁 遊戲禮物箱及送禮系統
+============================ */
+const giftAssets = {
+  sakura: "assets/sakura.png",
+  british: "assets/white-british-shorthair.png",
+  tabby: "assets/brown-tabby.png",
+};
+const giftLabels = { sakura: "櫻花", british: "白色英短", tabby: "啡色唐猫" };
+let currentGiftSongKey = null;
+let giftRainTimer = null;
+let giftInventory = { sakura: 0, british: 0, tabby: 0 };
+let songGiftCache = {};
+
+function giftLocalKey() { return `gift_inventory_${friendName}`; }
+function getGiftStorageKey(songKey) { return `song_gifts_${encodeURIComponent(songKey || "unknown")}`; }
+
+function readLocalInventory() {
+  try { return { ...giftInventory, ...JSON.parse(localStorage.getItem(giftLocalKey()) || "{}") }; }
+  catch { return { ...giftInventory }; }
+}
+
+async function loadGiftInventory() {
+  const { data, error } = await supabaseClient.from("user_gifts").select("gift_type, quantity").eq("username", friendName);
+  if (!error && Array.isArray(data)) {
+    giftInventory = { sakura: 0, british: 0, tabby: 0 };
+    data.forEach(row => { if (giftInventory[row.gift_type] !== undefined) giftInventory[row.gift_type] = Number(row.quantity) || 0; });
+  } else {
+    giftInventory = readLocalInventory();
+  }
+  localStorage.setItem(giftLocalKey(), JSON.stringify(giftInventory));
+  renderGiftBox();
+}
+
+async function saveGiftInventory() {
+  localStorage.setItem(giftLocalKey(), JSON.stringify(giftInventory));
+  const rows = Object.entries(giftInventory).map(([gift_type, quantity]) => ({ username: friendName, gift_type, quantity }));
+  const { error } = await supabaseClient.from("user_gifts").upsert(rows, { onConflict: "username,gift_type" });
+  return !error;
+}
+
+function getSongGifts(songKey = currentGiftSongKey) {
+  if (!songKey) return { sakura: 0, british: 0, tabby: 0 };
+  try {
+    return { sakura: 0, british: 0, tabby: 0, ...JSON.parse(localStorage.getItem(getGiftStorageKey(songKey)) || "{}") };
+  } catch { return { sakura: 0, british: 0, tabby: 0 }; }
+}
+
+async function loadSongGifts(songKey) {
+  if (!songKey) return;
+  const { data, error } = await supabaseClient.from("song_gifts").select("gift_type, quantity").eq("song_src", songKey).eq("recipient_username", friendName);
+  if (!error && Array.isArray(data)) {
+    songGiftCache[songKey] = { sakura: 0, british: 0, tabby: 0 };
+    data.forEach(row => { if (songGiftCache[songKey][row.gift_type] !== undefined) songGiftCache[songKey][row.gift_type] = Number(row.quantity) || 0; });
+  } else {
+    songGiftCache[songKey] = getSongGifts(songKey);
+  }
+  localStorage.setItem(getGiftStorageKey(songKey), JSON.stringify(songGiftCache[songKey]));
+  renderSongGifts();
+}
+
+function renderSongGifts() {
+  const box = document.getElementById("song-gifts");
+  if (!box) return;
+  const gifts = songGiftCache[currentGiftSongKey] || getSongGifts();
+  const entries = Object.entries(giftLabels).filter(([key]) => gifts[key] > 0);
+  box.innerHTML = entries.length ? `<span class="gift-label">歌曲禮物：</span>${entries.map(([key, label]) => `<span class="song-gift"><img src="${giftAssets[key]}" alt="${label}">${label} × ${gifts[key]}</span>`).join("")}` : "";
+}
+
+function setCurrentSongForGifts(songKey) {
+  currentGiftSongKey = songKey;
+  renderSongGifts();
+  loadSongGifts(songKey);
+}
+
+async function awardGift(type) {
+  if (!giftLabels[type]) return;
+  giftInventory = readLocalInventory();
+  giftInventory[type] = (giftInventory[type] || 0) + 1;
+  await saveGiftInventory();
+  renderGiftBox();
+}
+
+async function sendGiftToSong(type, songKey) {
+  if (!giftLabels[type] || !songKey) return { ok: false, message: "請選擇禮物及歌曲。" };
+  giftInventory = readLocalInventory();
+  if ((giftInventory[type] || 0) < 1) return { ok: false, message: `你的禮品箱沒有${giftLabels[type]}。` };
+  const current = (songGiftCache[songKey] || getSongGifts(songKey));
+  current[type] = (current[type] || 0) + 1;
+  giftInventory[type]--;
+  const { error } = await supabaseClient.from("song_gifts").upsert({ recipient_username: friendName, song_src: songKey, gift_type: type, quantity: current[type] }, { onConflict: "recipient_username,song_src,gift_type" });
+  if (error) {
+    localStorage.setItem(getGiftStorageKey(songKey), JSON.stringify(current));
+  }
+  songGiftCache[songKey] = current;
+  await saveGiftInventory();
+  renderGiftBox();
+  if (songKey === currentGiftSongKey) renderSongGifts();
+  return { ok: true, message: `已將 ${giftLabels[type]} 送到歌曲。` };
+}
+
+function renderGiftBox() {
+  const inventoryBox = document.getElementById("gift-inventory");
+  const songSelect = document.getElementById("gift-song-select");
+  const typeSelect = document.getElementById("gift-type-select");
+  if (!inventoryBox || !songSelect || !typeSelect) return;
+  inventoryBox.innerHTML = Object.entries(giftLabels).map(([key, label]) => `<span class="inventory-gift"><img src="${giftAssets[key]}" alt="${label}"><b>${label}</b><span>× ${giftInventory[key] || 0}</span></span>`).join("");
+  const previousSong = songSelect.value;
+  songSelect.innerHTML = songsData.map(song => `<option value="${song.src}">${song.name}</option>`).join("");
+  if (songsData.some(song => song.src === previousSong)) songSelect.value = previousSong;
+  typeSelect.innerHTML = Object.entries(giftLabels).map(([key, label]) => `<option value="${key}" ${giftInventory[key] > 0 ? "" : "disabled"}>${label}（剩餘 ${giftInventory[key] || 0}）</option>`).join("");
+}
+
+function openGiftBox() {
+  const modal = document.getElementById("gift-box-modal");
+  if (modal) { modal.style.display = "flex"; renderGiftBox(); loadGiftInventory(); }
+}
+
+document.getElementById("gift-box-open")?.addEventListener("click", openGiftBox);
+document.getElementById("gift-box-close")?.addEventListener("click", () => { document.getElementById("gift-box-modal").style.display = "none"; });
+document.getElementById("send-gift-btn")?.addEventListener("click", async () => {
+  const status = document.getElementById("gift-box-status");
+  const result = await sendGiftToSong(document.getElementById("gift-type-select").value, document.getElementById("gift-song-select").value);
+  if (status) status.textContent = result.message;
+});
+
+function stopGiftRain() {
+  if (giftRainTimer) clearInterval(giftRainTimer);
+  giftRainTimer = null;
+  const rain = document.getElementById("gift-rain");
+  if (rain) rain.innerHTML = "";
+}
+function startGiftRain() {
+  stopGiftRain();
+  const gifts = songGiftCache[currentGiftSongKey] || getSongGifts();
+  const types = Object.keys(gifts).filter(type => gifts[type] > 0 && giftAssets[type]);
+  if (!types.length) return;
+  const rain = document.getElementById("gift-rain");
+  if (!rain) return;
+  const drop = () => {
+    const type = types[Math.floor(Math.random() * types.length)];
+    const item = document.createElement("img");
+    item.src = giftAssets[type]; item.className = "gift-rain-item"; item.alt = "";
+    item.style.left = `${5 + Math.random() * 90}%`; item.style.animationDuration = `${4 + Math.random() * 3}s`;
+    item.addEventListener("animationend", () => item.remove(), { once: true }); rain.appendChild(item);
+  };
+  drop(); giftRainTimer = setInterval(drop, 900);
+}
+audio.addEventListener("play", startGiftRain);
+audio.addEventListener("pause", stopGiftRain);
+audio.addEventListener("ended", stopGiftRain);
+window.addEventListener("load", loadGiftInventory);
+
+/* ============================
    ⭐ 小遊戲（下拉選單）
 ============================ */
 document.getElementById("game-select").addEventListener("change", (e) => {
@@ -1113,6 +1267,7 @@ document.getElementById("game-close").addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   document.getElementById("game-ui").innerHTML = "";
 
+  if (activeGameCleanup) activeGameCleanup();
   resetGameEvents();
 });
 
@@ -1134,13 +1289,19 @@ function resetGameEvents() {
 ============================ */
 let sakuraPetalTimer = null;
 let sakuraTimer = null;
+let activeGameCleanup = null;
 
 function startSakuraGame() {
   const canvas = document.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
-
+  const ui = document.getElementById("game-ui");
   canvas.width = 400;
   canvas.height = 400;
+
+  const sakuraImage = new Image();
+  const basketImage = new Image();
+  sakuraImage.src = giftAssets.sakura;
+  basketImage.src = "assets/basket.png";
 
   let petals = [];
   let basketX = 160;
@@ -1149,179 +1310,128 @@ function startSakuraGame() {
   let gameRunning = true;
 
   function createPetal() {
-    petals.push({
-      x: Math.random() * 380,
-      y: -20,
-      speed: 1 + Math.random() * 2,
-    });
+    petals.push({ x: 10 + Math.random() * 380, y: -30, speed: 1.5 + Math.random() * 2.5, rotation: Math.random() * 6.28 });
   }
 
-  document.onmousemove = (e) => {
+  function moveBasket(clientX) {
     const rect = canvas.getBoundingClientRect();
-    basketX = e.clientX - rect.left - 40;
-  };
-
-  canvas.ontouchmove = (e) => {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    basketX = touch.clientX - rect.left - 40;
-  };
+    basketX = Math.max(0, Math.min(320, clientX - rect.left - 40));
+  }
+  document.onmousemove = e => moveBasket(e.clientX);
+  canvas.ontouchmove = e => { e.preventDefault(); moveBasket(e.touches[0].clientX); };
 
   function update() {
     if (!gameRunning) return;
-
     ctx.clearRect(0, 0, 400, 400);
+    ctx.fillStyle = "#fff1f7";
+    ctx.fillRect(0, 0, 400, 400);
+    ctx.fillStyle = "#ffd5e7";
+    ctx.fillRect(0, 340, 400, 60);
 
-    ctx.fillStyle = "#ff8fb3";
-    ctx.fillRect(basketX, 350, 80, 20);
+    petals.forEach((petal, i) => {
+      petal.y += petal.speed;
+      petal.rotation += 0.03;
+      ctx.save();
+      ctx.translate(petal.x, petal.y);
+      ctx.rotate(petal.rotation);
+      if (sakuraImage.complete && sakuraImage.naturalWidth) ctx.drawImage(sakuraImage, -14, -14, 28, 28);
+      else { ctx.fillStyle = "#ff8fbd"; ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
 
-    ctx.fillStyle = "#ffcce0";
-    petals.forEach((p, i) => {
-      p.y += p.speed;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (p.y > 340 && p.x > basketX && p.x < basketX + 80) {
+      if (petal.y > 325 && petal.x > basketX && petal.x < basketX + 80) {
         score++;
+        awardGift("sakura");
         petals.splice(i, 1);
-      }
-
-      if (p.y > 400) {
-        score--;
+      } else if (petal.y > 410) {
         petals.splice(i, 1);
       }
     });
 
+    if (basketImage.complete && basketImage.naturalWidth) ctx.drawImage(basketImage, basketX, 310, 80, 70);
+    else { ctx.fillStyle = "#c98243"; ctx.fillRect(basketX, 345, 80, 25); }
+    ui.innerHTML = `🌸 分數：${score}｜剩餘時間：${timeLeft}s｜每接一朵櫻花送到歌曲`;
     requestAnimationFrame(update);
   }
 
+  const finish = () => {
+    gameRunning = false;
+    clearInterval(sakuraTimer);
+    clearInterval(sakuraPetalTimer);
+    ui.innerHTML = `🎉 櫻花接花完成！分數：${score}｜櫻花禮物已送到歌曲`;
+  };
+  activeGameCleanup = finish;
   sakuraPetalTimer = setInterval(createPetal, 500);
-
-  sakuraTimer = setInterval(() => {
-    timeLeft--;
-    document.getElementById("game-ui").innerHTML =
-      `分數：${score}｜剩餘時間：${timeLeft}s`;
-
-    if (timeLeft <= 0) {
-      gameRunning = false;
-      clearInterval(sakuraTimer);
-      clearInterval(sakuraPetalTimer);
-      document.getElementById("game-ui").innerHTML =
-        `🎉 遊戲結束！你的分數：${score}`;
-    }
-  }, 1000);
-
+  sakuraTimer = setInterval(() => { timeLeft--; if (timeLeft <= 0) finish(); }, 1000);
   update();
 }
 
 /* ============================
-   🎨 卡通跳跳樂
+   🐱 卡通跳跳樂
 ============================ */
 let cartoonObstacleTimer = null;
 
 function startCartoonGame() {
   const canvas = document.getElementById("game-canvas");
   const ctx = canvas.getContext("2d");
-
+  const ui = document.getElementById("game-ui");
   canvas.width = 400;
   canvas.height = 400;
 
-  let player = {
-    x: 50,
-    y: 300,
-    width: 30,
-    height: 30,
-    dy: 0,
-    jumping: false,
-  };
+  const playerImage = new Image();
+  const obstacleImage = new Image();
+  playerImage.src = giftAssets.british;
+  obstacleImage.src = giftAssets.tabby;
 
+  const player = { x: 35, y: 300, width: 30, height: 30, dy: 0, jumping: false };
   let obstacles = [];
   let score = 0;
   let gameRunning = true;
 
-  document.onkeydown = (e) => {
-    if (e.code === "Space" && !player.jumping) {
-      player.dy = -10;
-      player.jumping = true;
-    }
-  };
-
-  canvas.ontouchstart = (e) => {
-    e.preventDefault();
-    if (!player.jumping) {
-      player.dy = -10;
-      player.jumping = true;
-    }
-  };
+  function jump() {
+    if (!gameRunning || player.jumping) return;
+    player.dy = -11;
+    player.jumping = true;
+  }
+  document.onkeydown = e => { if (e.code === "Space") { e.preventDefault(); jump(); } };
+  canvas.ontouchstart = e => { e.preventDefault(); jump(); };
 
   function createObstacle() {
-    obstacles.push({
-      x: 400,
-      y: 320,
-      width: 30,
-      height: 30,
-      speed: 4,
-    });
+    obstacles.push({ x: 400, y: 320, width: 30, height: 30, speed: 4 });
   }
 
-  cartoonObstacleTimer = setInterval(() => {
-    if (gameRunning) createObstacle();
-  }, 1200);
+  function finish(message) {
+    gameRunning = false;
+    clearInterval(cartoonObstacleTimer);
+    ui.innerHTML = `${message} 分數：${score}｜每跳過一隻唐猫已送出隨機貓咪禮物`;
+  }
+  activeGameCleanup = () => finish("🐱 遊戲已結束！");
+  cartoonObstacleTimer = setInterval(() => { if (gameRunning) createObstacle(); }, 1200);
 
   function update() {
     if (!gameRunning) return;
-
     ctx.clearRect(0, 0, 400, 400);
+    ctx.fillStyle = "#eef8ff"; ctx.fillRect(0, 0, 400, 400);
+    ctx.fillStyle = "#bde7c8"; ctx.fillRect(0, 340, 400, 60);
 
-    ctx.fillStyle = "#fff1b8";
-    ctx.fillRect(0, 0, 400, 400);
+    player.y += player.dy; player.dy += 0.55;
+    if (player.y >= 300) { player.y = 300; player.dy = 0; player.jumping = false; }
+    if (playerImage.complete && playerImage.naturalWidth) ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
 
-    ctx.fillStyle = "#ffd86b";
-    ctx.fillRect(0, 350, 400, 50);
-
-    ctx.fillStyle = "#ff9900";
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-
-    player.y += player.dy;
-    player.dy += 0.5;
-
-    if (player.y >= 300) {
-      player.y = 300;
-      player.dy = 0;
-      player.jumping = false;
-    }
-
-    ctx.fillStyle = "#ff4444";
-    obstacles.forEach((o, i) => {
-      o.x -= o.speed;
-      ctx.fillRect(o.x, o.y, o.width, o.height);
-
-      if (
-        player.x < o.x + o.width &&
-        player.x + player.width > o.x &&
-        player.y < o.y + o.height &&
-        player.y + player.height > o.y
-      ) {
-        gameRunning = false;
-        clearInterval(cartoonObstacleTimer);
-        document.getElementById("game-ui").innerHTML =
-          `💥 Game Over！分數：${score}`;
+    obstacles.forEach((obstacle, i) => {
+      obstacle.x -= obstacle.speed;
+      if (obstacleImage.complete && obstacleImage.naturalWidth) ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      if (player.x < obstacle.x + obstacle.width && player.x + player.width > obstacle.x && player.y < obstacle.y + obstacle.height && player.y + player.height > obstacle.y) {
+        finish("💥 撞到啡色唐猫，Game Over！");
       }
-
-      if (o.x + o.width < 0) {
+      if (obstacle.x + obstacle.width < 0) {
         obstacles.splice(i, 1);
         score++;
+        awardGift(Math.random() < 0.5 ? "tabby" : "british");
       }
     });
-
-    document.getElementById("game-ui").innerHTML = `分數：${score}`;
-
+    ui.innerHTML = `🐱 分數：${score}｜跳過啡色唐猫會送出隨機貓咪禮物`;
     requestAnimationFrame(update);
   }
-
   update();
 }
 
@@ -1690,47 +1800,6 @@ async function loadPlayHistory() {
     `;
     list.appendChild(li);
   });
-}
-
-// ⭐ 播放歌曲（你現有版本，只加咗註解）
-function playFromPlaylist(index) {
-  const buttons = getPlaybackButtons();
-  const btn = buttons[index];
-  if (!btn) return;
-
-  currentIndex = index;
-
-  const rawSrc = btn.getAttribute("data-src");
-  const songSrc = rawSrc.split("?")[0];
-  const songName = btn.getAttribute("data-name");
-  const songCover = btn.getAttribute("data-cover");
-
-  audio.src = songSrc;
-  cover.src = songCover;
-  title.textContent = songName;
-
-  audio.play();
-  cover.style.animationPlayState = "running";
-  cd.style.animationPlayState = "running";
-  playBtn.textContent = "⏸️";
-  tonearm.classList.add("playing");
-
-  // ⭐ 播放時記錄
-  recordPlayHistory(songName, songSrc, friendName);
-
-  clearTimeout(listenTimer);
-  hasCounted = false;
-  listenTimer = setTimeout(() => {
-    if (!hasCounted && typeof increasePlayCount === "function") {
-      increasePlayCount(songSrc);
-      hasCounted = true;
-    }
-  }, 60000);
-
-  buttons.forEach((b) => b.classList.remove("active"));
-  btn.classList.add("active");
-
-  loadComments(songName, friendName, songSrc);
 }
 
 async function loadLikeHistory() {
