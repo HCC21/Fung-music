@@ -1009,3 +1009,31 @@ body {
     cursor: pointer;
 }
 .gift-box-status { min-height: 20px; color: #ffd166; text-align: center; }
+
+
+/* 🎮 遊戲結束控制 */
+.game-result {
+    margin-bottom: 10px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+.game-end-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.game-end-actions button {
+    min-width: 110px;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 999px;
+    background: #e889b1;
+    color: #241c31;
+    font-weight: 700;
+    cursor: pointer;
+}
+.game-end-actions button:last-child {
+    background: rgba(255,255,255,.18);
+    color: #fff;
+}

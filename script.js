@@ -1259,6 +1259,18 @@ function openGame() {
   document.getElementById("game-modal").style.display = "flex";
 }
 
+function showGameEndControls(message, restartGame) {
+  const ui = document.getElementById("game-ui");
+  ui.innerHTML = `<div class="game-result">${message}</div><div class="game-end-actions"><button id="game-restart" type="button">重新開始</button><button id="game-leave" type="button">離開</button></div>`;
+  document.getElementById("game-restart").addEventListener("click", () => {
+    resetGameEvents();
+    restartGame();
+  }, { once: true });
+  document.getElementById("game-leave").addEventListener("click", () => {
+    document.getElementById("game-close").click();
+  }, { once: true });
+}
+
 document.getElementById("game-close").addEventListener("click", () => {
   document.getElementById("game-modal").style.display = "none";
 
@@ -1268,6 +1280,7 @@ document.getElementById("game-close").addEventListener("click", () => {
   document.getElementById("game-ui").innerHTML = "";
 
   if (activeGameCleanup) activeGameCleanup();
+  activeGameCleanup = null;
   resetGameEvents();
 });
 
@@ -1323,10 +1336,17 @@ function startSakuraGame() {
   function update() {
     if (!gameRunning) return;
     ctx.clearRect(0, 0, 400, 400);
-    ctx.fillStyle = "#fff1f7";
+    const sakuraSky = ctx.createLinearGradient(0, 0, 0, 400);
+    sakuraSky.addColorStop(0, "#ffd9eb");
+    sakuraSky.addColorStop(1, "#fff8fc");
+    ctx.fillStyle = sakuraSky;
     ctx.fillRect(0, 0, 400, 400);
-    ctx.fillStyle = "#ffd5e7";
-    ctx.fillRect(0, 340, 400, 60);
+    // 櫻花主題背景：遠景山丘、樹幹及櫻花樹冠。
+    ctx.fillStyle = "#e8b6cf";
+    ctx.beginPath(); ctx.arc(70, 190, 95, 0, Math.PI * 2); ctx.arc(330, 170, 120, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#80505d"; ctx.fillRect(20, 0, 18, 350); ctx.strokeStyle = "#80505d"; ctx.lineWidth = 10;
+    ctx.beginPath(); ctx.moveTo(30, 150); ctx.lineTo(130, 55); ctx.moveTo(30, 210); ctx.lineTo(175, 125); ctx.stroke();
+    ctx.fillStyle = "#ffd5e7"; ctx.fillRect(0, 340, 400, 60);
 
     petals.forEach((petal, i) => {
       petal.y += petal.speed;
@@ -1357,7 +1377,8 @@ function startSakuraGame() {
     gameRunning = false;
     clearInterval(sakuraTimer);
     clearInterval(sakuraPetalTimer);
-    ui.innerHTML = `🎉 櫻花接花完成！分數：${score}｜櫻花禮物已送到歌曲`;
+    activeGameCleanup = null;
+    showGameEndControls(`🎉 櫻花接花完成！分數：${score}｜櫻花禮物已加入你的禮品箱`, startSakuraGame);
   };
   activeGameCleanup = finish;
   sakuraPetalTimer = setInterval(createPetal, 500);
@@ -1385,7 +1406,9 @@ function startCartoonGame() {
   const player = { x: 35, y: 300, width: 30, height: 30, dy: 0, jumping: false };
   let obstacles = [];
   let score = 0;
+  let timeLeft = 30;
   let gameRunning = true;
+  let cartoonTimer = null;
 
   function jump() {
     if (!gameRunning || player.jumping) return;
@@ -1400,18 +1423,34 @@ function startCartoonGame() {
   }
 
   function finish(message) {
+    if (!gameRunning) return;
     gameRunning = false;
     clearInterval(cartoonObstacleTimer);
-    ui.innerHTML = `${message} 分數：${score}｜每跳過一隻唐猫已送出隨機貓咪禮物`;
+    clearInterval(cartoonTimer);
+    activeGameCleanup = null;
+    showGameEndControls(`${message} 分數：${score}｜禮物已加入你的禮品箱`, startCartoonGame);
   }
   activeGameCleanup = () => finish("🐱 遊戲已結束！");
   cartoonObstacleTimer = setInterval(() => { if (gameRunning) createObstacle(); }, 1200);
+  cartoonTimer = setInterval(() => {
+    if (!gameRunning) return;
+    timeLeft--;
+    if (timeLeft <= 0) finish("🎉 30 秒完成！");
+  }, 1000);
 
   function update() {
     if (!gameRunning) return;
     ctx.clearRect(0, 0, 400, 400);
-    ctx.fillStyle = "#eef8ff"; ctx.fillRect(0, 0, 400, 400);
+    const cartoonSky = ctx.createLinearGradient(0, 0, 0, 400);
+    cartoonSky.addColorStop(0, "#75c9f4");
+    cartoonSky.addColorStop(1, "#e7f8ff");
+    ctx.fillStyle = cartoonSky; ctx.fillRect(0, 0, 400, 400);
+    // 卡通跳跳主題背景：雲朵、遠山、草地及小花。
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    [[70,70,32],[125,80,24],[300,95,35],[345,78,24]].forEach(([x,y,r]) => { ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); });
+    ctx.fillStyle = "#7abf8f"; ctx.beginPath(); ctx.moveTo(0, 310); ctx.quadraticCurveTo(100,245,200,310); ctx.quadraticCurveTo(300,245,400,305); ctx.lineTo(400,400); ctx.lineTo(0,400); ctx.fill();
     ctx.fillStyle = "#bde7c8"; ctx.fillRect(0, 340, 400, 60);
+    ctx.fillStyle = "#ffcf5c"; [20,90,170,270,360].forEach(x => { ctx.beginPath(); ctx.arc(x,350,3,0,Math.PI*2); ctx.fill(); });
 
     player.y += player.dy; player.dy += 0.55;
     if (player.y >= 300) { player.y = 300; player.dy = 0; player.jumping = false; }
@@ -1429,7 +1468,8 @@ function startCartoonGame() {
         awardGift(Math.random() < 0.5 ? "tabby" : "british");
       }
     });
-    ui.innerHTML = `🐱 分數：${score}｜跳過啡色唐猫會送出隨機貓咪禮物`;
+    if (!gameRunning) return;
+    ui.innerHTML = `🐱 分數：${score}｜剩餘時間：${timeLeft}s｜跳過啡色唐猫會送出隨機貓咪禮物`;
     requestAnimationFrame(update);
   }
   update();
