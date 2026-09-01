@@ -1132,7 +1132,7 @@ function getSongGifts(songKey = currentGiftSongKey) {
 
 async function loadSongGifts(songKey) {
   if (!songKey) return;
-  const { data, error } = await supabaseClient.from("song_gifts").select("gift_type, quantity").eq("song_src", songKey).eq("recipient_username", friendName);
+  const { data, error } = await supabaseClient.from("song_gifts_public").select("gift_type, quantity").eq("song_src", songKey);
   if (!error && Array.isArray(data)) {
     songGiftCache[songKey] = { sakura: 0, british: 0, tabby: 0 };
     data.forEach(row => { if (songGiftCache[songKey][row.gift_type] !== undefined) songGiftCache[songKey][row.gift_type] = Number(row.quantity) || 0; });
@@ -1172,7 +1172,7 @@ async function sendGiftToSong(type, songKey) {
   const current = (songGiftCache[songKey] || getSongGifts(songKey));
   current[type] = (current[type] || 0) + 1;
   giftInventory[type]--;
-  const { error } = await supabaseClient.from("song_gifts").upsert({ recipient_username: friendName, song_src: songKey, gift_type: type, quantity: current[type] }, { onConflict: "recipient_username,song_src,gift_type" });
+  const { error } = await supabaseClient.from("song_gifts_public").upsert({ song_src: songKey, gift_type: type, quantity: current[type], updated_by: friendName }, { onConflict: "song_src,gift_type" });
   if (error) {
     localStorage.setItem(getGiftStorageKey(songKey), JSON.stringify(current));
   }
