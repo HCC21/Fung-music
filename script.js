@@ -1183,6 +1183,18 @@ async function sendGiftToSong(type, songKey) {
   return { ok: true, message: `已將 ${giftLabels[type]} 送到歌曲。` };
 }
 
+function getVisibleSongsForUser() {
+  const currentUser = friendName.toLowerCase();
+  return songsData.filter(song => {
+    if (song.cat === "man" && currentUser !== "fungfung" && currentUser !== "manman") return false;
+    if (Array.isArray(song.allowedUsers)) {
+      const allowed = song.allowedUsers.map(user => String(user).toLowerCase());
+      if (!allowed.includes(currentUser)) return false;
+    }
+    return true;
+  });
+}
+
 function renderGiftBox() {
   const inventoryBox = document.getElementById("gift-inventory");
   const songSelect = document.getElementById("gift-song-select");
@@ -1190,8 +1202,9 @@ function renderGiftBox() {
   if (!inventoryBox || !songSelect || !typeSelect) return;
   inventoryBox.innerHTML = Object.entries(giftLabels).map(([key, label]) => `<span class="inventory-gift"><img src="${giftAssets[key]}" alt="${label}"><b>${label}</b><span>× ${giftInventory[key] || 0}</span></span>`).join("");
   const previousSong = songSelect.value;
-  songSelect.innerHTML = songsData.map(song => `<option value="${song.src}">${song.name}</option>`).join("");
-  if (songsData.some(song => song.src === previousSong)) songSelect.value = previousSong;
+  const visibleSongs = getVisibleSongsForUser();
+  songSelect.innerHTML = visibleSongs.map(song => `<option value="${song.src}">${song.name}</option>`).join("");
+  if (visibleSongs.some(song => song.src === previousSong)) songSelect.value = previousSong;
   typeSelect.innerHTML = Object.entries(giftLabels).map(([key, label]) => `<option value="${key}" ${giftInventory[key] > 0 ? "" : "disabled"}>${label}（剩餘 ${giftInventory[key] || 0}）</option>`).join("");
 }
 
