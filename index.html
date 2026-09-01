@@ -165,17 +165,27 @@
 
 <p id="reply-notice" style="color:orange; font-size:14px; margin-top:10px;"></p>
 
-	    <!-- ⭐ 我的自訂歌單區域 -->
-	    <div id="my-playlist-section" style="display:none; margin-top: 25px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-	      <div style="display: flex; justify-content: space-between; align-items: center;">
-	        <h3 id="my-playlist-title">我的自訂歌單</h3>
-	        <button id="edit-playlist-name" style="background: none; border: 1px solid #555; color: #ccc; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">修改名稱</button>
-	      </div>
-	      <p style="font-size: 12px; color: #888; margin-bottom: 10px;">點擊歌曲右側的 ➕ 可加入此歌單</p>
-	      <div id="my-playlist-items" style="display: flex; flex-direction: column; gap: 8px;">
-	        <!-- 自訂歌單歌曲會顯示在這裡 -->
-	      </div>
-	    </div>
+<p id="comment-notice" class="comment-notice" aria-live="polite"></p>
+
+	        <!-- ⭐ 我的自訂歌單區域 -->
+    <div id="my-playlist-section" style="display:none; margin-top: 25px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+      <div class="playlist-heading">
+        <h3 id="my-playlist-title">我的歌單</h3>
+        <div class="playlist-heading-actions">
+          <button id="new-playlist-btn" type="button">＋ 新增歌單</button>
+          <button id="edit-playlist-name" type="button">修改名稱</button>
+          <button id="delete-playlist-btn" type="button">刪除此歌單</button>
+        </div>
+      </div>
+      <div class="playlist-selector-row">
+        <label for="playlist-select">目前歌單：</label>
+        <select id="playlist-select"></select>
+      </div>
+      <p style="font-size: 12px; color: #888; margin-bottom: 10px;">點擊歌曲右上角的 ➕ 可加入目前歌單；播放清單會按照下方次序播放。</p>
+      <div id="my-playlist-items" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- 自訂歌單歌曲會顯示在這裡 -->
+      </div>
+    </div>
 
 	    <!-- ⭐ 播放清單（移到留言區下方） -->
 	    <div id="playlist-section" style="margin-top: 25px;">
@@ -196,6 +206,19 @@
     <canvas id="game-canvas"></canvas>
     <div id="game-ui"></div>
   </div>
+</div>
+
+<!-- 🖱️ 自訂右鍵選單 -->
+<div id="context-menu" class="context-menu" style="display:none;">
+  <ul>
+    <li id="menu-add-to-playlist">➕ 加入我的自訂歌單</li>
+    <li id="menu-play-now">▶️ 立即播放</li>
+  </ul>
+</div>
+
+<!-- 🔝 浮動置頂按鈕 -->
+<div id="scroll-to-top" class="scroll-to-top" title="回到頂部">
+  <span>▲</span>
 </div>
 
 <!-- Supabase SDK -->

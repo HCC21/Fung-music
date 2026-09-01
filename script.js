@@ -38,16 +38,28 @@ const prevBtn = document.getElementById("prev");
 const playBtn = document.getElementById("play");
 const nextBtn = document.getElementById("next");
 const randomBtn = document.getElementById("random");
+let isRandomMode = localStorage.getItem("isRandomMode") === "true";
 
-randomBtn.addEventListener("click", () => {
-  isRandomMode = !isRandomMode;
+function updateRandomButton() {
+  if (!randomBtn) return;
+  randomBtn.classList.toggle("active-mode", isRandomMode);
+  randomBtn.setAttribute("aria-pressed", String(isRandomMode));
+  randomBtn.title = isRandomMode ? "隨機播放：已開啟" : "隨機播放：已關閉";
+}
 
-  if (isRandomMode) {
-    randomBtn.style.color = "yellow";   // ⭐ 顯示已開啟
-  } else {
-    randomBtn.style.color = "";         // ⭐ 關閉
-  }
-});
+// Random 只切換模式，不會在按下時立即跳到另一首歌。
+if (randomBtn) {
+  randomBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    isRandomMode = !isRandomMode;
+    localStorage.setItem("isRandomMode", String(isRandomMode));
+    updateRandomButton();
+  });
+}
+
+window.addEventListener("load", updateRandomButton);
+updateRandomButton();
 const stopBtn = document.getElementById("stop");
 
 const adminPasswordInput = document.getElementById("admin-password");
@@ -94,42 +106,69 @@ window.addEventListener("load", () => {
 });
 let listenTimer = null;
 let hasCounted = false;
-let isRandomMode = false;
+let activePlaybackSequence = null;
+
+function getPlaybackButtons() {
+  const buttons = [...document.querySelectorAll("#playlist-buttons .playlist-item")];
+  if (!activePlaybackSequence) return buttons;
+  return activePlaybackSequence
+    .map(src => buttons.find(button => button.dataset.src === src))
+    .filter(Boolean);
+}
+
+function getNextPlaybackIndex(buttons) {
+  if (!buttons.length) return -1;
+  if (!isRandomMode) return (currentIndex + 1 + buttons.length) % buttons.length;
+
+  let nextIndex = currentIndex;
+  if (buttons.length > 1) {
+    while (nextIndex === currentIndex) {
+      nextIndex = Math.floor(Math.random() * buttons.length);
+    }
+  }
+  return nextIndex;
+}
 
 
 /* ============================
    ⭐ 儲存登入紀錄
 ============================ */
 async function saveLoginHistory(name) {
-  // ⭐ 統一轉為小寫進行查詢，避免大小寫不一致導致重複建立或無法更新
+  if (!name) return;
   const searchName = name.trim().toLowerCase();
   
+  // 先嘗試查詢
   const { data: existing, error } = await supabaseClient
     .from("login_history")
     .select("*")
-    .ilike("name", searchName) // 使用 ilike 進行不分大小寫的查詢
+    .ilike("name", searchName)
     .maybeSingle();
 
   const nowISO = new Date().toISOString();
 
   if (existing) {
+    // 累計次數
     await supabaseClient
       .from("login_history")
       .update({
         count: (existing.count || 0) + 1,
         last_login: nowISO,
       })
-      .eq("id", existing.id); // 使用 ID 更新更精準
+      .eq("id", existing.id);
   } else {
+    // 新增紀錄
     await supabaseClient.from("login_history").insert({
-      name: name, // 保留原始輸入的大小寫作為顯示
+      name: name,
       count: 1,
       last_login: nowISO,
     });
   }
 }
 
-saveLoginHistory(friendName);
+// 確保在頁面加載後只執行一次
+if (friendName) {
+  saveLoginHistory(friendName);
+}
 
 /* ============================
    ⭐ 從 Supabase 讀取動態歌曲
@@ -189,8 +228,14 @@ function generatePlaylist(filterCat = "all", keyword = "") {
 
   const currentUser = friendName.toLowerCase();
   let displayIndex = -1;
+  // 自定歌單模式仍顯示全部歌曲，讓使用者可以按「＋」加入目前歌單；
+  // 但播放次序獨立使用目前歌單的儲存次序。
+  activePlaybackSequence = filterCat === "my-playlist"
+    ? getActivePlaylist().songs.slice()
+    : null;
+  const songsToDisplay = songsData;
 
-  songsData.forEach((song) => {
+  songsToDisplay.forEach((song) => {
 
     // ⭐ 1. man 權限（最重要）
     if (song.cat === "man" && currentUser !== "fungfung" && currentUser !== "manman") {
@@ -211,7 +256,9 @@ function generatePlaylist(filterCat = "all", keyword = "") {
 
     // ⭐ 5. 顯示歌曲
     displayIndex++;
-    const thisIndex = displayIndex;
+    const thisIndex = activePlaybackSequence
+      ? activePlaybackSequence.indexOf(song.src)
+      : displayIndex;
 
   const btn = document.createElement("button");
 btn.classList.add("playlist-item");
@@ -224,8 +271,9 @@ btn.innerHTML = `
   <img src="${song.cover}" class="playlist-cover">
   <span>${song.name}</span>
 
+  <span class="add-to-my-btn" title="加入目前歌單" data-src="${song.src}" role="button" aria-label="加入目前歌單">➕</span>
+
   <div class="info-box">
-    <span class="add-to-my-btn" title="加入我的歌單" data-src="${song.src}">➕</span>
     <span class="like-icon" data-src="${song.src}">👍</span>
     <span class="like-count" id="like-${song.src}">0</span>
 
@@ -250,13 +298,16 @@ getPlayCount(song.src).then(count => {
 
 btn.addEventListener("click", async (e) => {
 
-  // ⭐ 如果按的是 Like，不要播放歌曲
-  if (e.target.classList.contains("like-icon")) {
+  // ⭐ Like 或右上角「＋」不是播放操作
+  if (e.target.closest(".like-icon") || e.target.closest(".add-to-my-btn")) {
     return;
   }
 
-  currentIndex = thisIndex;
-  playFromPlaylist(thisIndex);
+  const playbackButtons = getPlaybackButtons();
+  const playbackIndex = playbackButtons.findIndex(button => button.dataset.src === song.src);
+  if (playbackIndex < 0) return;
+  currentIndex = playbackIndex;
+  playFromPlaylist(playbackIndex);
 
   const newCount = await getPlayCount(song.src);
   btn.querySelector(".play-count").textContent = `${newCount}`;
@@ -330,7 +381,7 @@ document
    🎵 播放歌曲（從歌單）
 ============================ */
 function playFromPlaylist(index) {
-  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const buttons = getPlaybackButtons();
   const btn = buttons[index];
   if (!btn) return;
 
@@ -416,7 +467,7 @@ playBtn.addEventListener("click", () => {
    ⏭️ 下一首
 ============================ */
 nextBtn.addEventListener("click", () => {
-  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const buttons = getPlaybackButtons();
   if (!buttons.length) return;
 
   tonearm.classList.remove("playing");
@@ -424,7 +475,9 @@ nextBtn.addEventListener("click", () => {
   cd.style.animationPlayState = "paused";
 
   setTimeout(() => {
-    currentIndex = (currentIndex + 1 + buttons.length) % buttons.length;
+    const nextIndex = getNextPlaybackIndex(buttons);
+    if (nextIndex < 0) return;
+    currentIndex = nextIndex;
     playFromPlaylist(currentIndex);
   }, 400);
 });
@@ -433,7 +486,7 @@ nextBtn.addEventListener("click", () => {
    ⏮️ 上一首
 ============================ */
 prevBtn.addEventListener("click", () => {
-  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const buttons = getPlaybackButtons();
   if (!buttons.length) return;
 
   tonearm.classList.remove("playing");
@@ -449,25 +502,6 @@ prevBtn.addEventListener("click", () => {
 /* ============================
    🔀 Random
 ============================ */
-randomBtn.addEventListener("click", () => {
-  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
-  if (!buttons.length) return;
-
-  tonearm.classList.remove("playing");
-  cover.style.animationPlayState = "paused";
-  cd.style.animationPlayState = "paused";
-
-  setTimeout(() => {
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * buttons.length);
-    } while (buttons.length > 1 && newIndex === currentIndex);
-
-    currentIndex = newIndex;
-    playFromPlaylist(currentIndex);
-  }, 400);
-});
-
 /* ============================
    ⭐ 進度條
 ============================ */
@@ -480,17 +514,19 @@ audio.addEventListener("timeupdate", () => {
 });
 
 audio.addEventListener("ended", () => {
-  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const buttons = getPlaybackButtons();
   if (!buttons.length) return;
-  currentIndex = (currentIndex + 1 + buttons.length) % buttons.length;
-  playFromPlaylist(currentIndex);
-});
-audio.addEventListener("ended", () => {
-  if (isRandomMode) {
-    playRandomSong();   // ⭐ 自動 Random
-  } else {
-    nextSong();         // ⭐ 正常下一首
-  }
+
+  tonearm.classList.remove("playing");
+  cover.style.animationPlayState = "paused";
+  cd.style.animationPlayState = "paused";
+
+  setTimeout(() => {
+    const nextIndex = getNextPlaybackIndex(buttons);
+    if (nextIndex < 0) return;
+    currentIndex = nextIndex;
+    playFromPlaylist(currentIndex);
+  }, 400);
 });
 
 progress.addEventListener("input", () => {
@@ -509,6 +545,7 @@ function formatTime(sec) {
    ⭐ 完整留言系統（最終版）
 ============================ */
 async function loadComments(songName, currentUser) {
+  if (currentUser !== "fungfung") clearCommentNotification(songName);
 
   const { data: comments, error } = await supabaseClient
     .from("comments")
@@ -524,41 +561,93 @@ async function loadComments(songName, currentUser) {
     return;
   }
 
-  let replyMessage = null; // ⭐ 記錄是否有人回覆你
-
+  let replyMessages = [];
   comments.forEach((c) => {
-    // ⭐ 管理員看到全部留言
-    if (currentUser === "fungfung") {
+    if (currentUser === "fungfung" || !c.replyTo && c.user === currentUser || c.replyTo === currentUser || c.user === currentUser) {
       showComment(c, list);
-    } else {
-      // ⭐ 普通用戶：只看到自己相關的留言
-      if (!c.replyTo) {
-        if (c.user === currentUser) showComment(c, list);
-      } else {
-        if (c.replyTo === currentUser || c.user === currentUser) {
-          showComment(c, list);
-        }
-      }
     }
-
-    // ⭐ 回覆通知
     if (c.replyTo === currentUser) {
-      replyMessage = `${c.user} 回覆了你：${c.message}`;
+      replyMessages.push(`${c.user} 回覆了你：${c.message}`);
     }
   });
 
-  // ⭐ 顯示回覆通知
-  const notice = document.getElementById("reply-notice");
-  notice.textContent = replyMessage ? replyMessage : "";
+  document.getElementById("reply-notice").textContent = replyMessages.join("\n");
 
-  // ⭐ 管理員標記已讀
   if (currentUser === "fungfung") {
     await supabaseClient
       .from("comments")
       .update({ isRead: true })
-      .eq("songName", songName);
+      .eq("songName", songName)
+      .eq("isRead", false);
+    await checkNewComments();
   }
 }
+
+// 檢查新留言通知：fungfung 直接以 isRead 顯示，並列出留言來自哪一首歌。
+async function checkNewComments() {
+  const notice = document.getElementById("comment-notice");
+  if (friendName === "fungfung") {
+    const { data, error } = await supabaseClient
+      .from("comments")
+      .select("id, songName, user, message, time")
+      .eq("isRead", false)
+      .neq("user", friendName)
+      .order("id", { ascending: false });
+
+    if (error || !data) return;
+    showNotificationBadge(data.length > 0);
+    notice.textContent = data.length
+      ? `有 ${data.length} 個未讀留言：\n` + data.map(c => `「${c.songName}」— ${c.user}：${c.message}`).join("\n")
+      : "";
+    return;
+  }
+
+  const lastCheckTime = localStorage.getItem(`last_comment_check_${friendName}`) || new Date(0).toISOString();
+  const { data, error } = await supabaseClient
+    .from("comments")
+    .select("songName, time")
+    .gt("time", lastCheckTime)
+    .neq("user", friendName);
+  if (error || !data) return;
+  if (data.length > 0) {
+    showNotificationBadge(true);
+    const notifiedSongs = JSON.parse(localStorage.getItem(`notified_songs_${friendName}`) || "[]");
+    data.forEach(c => { if (!notifiedSongs.includes(c.songName)) notifiedSongs.push(c.songName); });
+    localStorage.setItem(`notified_songs_${friendName}`, JSON.stringify(notifiedSongs));
+  }
+}
+
+function showNotificationBadge(show) {
+  const select = document.getElementById("categories-select");
+  const badgeId = "comment-badge";
+  let badge = document.getElementById(badgeId);
+  if (show) {
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = badgeId;
+      badge.textContent = "🔴";
+      badge.style.marginLeft = "5px";
+      badge.title = "有未讀留言！";
+      select.parentNode.insertBefore(badge, select.nextSibling);
+    }
+  } else if (badge) {
+    badge.remove();
+  }
+}
+
+function clearCommentNotification(songName) {
+  let notifiedSongs = JSON.parse(localStorage.getItem(`notified_songs_${friendName}`) || "[]");
+  notifiedSongs = notifiedSongs.filter(name => name !== songName);
+  localStorage.setItem(`notified_songs_${friendName}`, JSON.stringify(notifiedSongs));
+  if (notifiedSongs.length === 0) {
+    showNotificationBadge(false);
+    localStorage.setItem(`last_comment_check_${friendName}`, new Date().toISOString());
+  }
+}
+
+// 每 30 秒檢查一次新留言
+setInterval(checkNewComments, 30000);
+window.addEventListener("load", checkNewComments);
 
 function showComment(c, list) {
   const li = document.createElement("li");
@@ -569,38 +658,6 @@ function showComment(c, list) {
   `;
   list.appendChild(li);
 }
-
-document.getElementById("comment-submit").addEventListener("click", async () => {
-  const input = document.getElementById("comment-input");
-  const message = input.value.trim();
-  if (!message) return;
-
-  // ⭐ 正確寫入 Supabase（用 songName）
-  const { error } = await supabaseClient.from("comments").insert({
-    songName: title.textContent,
-    user: friendName,
-    message,
-    replyTo: input.dataset.replyTo || null,
-    isRead: false,
-    time: new Date().toLocaleString(),
-  });
-
-  if (error) {
-    alert("留言寫入失敗：" + error.message);
-    console.log(error);
-    return;
-  }
-
-  input.value = "";
-  input.dataset.replyTo = "";
-
-  // ⭐ 重新載入留言
-  loadComments(title.textContent, friendName);
-
-  // ⭐ 顯示提示文字
-  const hint = document.getElementById("comment-hint");
-  hint.textContent = `「${title.textContent}」已有留言：${message}`;
-});
 
 document.addEventListener("click", async (e) => {
   if (!e.target.classList.contains("like-icon")) return;
@@ -630,38 +687,33 @@ document.addEventListener("click", async (e) => {
 });
 
 /* ============================
-   ⭐ 送出留言
+   ⭐ 送出留言（單一事件綁定，避免重複寫入）
 ============================ */
 document.getElementById("comment-submit").addEventListener("click", async () => {
   const input = document.getElementById("comment-input");
   const message = input.value.trim();
-  if (!message) return;
+  if (!message || !title.textContent || title.textContent === "選擇一首歌播放") return;
 
-  // ⭐ 正確寫入 Supabase（用 songName）
+  const songName = title.textContent;
   const { error } = await supabaseClient.from("comments").insert({
-    songName: title.textContent,          // ⭐ 修正：用 songName
+    songName,
     user: friendName,
     message,
     replyTo: input.dataset.replyTo || null,
     isRead: false,
-    time: new Date().toLocaleString(),
+    time: new Date().toISOString(),
   });
 
   if (error) {
     alert("留言寫入失敗：" + error.message);
-    console.log(error);
+    console.error(error);
     return;
   }
 
   input.value = "";
   input.dataset.replyTo = "";
-
-  // ⭐ 重新載入留言
-  loadComments(title.textContent, friendName);
-
-  // ⭐ 顯示提示文字
-  const hint = document.getElementById("comment-hint");
-  hint.textContent = `「${title.textContent}」已有留言：${message}`;
+  await loadComments(songName, friendName);
+  document.getElementById("comment-hint").textContent = `「${songName}」已有留言：${message}`;
 });
 
 /* ============================
@@ -1274,114 +1326,245 @@ function startCartoonGame() {
 }
 
 /* ============================
+   🖱️ 右鍵選單 & 置頂按鈕邏輯
+============================ */
+const contextMenu = document.getElementById("context-menu");
+const scrollToTopBtn = document.getElementById("scroll-to-top");
+let selectedSongSrc = null;
+let longPressTimer = null;
+
+// 右鍵選單
+document.addEventListener("contextmenu", (e) => {
+  const item = e.target.closest(".playlist-item");
+  if (item) {
+    e.preventDefault();
+    selectedSongSrc = item.getAttribute("data-src");
+    contextMenu.style.display = "block";
+    contextMenu.style.left = `${e.pageX}px`;
+    contextMenu.style.top = `${e.pageY}px`;
+  } else {
+    contextMenu.style.display = "none";
+  }
+});
+
+// 長按偵測 (平板/手機)
+document.addEventListener("touchstart", (e) => {
+  const item = e.target.closest(".playlist-item");
+  if (item) {
+    longPressTimer = setTimeout(() => {
+      selectedSongSrc = item.getAttribute("data-src");
+      contextMenu.style.display = "block";
+      contextMenu.style.left = `${e.touches[0].pageX}px`;
+      contextMenu.style.top = `${e.touches[0].pageY}px`;
+    }, 600); // 600ms 長按
+  }
+});
+
+document.addEventListener("touchend", () => {
+  clearTimeout(longPressTimer);
+});
+
+// 點擊其他地方關閉選單
+document.addEventListener("click", () => {
+  contextMenu.style.display = "none";
+});
+
+// 選單功能
+document.getElementById("menu-add-to-playlist").addEventListener("click", () => {
+  if (selectedSongSrc) addToMyPlaylist(selectedSongSrc);
+});
+
+document.getElementById("menu-play-now").addEventListener("click", () => {
+  if (selectedSongSrc) {
+    const buttons = getPlaybackButtons();
+    for (let i = 0; i < buttons.length; i++) {
+      if (buttons[i].getAttribute("data-src") === selectedSongSrc) {
+        playFromPlaylist(i);
+        break;
+      }
+    }
+  }
+});
+
+// 置頂按鈕邏輯
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    scrollToTopBtn.classList.add("show");
+  } else {
+    scrollToTopBtn.classList.remove("show");
+  }
+});
+
+scrollToTopBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ============================
    ⭐ 個人化歌單邏輯
 ============================ */
 const myPlaylistItemsContainer = document.getElementById("my-playlist-items");
 const myPlaylistTitle = document.getElementById("my-playlist-title");
 const editPlaylistNameBtn = document.getElementById("edit-playlist-name");
+const playlistSelect = document.getElementById("playlist-select");
+const newPlaylistBtn = document.getElementById("new-playlist-btn");
+const deletePlaylistBtn = document.getElementById("delete-playlist-btn");
+const playlistsKey = `playlists_${friendName}`;
+const activePlaylistKey = `active_playlist_${friendName}`;
 
-// 初始化歌單名稱
-window.addEventListener("load", () => {
-  const savedName = localStorage.getItem(`playlist_name_${friendName}`);
-  if (savedName) myPlaylistTitle.textContent = savedName;
-});
-
-editPlaylistNameBtn.addEventListener("click", () => {
-  const newName = prompt("請輸入新的歌單名稱：", myPlaylistTitle.textContent);
-  if (newName) {
-    myPlaylistTitle.textContent = newName;
-    localStorage.setItem(`playlist_name_${friendName}`, newName);
+function getPlaylists() {
+  let playlists;
+  try { playlists = JSON.parse(localStorage.getItem(playlistsKey) || "null"); } catch { playlists = null; }
+  if (!playlists || typeof playlists !== "object" || Array.isArray(playlists) || Object.keys(playlists).length === 0) {
+    let oldSongs = [];
+    try { oldSongs = JSON.parse(localStorage.getItem(`playlist_${friendName}`) || "[]"); } catch { oldSongs = []; }
+    playlists = { default: { name: localStorage.getItem(`playlist_name_${friendName}`) || "我的歌單", songs: oldSongs } };
+    localStorage.setItem(playlistsKey, JSON.stringify(playlists));
   }
-});
+  return playlists;
+}
 
-// 加入歌單
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("add-to-my-btn")) {
-    e.stopPropagation();
-    const src = e.target.dataset.src;
-    addToMyPlaylist(src);
-  }
-});
+function savePlaylists(playlists) {
+  localStorage.setItem(playlistsKey, JSON.stringify(playlists));
+}
 
-function addToMyPlaylist(src) {
-  let myPlaylist = JSON.parse(localStorage.getItem(`playlist_${friendName}`) || "[]");
-  if (myPlaylist.includes(src)) {
-    alert("這首歌已經在您的歌單中囉！");
-    return;
-  }
-  myPlaylist.push(src);
-  localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
-  alert("已成功加入自訂歌單！");
+function getActivePlaylistId() {
+  const playlists = getPlaylists();
+  const saved = localStorage.getItem(activePlaylistKey);
+  return saved && playlists[saved] ? saved : Object.keys(playlists)[0];
+}
+
+function getActivePlaylist() {
+  const playlists = getPlaylists();
+  return playlists[getActivePlaylistId()];
+}
+
+function renderPlaylistSelector() {
+  const playlists = getPlaylists();
+  const activeId = getActivePlaylistId();
+  playlistSelect.innerHTML = Object.entries(playlists).map(([id, p]) =>
+    `<option value="${id}">${p.name}</option>`
+  ).join("");
+  playlistSelect.value = activeId;
+  myPlaylistTitle.textContent = playlists[activeId].name;
+}
+
+function refreshCurrentPlaylistView() {
+  renderPlaylistSelector();
+  renderMyPlaylist();
   if (document.getElementById("categories-select").value === "my-playlist") {
-    renderMyPlaylist();
+    generatePlaylist("my-playlist", searchBox.value.trim().toLowerCase());
   }
 }
 
+playlistSelect.addEventListener("change", () => {
+  localStorage.setItem(activePlaylistKey, playlistSelect.value);
+  refreshCurrentPlaylistView();
+});
+
+newPlaylistBtn.addEventListener("click", () => {
+  const name = prompt("請輸入新歌單名稱：", "我的新歌單");
+  if (!name || !name.trim()) return;
+  const playlists = getPlaylists();
+  const id = `playlist_${Date.now()}`;
+  playlists[id] = { name: name.trim(), songs: [] };
+  savePlaylists(playlists);
+  localStorage.setItem(activePlaylistKey, id);
+  refreshCurrentPlaylistView();
+});
+
+editPlaylistNameBtn.addEventListener("click", () => {
+  const playlists = getPlaylists();
+  const id = getActivePlaylistId();
+  const newName = prompt("請輸入新的歌單名稱：", playlists[id].name);
+  if (newName && newName.trim()) {
+    playlists[id].name = newName.trim();
+    savePlaylists(playlists);
+    refreshCurrentPlaylistView();
+  }
+});
+
+deletePlaylistBtn.addEventListener("click", () => {
+  const playlists = getPlaylists();
+  const ids = Object.keys(playlists);
+  if (ids.length <= 1) { alert("至少要保留一個歌單！"); return; }
+  const id = getActivePlaylistId();
+  if (!confirm(`確定要刪除「${playlists[id].name}」嗎？`)) return;
+  delete playlists[id];
+  savePlaylists(playlists);
+  localStorage.setItem(activePlaylistKey, Object.keys(playlists)[0]);
+  refreshCurrentPlaylistView();
+});
+
+// 動態歌曲清單會反覆重建，因此使用事件委派處理所有「＋」按鈕。
+document.addEventListener("click", (e) => {
+  const addButton = e.target.closest(".add-to-my-btn");
+  if (!addButton) return;
+  e.preventDefault();
+  e.stopPropagation();
+  addToMyPlaylist(addButton.dataset.src);
+});
+
+function addToMyPlaylist(src) {
+  const playlists = getPlaylists();
+  const id = getActivePlaylistId();
+  const playlist = playlists[id];
+  if (playlist.songs.includes(src)) { alert(`這首歌已經在「${playlist.name}」中囉！`); return; }
+  playlist.songs.push(src);
+  savePlaylists(playlists);
+  alert(`已成功加入「${playlist.name}」！`);
+  refreshCurrentPlaylistView();
+}
+
 function renderMyPlaylist() {
+  const playlist = getActivePlaylist();
+  myPlaylistTitle.textContent = playlist.name;
   myPlaylistItemsContainer.innerHTML = "";
-  let myPlaylist = JSON.parse(localStorage.getItem(`playlist_${friendName}`) || "[]");
-  
-  if (myPlaylist.length === 0) {
-    myPlaylistItemsContainer.innerHTML = "<p style='color:#888; text-align:center; padding:20px;'>您的歌單還是空的，快去加入喜歡的歌吧！</p>";
+  if (playlist.songs.length === 0) {
+    myPlaylistItemsContainer.innerHTML = "<p style='color:#888; text-align:center; padding:20px;'>這個歌單還是空的，快去加入喜歡的歌吧！</p>";
     return;
   }
-
-  myPlaylist.forEach((src, index) => {
+  playlist.songs.forEach((src, index) => {
     const song = songsData.find(s => s.src === src);
     if (!song) return;
-
     const item = document.createElement("div");
     item.classList.add("my-playlist-item");
     item.innerHTML = `
       <img src="${song.cover}">
-      <div class="song-info">
-        <strong>${song.name}</strong>
-      </div>
+      <div class="song-info"><strong>${song.name}</strong></div>
       <div class="actions">
         <button class="play-my-btn" data-src="${song.src}">▶️</button>
         <button class="move-up" data-index="${index}">🔼</button>
         <button class="move-down" data-index="${index}">🔽</button>
         <button class="remove-my-btn" data-index="${index}" style="color:#ff4d4d;">❌</button>
-      </div>
-    `;
+      </div>`;
     myPlaylistItemsContainer.appendChild(item);
   });
 }
 
-// 處理自訂歌單內的按鈕點擊
 myPlaylistItemsContainer.addEventListener("click", (e) => {
-  const index = parseInt(e.target.dataset.index);
-  let myPlaylist = JSON.parse(localStorage.getItem(`playlist_${friendName}`) || "[]");
-
+  const playlists = getPlaylists();
+  const id = getActivePlaylistId();
+  const playlist = playlists[id];
+  const index = parseInt(e.target.dataset.index, 10);
   if (e.target.classList.contains("play-my-btn")) {
-    const src = e.target.dataset.src;
-    // 尋找在當前播放清單中的 index 並播放
-    const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
-    for (let i = 0; i < buttons.length; i++) {
-      if (buttons[i].getAttribute("data-src") === src) {
-        playFromPlaylist(i);
-        break;
-      }
-    }
-  } else if (e.target.classList.contains("move-up")) {
-    if (index > 0) {
-      [myPlaylist[index], myPlaylist[index - 1]] = [myPlaylist[index - 1], myPlaylist[index]];
-      localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
-      renderMyPlaylist();
-    }
-  } else if (e.target.classList.contains("move-down")) {
-    if (index < myPlaylist.length - 1) {
-      [myPlaylist[index], myPlaylist[index + 1]] = [myPlaylist[index + 1], myPlaylist[index]];
-      localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
-      renderMyPlaylist();
-    }
-  } else if (e.target.classList.contains("remove-my-btn")) {
-    if (confirm("確定要從歌單中移除這首歌嗎？")) {
-      myPlaylist.splice(index, 1);
-      localStorage.setItem(`playlist_${friendName}`, JSON.stringify(myPlaylist));
-      renderMyPlaylist();
-    }
+    const buttons = getPlaybackButtons();
+    const buttonIndex = [...buttons].findIndex(b => b.dataset.src === e.target.dataset.src);
+    if (buttonIndex >= 0) playFromPlaylist(buttonIndex);
+  } else if (e.target.classList.contains("move-up") && index > 0) {
+    [playlist.songs[index], playlist.songs[index - 1]] = [playlist.songs[index - 1], playlist.songs[index]];
+    savePlaylists(playlists); refreshCurrentPlaylistView();
+  } else if (e.target.classList.contains("move-down") && index < playlist.songs.length - 1) {
+    [playlist.songs[index], playlist.songs[index + 1]] = [playlist.songs[index + 1], playlist.songs[index]];
+    savePlaylists(playlists); refreshCurrentPlaylistView();
+  } else if (e.target.classList.contains("remove-my-btn") && confirm("確定要從歌單中移除這首歌嗎？")) {
+    playlist.songs.splice(index, 1);
+    savePlaylists(playlists); refreshCurrentPlaylistView();
   }
+});
+
+window.addEventListener("load", () => {
+  getPlaylists();
+  renderPlaylistSelector();
 });
 
 /* ============================
@@ -1511,7 +1694,7 @@ async function loadPlayHistory() {
 
 // ⭐ 播放歌曲（你現有版本，只加咗註解）
 function playFromPlaylist(index) {
-  const buttons = document.querySelectorAll("#playlist-buttons .playlist-item");
+  const buttons = getPlaybackButtons();
   const btn = buttons[index];
   if (!btn) return;
 
@@ -1549,21 +1732,6 @@ function playFromPlaylist(index) {
 
   loadComments(songName, friendName, songSrc);
 }
-
-document.getElementById("admin-open").addEventListener("click", () => {
-  document.getElementById("admin-panel").style.display = "block";
-
-  // ⭐ 第一次讀取（立即）
-  loadPlayHistory();
-
-  // ⭐ 第二次讀取（0.3 秒後，確保最新）
-  setTimeout(() => {
-    loadPlayHistory();
-  }, 300);
-
-  loadAllLoginHistory();
-  loadAllUsers();
-});
 
 async function loadLikeHistory() {
   const list = document.getElementById("like-history-list");
