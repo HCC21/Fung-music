@@ -147,24 +147,33 @@
  <button id="prev">⏮️</button>
  <button id="next">⏭️</button>
  <button id="random">🔀</button>   <!-- ⭐ Random Key -->
+ <button id="repeat-one" type="button" aria-pressed="false" title="單曲循環：已關閉">🔂</button>
  
  </div>
 
     <!-- 🎁 歌曲禮物：遊戲獎勵及播放時飄落效果 -->
     <div id="song-gifts" class="song-gifts" aria-live="polite"></div>
     <div id="gift-rain" class="gift-rain" aria-hidden="true"></div>
-    <button id="gift-box-open" class="gift-box-open" type="button">🎁 禮品箱</button>
+    <div id="gift-feature" class="gift-feature" aria-live="polite"></div>
+    <div id="main-gift-inventory" class="main-gift-inventory" aria-live="polite"></div>
+    <div class="main-send-gift" aria-label="送禮控制">
+      <select id="main-gift-type-select" aria-label="選擇禮物"></select>
+      <input id="main-gift-quantity" type="number" min="1" step="1" value="1" aria-label="送禮數量">
+      <button id="main-send-gift-btn" class="send-gift-btn" type="button">送到目前歌曲</button>
+    </div>
+    <p id="main-gift-status" class="gift-box-status"></p>
+    <button id="gift-box-open" class="gift-box-open" type="button">🔄 兌換禮物</button>
     <div id="gift-box-modal" class="gift-box-modal" style="display:none;">
       <div class="gift-box-card">
         <button id="gift-box-close" class="gift-box-close" type="button">×</button>
         <h3>🎁 我的禮品箱</h3>
         <div id="gift-inventory" class="gift-inventory"></div>
-        <label for="gift-song-select">送到歌曲：</label>
-        <select id="gift-song-select"></select>
-        <label for="gift-type-select">選擇禮物：</label>
-        <select id="gift-type-select"></select>
-        <button id="send-gift-btn" class="send-gift-btn" type="button">送出禮物</button>
+        <p id="gift-current-song" class="gift-current-song">兌換後的禮物可在播放主頁直接送出</p>
         <p id="gift-box-status" class="gift-box-status"></p>
+        <hr>
+        <h4>禮品兌換</h4>
+        <p class="exchange-help">每次兌換會消耗相同數量的櫻花、白色英短及啡色唐猫。</p>
+        <div id="gift-exchange-list" class="gift-exchange-list"></div>
       </div>
     </div>
 

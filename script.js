@@ -39,6 +39,20 @@ const playBtn = document.getElementById("play");
 const nextBtn = document.getElementById("next");
 const randomBtn = document.getElementById("random");
 let isRandomMode = localStorage.getItem("isRandomMode") === "true";
+const repeatOneBtn = document.getElementById("repeat-one");
+let isRepeatOne = localStorage.getItem("isRepeatOne") === "true";
+function updateRepeatButton() {
+  if (!repeatOneBtn) return;
+  repeatOneBtn.classList.toggle("active-mode", isRepeatOne);
+  repeatOneBtn.setAttribute("aria-pressed", String(isRepeatOne));
+  repeatOneBtn.title = isRepeatOne ? "單曲循環：已開啟" : "單曲循環：已關閉";
+}
+repeatOneBtn?.addEventListener("click", () => {
+  isRepeatOne = !isRepeatOne;
+  localStorage.setItem("isRepeatOne", String(isRepeatOne));
+  updateRepeatButton();
+});
+updateRepeatButton();
 
 function updateRandomButton() {
   if (!randomBtn) return;
@@ -515,6 +529,11 @@ audio.addEventListener("timeupdate", () => {
 });
 
 audio.addEventListener("ended", () => {
+  if (isRepeatOne && audio.src) {
+    audio.currentTime = 0;
+    audio.play();
+    return;
+  }
   const buttons = getPlaybackButtons();
   if (!buttons.length) return;
 
@@ -1086,167 +1105,94 @@ async function deleteUser(id) {
    🎁 遊戲禮物箱及送禮系統
 ============================ */
 const giftAssets = {
-  sakura: "assets/sakura.png",
-  british: "assets/white-british-shorthair.png",
-  tabby: "assets/brown-tabby.png",
+  sakura: "assets/sakura.png", british: "assets/white-british-shorthair.png", tabby: "assets/brown-tabby.png",
+  heart: "assets/heart-gift.png", coffee: "assets/coffee-gift.png", chocolate: "assets/chocolate-gift.png",
+  phone: "assets/phone-gift.png", headphones: "assets/headphones-gift.png",
 };
-const giftLabels = { sakura: "櫻花", british: "白色英短", tabby: "啡色唐猫" };
-let currentGiftSongKey = null;
-let giftRainTimer = null;
-let giftInventory = { sakura: 0, british: 0, tabby: 0 };
-let songGiftCache = {};
-
+const giftLabels = { sakura: "櫻花", british: "白色英短", tabby: "啡色唐猫", heart: "心心", coffee: "咖啡", chocolate: "朱古力", phone: "手機", headphones: "頭帶式耳機" };
+const basicGiftTypes = ["sakura", "british", "tabby"];
+const exchangeRecipes = [
+  { id: "heart", label: "心心", cost: 10 }, { id: "coffee", label: "咖啡", cost: 10 }, { id: "chocolate", label: "朱古力", cost: 10 },
+  { id: "phone", label: "手機", cost: 30 }, { id: "headphones", label: "頭帶式耳機", cost: 30 },
+];
+const allGiftTypes = Object.keys(giftLabels);
+const emptyGiftCounts = () => Object.fromEntries(allGiftTypes.map(type => [type, 0]));
+let currentGiftSongKey = null, giftRainTimer = null, giftRevealTimer = null;
+let giftInventory = emptyGiftCounts(), songGiftCache = {};
 function giftLocalKey() { return `gift_inventory_${friendName}`; }
 function getGiftStorageKey(songKey) { return `song_gifts_${encodeURIComponent(songKey || "unknown")}`; }
-
-function readLocalInventory() {
-  try { return { ...giftInventory, ...JSON.parse(localStorage.getItem(giftLocalKey()) || "{}") }; }
-  catch { return { ...giftInventory }; }
-}
-
+function readLocalInventory() { try { return { ...emptyGiftCounts(), ...JSON.parse(localStorage.getItem(giftLocalKey()) || "{}") }; } catch { return emptyGiftCounts(); } }
 async function loadGiftInventory() {
   const { data, error } = await supabaseClient.from("user_gifts").select("gift_type, quantity").eq("username", friendName);
-  if (!error && Array.isArray(data)) {
-    giftInventory = { sakura: 0, british: 0, tabby: 0 };
-    data.forEach(row => { if (giftInventory[row.gift_type] !== undefined) giftInventory[row.gift_type] = Number(row.quantity) || 0; });
-  } else {
-    giftInventory = readLocalInventory();
-  }
-  localStorage.setItem(giftLocalKey(), JSON.stringify(giftInventory));
-  renderGiftBox();
+  giftInventory = emptyGiftCounts();
+  if (!error && Array.isArray(data)) data.forEach(row => { if (giftInventory[row.gift_type] !== undefined) giftInventory[row.gift_type] = Number(row.quantity) || 0; });
+  else giftInventory = readLocalInventory();
+  localStorage.setItem(giftLocalKey(), JSON.stringify(giftInventory)); renderGiftBox();
 }
-
 async function saveGiftInventory() {
   localStorage.setItem(giftLocalKey(), JSON.stringify(giftInventory));
-  const rows = Object.entries(giftInventory).map(([gift_type, quantity]) => ({ username: friendName, gift_type, quantity }));
-  const { error } = await supabaseClient.from("user_gifts").upsert(rows, { onConflict: "username,gift_type" });
-  return !error;
+  const rows = allGiftTypes.map(gift_type => ({ username: friendName, gift_type, quantity: giftInventory[gift_type] || 0 }));
+  const { error } = await supabaseClient.from("user_gifts").upsert(rows, { onConflict: "username,gift_type" }); return !error;
 }
-
-function getSongGifts(songKey = currentGiftSongKey) {
-  if (!songKey) return { sakura: 0, british: 0, tabby: 0 };
-  try {
-    return { sakura: 0, british: 0, tabby: 0, ...JSON.parse(localStorage.getItem(getGiftStorageKey(songKey)) || "{}") };
-  } catch { return { sakura: 0, british: 0, tabby: 0 }; }
-}
-
+function getSongGifts(songKey = currentGiftSongKey) { try { return { ...emptyGiftCounts(), ...JSON.parse(localStorage.getItem(getGiftStorageKey(songKey)) || "{}") }; } catch { return emptyGiftCounts(); } }
 async function loadSongGifts(songKey) {
   if (!songKey) return;
   const { data, error } = await supabaseClient.from("song_gifts_public").select("gift_type, quantity").eq("song_src", songKey);
-  if (!error && Array.isArray(data)) {
-    songGiftCache[songKey] = { sakura: 0, british: 0, tabby: 0 };
-    data.forEach(row => { if (songGiftCache[songKey][row.gift_type] !== undefined) songGiftCache[songKey][row.gift_type] = Number(row.quantity) || 0; });
-  } else {
-    songGiftCache[songKey] = getSongGifts(songKey);
-  }
-  localStorage.setItem(getGiftStorageKey(songKey), JSON.stringify(songGiftCache[songKey]));
-  renderSongGifts();
+  songGiftCache[songKey] = emptyGiftCounts();
+  if (!error && Array.isArray(data)) data.forEach(row => { if (songGiftCache[songKey][row.gift_type] !== undefined) songGiftCache[songKey][row.gift_type] = Number(row.quantity) || 0; });
+  else songGiftCache[songKey] = getSongGifts(songKey);
+  localStorage.setItem(getGiftStorageKey(songKey), JSON.stringify(songGiftCache[songKey])); renderSongGifts();
+  if (!audio.paused) startGiftRain();
 }
-
 function renderSongGifts() {
-  const box = document.getElementById("song-gifts");
-  if (!box) return;
+  const box = document.getElementById("song-gifts"); if (!box) return;
   const gifts = songGiftCache[currentGiftSongKey] || getSongGifts();
-  const entries = Object.entries(giftLabels).filter(([key]) => gifts[key] > 0);
-  box.innerHTML = entries.length ? `<span class="gift-label">歌曲禮物：</span>${entries.map(([key, label]) => `<span class="song-gift"><img src="${giftAssets[key]}" alt="${label}">${label} × ${gifts[key]}</span>`).join("")}` : "";
+  const entries = allGiftTypes.filter(key => gifts[key] > 0);
+  box.innerHTML = entries.length ? `<span class="gift-label">歌曲禮物：</span>${entries.map(key => `<span class="song-gift"><img src="${giftAssets[key]}" alt="${giftLabels[key]}">${giftLabels[key]} × ${gifts[key]}</span>`).join("")}` : "";
 }
-
 function setCurrentSongForGifts(songKey) {
-  currentGiftSongKey = songKey;
-  renderSongGifts();
+  currentGiftSongKey = songKey; renderSongGifts();
+  const currentSong = songsData.find(song => song.src === songKey); const label = document.getElementById("gift-current-song");
+  if (label) label.textContent = currentSong ? `正在播放：${currentSong.name}` : "正在播放：沒有歌曲，請先播放歌曲再送禮";
   loadSongGifts(songKey);
 }
-
-async function awardGift(type) {
-  if (!giftLabels[type]) return;
-  giftInventory = readLocalInventory();
-  giftInventory[type] = (giftInventory[type] || 0) + 1;
-  await saveGiftInventory();
-  renderGiftBox();
-}
-
-async function sendGiftToSong(type, songKey) {
-  if (!giftLabels[type] || !songKey) return { ok: false, message: "請選擇禮物及歌曲。" };
-  giftInventory = readLocalInventory();
-  if ((giftInventory[type] || 0) < 1) return { ok: false, message: `你的禮品箱沒有${giftLabels[type]}。` };
-  const current = (songGiftCache[songKey] || getSongGifts(songKey));
-  current[type] = (current[type] || 0) + 1;
-  giftInventory[type]--;
+async function awardGift(type) { if (!giftLabels[type]) return; giftInventory = readLocalInventory(); giftInventory[type] = (giftInventory[type] || 0) + 1; await saveGiftInventory(); renderGiftBox(); }
+async function sendGiftToSong(type, songKey, quantity = 1) {
+  quantity = Number.parseInt(quantity, 10);
+  if (!allGiftTypes.includes(type) || !songKey || !Number.isInteger(quantity) || quantity < 1) return { ok: false, message: "請選擇有效禮物及數量。" };
+  giftInventory = readLocalInventory(); if ((giftInventory[type] || 0) < quantity) return { ok: false, message: `你的禮品箱沒有足夠的${giftLabels[type]}。` };
+  const current = songGiftCache[songKey] || getSongGifts(songKey); current[type] = (current[type] || 0) + quantity; giftInventory[type] -= quantity;
   const { error } = await supabaseClient.from("song_gifts_public").upsert({ song_src: songKey, gift_type: type, quantity: current[type], updated_by: friendName }, { onConflict: "song_src,gift_type" });
-  if (error) {
-    localStorage.setItem(getGiftStorageKey(songKey), JSON.stringify(current));
-  }
-  songGiftCache[songKey] = current;
-  await saveGiftInventory();
-  renderGiftBox();
-  if (songKey === currentGiftSongKey) renderSongGifts();
-  return { ok: true, message: `已將 ${giftLabels[type]} 送到歌曲。` };
+  if (error) localStorage.setItem(getGiftStorageKey(songKey), JSON.stringify(current));
+  songGiftCache[songKey] = current; await saveGiftInventory(); renderGiftBox(); renderSongGifts();
+  triggerGiftReceived(type, quantity); return { ok: true, message: `已將 ${quantity} 個${giftLabels[type]}送到目前播放歌曲。` };
 }
-
-function getVisibleSongsForUser() {
-  const currentUser = friendName.toLowerCase();
-  return songsData.filter(song => {
-    if (song.cat === "man" && currentUser !== "fungfung" && currentUser !== "manman") return false;
-    if (Array.isArray(song.allowedUsers)) {
-      const allowed = song.allowedUsers.map(user => String(user).toLowerCase());
-      if (!allowed.includes(currentUser)) return false;
-    }
-    return true;
-  });
+async function exchangeGift(recipeId) {
+  const recipe = exchangeRecipes.find(item => item.id === recipeId); if (!recipe) return { ok: false, message: "找不到兌換項目。" };
+  giftInventory = readLocalInventory(); if (!basicGiftTypes.every(type => (giftInventory[type] || 0) >= recipe.cost)) return { ok: false, message: `需要各 ${recipe.cost} 個櫻花、白色英短及啡色唐猫。` };
+  basicGiftTypes.forEach(type => giftInventory[type] -= recipe.cost); giftInventory[recipe.id] = (giftInventory[recipe.id] || 0) + 1;
+  await saveGiftInventory(); renderGiftBox(); celebrateExchange(recipe); return { ok: true, message: `已兌換 1 個${recipe.label}。` };
 }
-
+function getVisibleSongsForUser() { const currentUser = friendName.toLowerCase(); return songsData.filter(song => song.cat !== "man" || currentUser === "fungfung" || currentUser === "manman").filter(song => !Array.isArray(song.allowedUsers) || song.allowedUsers.map(user => String(user).toLowerCase()).includes(currentUser)); }
 function renderGiftBox() {
-  const inventoryBox = document.getElementById("gift-inventory");
-  const songSelect = document.getElementById("gift-song-select");
-  const typeSelect = document.getElementById("gift-type-select");
-  if (!inventoryBox || !songSelect || !typeSelect) return;
-  inventoryBox.innerHTML = Object.entries(giftLabels).map(([key, label]) => `<span class="inventory-gift"><img src="${giftAssets[key]}" alt="${label}"><b>${label}</b><span>× ${giftInventory[key] || 0}</span></span>`).join("");
-  const previousSong = songSelect.value;
-  const visibleSongs = getVisibleSongsForUser();
-  songSelect.innerHTML = visibleSongs.map(song => `<option value="${song.src}">${song.name}</option>`).join("");
-  if (visibleSongs.some(song => song.src === previousSong)) songSelect.value = previousSong;
-  typeSelect.innerHTML = Object.entries(giftLabels).map(([key, label]) => `<option value="${key}" ${giftInventory[key] > 0 ? "" : "disabled"}>${label}（剩餘 ${giftInventory[key] || 0}）</option>`).join("");
+  const main = document.getElementById("main-gift-inventory"), inventoryBox = document.getElementById("gift-inventory"), typeSelect = document.getElementById("main-gift-type-select"), exchangeBox = document.getElementById("gift-exchange-list");
+  const inventoryHTML = allGiftTypes.map(key => `<span class="inventory-gift"><img src="${giftAssets[key]}" alt="${giftLabels[key]}"><b>${giftLabels[key]}</b><span>× ${giftInventory[key] || 0}</span></span>`).join("");
+  if (main) main.innerHTML = inventoryHTML; if (inventoryBox) inventoryBox.innerHTML = inventoryHTML;
+  const currentSong = songsData.find(song => song.src === currentGiftSongKey); const label = document.getElementById("gift-current-song"); if (label) label.textContent = currentSong ? `正在播放：${currentSong.name}` : "正在播放：沒有歌曲，請先播放歌曲再送禮";
+  if (typeSelect) typeSelect.innerHTML = allGiftTypes.map(key => `<option value="${key}" ${giftInventory[key] > 0 ? "" : "disabled"}>${giftLabels[key]}（剩餘 ${giftInventory[key] || 0}）</option>`).join("");
+  if (exchangeBox) { exchangeBox.innerHTML = exchangeRecipes.map(recipe => `<div class="exchange-item"><img src="${giftAssets[recipe.id]}" alt="${recipe.label}"><div><b>${recipe.label} × 1</b><small>各 ${recipe.cost} 個櫻花／白色英短／啡色唐猫</small></div><button type="button" data-exchange="${recipe.id}">兌換</button></div>`).join(""); exchangeBox.querySelectorAll("[data-exchange]").forEach(button => button.addEventListener("click", async () => { const status = document.getElementById("gift-box-status"), result = await exchangeGift(button.dataset.exchange); if (status) status.textContent = result.message; })); }
 }
-
-function openGiftBox() {
-  const modal = document.getElementById("gift-box-modal");
-  if (modal) { modal.style.display = "flex"; renderGiftBox(); loadGiftInventory(); }
-}
-
+function openGiftBox() { const modal = document.getElementById("gift-box-modal"); if (modal) { modal.style.display = "flex"; renderGiftBox(); loadGiftInventory(); } }
 document.getElementById("gift-box-open")?.addEventListener("click", openGiftBox);
 document.getElementById("gift-box-close")?.addEventListener("click", () => { document.getElementById("gift-box-modal").style.display = "none"; });
-document.getElementById("send-gift-btn")?.addEventListener("click", async () => {
-  const status = document.getElementById("gift-box-status");
-  const result = await sendGiftToSong(document.getElementById("gift-type-select").value, document.getElementById("gift-song-select").value);
-  if (status) status.textContent = result.message;
-});
-
-function stopGiftRain() {
-  if (giftRainTimer) clearInterval(giftRainTimer);
-  giftRainTimer = null;
-  const rain = document.getElementById("gift-rain");
-  if (rain) rain.innerHTML = "";
-}
-function startGiftRain() {
-  stopGiftRain();
-  const gifts = songGiftCache[currentGiftSongKey] || getSongGifts();
-  const types = Object.keys(gifts).filter(type => gifts[type] > 0 && giftAssets[type]);
-  if (!types.length) return;
-  const rain = document.getElementById("gift-rain");
-  if (!rain) return;
-  const drop = () => {
-    const type = types[Math.floor(Math.random() * types.length)];
-    const item = document.createElement("img");
-    item.src = giftAssets[type]; item.className = "gift-rain-item"; item.alt = "";
-    item.style.left = `${5 + Math.random() * 90}%`; item.style.animationDuration = `${4 + Math.random() * 3}s`;
-    item.addEventListener("animationend", () => item.remove(), { once: true }); rain.appendChild(item);
-  };
-  drop(); giftRainTimer = setInterval(drop, 900);
-}
-audio.addEventListener("play", startGiftRain);
-audio.addEventListener("pause", stopGiftRain);
-audio.addEventListener("ended", stopGiftRain);
-window.addEventListener("load", loadGiftInventory);
+document.getElementById("main-send-gift-btn")?.addEventListener("click", async () => { const status = document.getElementById("main-gift-status"), quantity = document.getElementById("main-gift-quantity").value; if (!currentGiftSongKey) { if (status) status.textContent = "請先播放一首歌曲，禮物只會送到正在播放的歌曲。"; return; } const result = await sendGiftToSong(document.getElementById("main-gift-type-select").value, currentGiftSongKey, quantity); if (status) status.textContent = result.message; });
+function showGiftFeature(type, count = 1) { const feature = document.getElementById("gift-feature"); if (!feature) return; feature.innerHTML = `<img src="${giftAssets[type]}" alt="${giftLabels[type]}"><strong>${giftLabels[type]} × ${count}</strong>`; feature.classList.add("show"); }
+function beginGiftRain() { clearInterval(giftRainTimer); const gifts = songGiftCache[currentGiftSongKey] || getSongGifts(); const types = allGiftTypes.filter(type => gifts[type] > 0); const rain = document.getElementById("gift-rain"); if (!rain || !types.length || audio.paused) return; const drop = () => { const type = types[Math.floor(Math.random() * types.length)], item = document.createElement("img"); item.src = giftAssets[type]; item.className = "gift-rain-item"; item.alt = ""; item.style.left = `${5 + Math.random() * 90}%`; item.style.animationDuration = `${4 + Math.random() * 3}s`; item.addEventListener("animationend", () => item.remove(), { once: true }); rain.appendChild(item); }; drop(); giftRainTimer = setInterval(drop, 900); }
+function startGiftRain() { clearInterval(giftRainTimer); const gifts = songGiftCache[currentGiftSongKey] || getSongGifts(); const type = allGiftTypes.find(key => gifts[key] > 0); if (!type || audio.paused) return; showGiftFeature(type, gifts[type]); clearTimeout(giftRevealTimer); giftRevealTimer = setTimeout(() => { document.getElementById("gift-feature")?.classList.remove("show"); beginGiftRain(); }, 3000); }
+function triggerGiftReceived(type, count) { if (!audio.paused && currentGiftSongKey) { showGiftFeature(type, count); clearTimeout(giftRevealTimer); giftRevealTimer = setTimeout(() => { document.getElementById("gift-feature")?.classList.remove("show"); beginGiftRain(); }, 3000); } }
+function stopGiftRain() { clearInterval(giftRainTimer); giftRainTimer = null; clearTimeout(giftRevealTimer); const rain = document.getElementById("gift-rain"); if (rain) rain.innerHTML = ""; const feature = document.getElementById("gift-feature"); if (feature) feature.classList.remove("show"); }
+function celebrateExchange(recipe) { const card = document.querySelector(".gift-box-card"); if (!card) return; const effect = document.createElement("div"); effect.className = "exchange-success"; effect.innerHTML = `<img src="${giftAssets[recipe.id]}" alt="${recipe.label}"><b>兌換成功！</b><span>${recipe.label} × 1</span>`; card.appendChild(effect); setTimeout(() => effect.remove(), 1600); }
+audio.addEventListener("play", startGiftRain); audio.addEventListener("pause", stopGiftRain); audio.addEventListener("ended", stopGiftRain); window.addEventListener("load", loadGiftInventory);
 
 /* ============================
    ⭐ 小遊戲（下拉選單）
