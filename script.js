@@ -251,8 +251,8 @@ function generatePlaylist(filterCat = "all", keyword = "") {
 
   songsToDisplay.forEach((song) => {
 
-    // ⭐ 1. man 權限（最重要）
-    if (song.cat === "man" && currentUser !== "fungfung" && currentUser !== "manman") {
+    // ⭐ 1. 私人分類權限：其他用戶不可看到 man／manman 歌曲
+    if ((song.cat === "man" || song.cat === "manman") && currentUser !== "fungfung" && currentUser !== "manman") {
       return;
     }
 
@@ -1202,7 +1202,7 @@ async function exchangeGift(recipeId) {
   basicGiftTypes.forEach(type => giftInventory[type] -= recipe.cost); giftInventory[recipe.id] = (giftInventory[recipe.id] || 0) + 1;
   await saveGiftInventory(); renderGiftBox(); celebrateExchange(recipe); return { ok: true, message: `已兌換 1 個${recipe.label}。` };
 }
-function getVisibleSongsForUser() { const currentUser = friendName.toLowerCase(); return songsData.filter(song => song.cat !== "man" || currentUser === "fungfung" || currentUser === "manman").filter(song => !Array.isArray(song.allowedUsers) || song.allowedUsers.map(user => String(user).toLowerCase()).includes(currentUser)); }
+function getVisibleSongsForUser() { const currentUser = friendName.toLowerCase(); return songsData.filter(song => !["man", "manman"].includes(song.cat) || currentUser === "fungfung" || currentUser === "manman").filter(song => !Array.isArray(song.allowedUsers) || song.allowedUsers.map(user => String(user).toLowerCase()).includes(currentUser)); }
 function renderGiftBox() {
   const inventoryBox = document.getElementById("gift-inventory"), typeSelect = document.getElementById("main-gift-type-select"), exchangeBox = document.getElementById("gift-exchange-list");
   const inventoryHTML = allGiftTypes.map(key => `<span class="inventory-gift"><img src="${giftAssets[key]}" alt="${giftLabels[key]}"><b>${giftLabels[key]}</b><span>× ${giftInventory[key] || 0}</span></span>`).join("");
