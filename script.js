@@ -1968,13 +1968,28 @@ document.addEventListener("click", async (e) => {
     notice.setAttribute("aria-hidden", String(!expanded));
   }
 
-  // 紅點只作為通知面板的開關；再次點擊會收起內容。
-  document.addEventListener("click", (event) => {
+  // 第一次按紅點展開；第二次按紅點收起並標記目前用戶通知為已讀。
+  document.addEventListener("click", async (event) => {
     const badge = event.target.closest("#comment-badge");
     if (!badge) return;
     event.preventDefault();
     event.stopPropagation();
-    setNoticeExpanded(!noticeExpanded);
+    if (!noticeExpanded) {
+      setNoticeExpanded(true);
+      return;
+    }
+    setNoticeExpanded(false);
+    const recipient = String(friendName || "").toLowerCase();
+    if (["fungfung", "manman"].includes(recipient)) {
+      try {
+        await supabaseClient.from("user_notifications")
+          .update({ is_read: true })
+          .eq("recipient_username", recipient)
+          .eq("is_read", false);
+      } catch (_) {}
+    }
+    if (notice) notice.textContent = "";
+    showNotificationBadge(false);
   });
 
   // 通知每次重新載入時預設收起，只有按紅點才顯示。
