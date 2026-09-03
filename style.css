@@ -1417,3 +1417,144 @@ body {
 .theme-cartoon #gift-box-open {
     color: #000 !important;
 }
+
+
+/* 播放控制：真正使用猫猫腳印圖卡，移除按鈕框及背景 */
+.controls button {
+  width: 54px !important;
+  height: 54px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background-image: url("assets/cartoon-cat-paw-button.png") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.2));
+  color: transparent !important;
+  font-size: 0 !important;
+  overflow: visible !important;
+}
+.controls button:hover,
+.controls button:active,
+.controls button.active-mode,
+#random.active-mode,
+#repeat-one.active-mode {
+  background-color: transparent !important;
+  background-image: url("assets/cartoon-cat-paw-button.png") !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 4px 7px rgba(255, 183, 77, .7)) brightness(1.06);
+}
+.controls button::before,
+.controls button::after { display: none !important; content: none !important; }
+
+/* 通知內容由紅點控制展開／收起 */
+.comment-notice.notice-collapsed { display: none !important; }
+#comment-badge {
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  transition: transform .18s ease;
+}
+#comment-badge:hover { transform: scale(1.15); }
+
+/* 唱片支援點按及旋轉手勢 */
+#cover { touch-action: none; cursor: grab; user-select: none; }
+#cover.disc-dragging { cursor: grabbing; }
+
+/* 金色單一音樂逗點：縮細一半 */
+#progress::-webkit-slider-thumb {
+  width: 9px !important;
+  height: 9px !important;
+  border: 0 !important;
+  border-radius: 50% 50% 50% 0 !important;
+  background: #f4bd45 !important;
+  transform: rotate(-45deg) !important;
+  box-shadow: 0 0 5px rgba(244,189,69,.75) !important;
+}
+#progress::-moz-range-thumb {
+  width: 9px !important;
+  height: 9px !important;
+  border: 0 !important;
+  border-radius: 50% 50% 50% 0 !important;
+  background: #f4bd45 !important;
+  transform: rotate(-45deg) !important;
+  box-shadow: 0 0 5px rgba(244,189,69,.75) !important;
+}
+
+
+/* 猫猫腳印圖卡上的功能符號 */
+.controls button::after {
+  display: flex !important;
+  content: "";
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  color: #39223f !important;
+  font-family: system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(255,255,255,.85);
+  pointer-events: none;
+  transform: none !important;
+  background: none !important;
+}
+#play::after { content: "▶"; }
+#stop::after { content: "■"; font-size: 17px; }
+#prev::after { content: "◀◀"; font-size: 13px; letter-spacing: -3px; }
+#next::after { content: "▶▶"; font-size: 13px; letter-spacing: -3px; }
+#random::after { content: "↝"; font-size: 27px; }
+#repeat-one::after { content: "↻"; font-size: 25px; }
+.controls button.active-mode::after {
+  color: #8c4b00 !important;
+  text-shadow: 0 0 5px rgba(255,255,255,.95), 0 1px 2px rgba(255,255,255,.9);
+}
+
+/* 手勢旋轉角度與唱片自動旋轉合併 */
+@keyframes rotate {
+  from { transform: rotate(var(--gesture-rotation, 0deg)); }
+  to { transform: rotate(calc(var(--gesture-rotation, 0deg) + 360deg)); }
+}
+
+
+/* 強制顯示脚印上的功能符號，避免被舊版 content:none !important 覆蓋 */
+#play::after { content: "▶" !important; }
+#stop::after { content: "■" !important; }
+#prev::after { content: "◀◀" !important; }
+#next::after { content: "▶▶" !important; }
+#random::after { content: "↝" !important; }
+#repeat-one::after { content: "↻" !important; }
+.controls button::after { z-index: 20 !important; }
+
+
+/* 真唱片中心定位圓 */
+.cd-wrapper::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #333 0 12%, #050505 38%, #000 100%);
+  border: 2px solid rgba(255,255,255,.2);
+  box-shadow: inset 0 0 0 5px #111, 0 1px 4px rgba(0,0,0,.6);
+  pointer-events: none;
+}
+.cd-wrapper .cd { position: relative; z-index: 1; }
+
+
+/* 唱片中心定位圓縮細至原本約三分之一 */
+.cd-wrapper::after {
+  width: 12px !important;
+  height: 12px !important;
+  border-width: 1px !important;
+  box-shadow: inset 0 0 0 2px #111, 0 1px 2px rgba(0,0,0,.55) !important;
+}

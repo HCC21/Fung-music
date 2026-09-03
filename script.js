@@ -419,6 +419,7 @@ function playFromPlaylist(index) {
 
  // ⭐⭐⭐ 正確：在這裡記錄聽歌
   recordPlayHistory(songName, songSrc, friendName);
+  notifySongEventRecipients("listen", songSrc, `${friendName} 開始聽歌`);
 
   // ⭐ 播放 60 秒後才計數（避免 double count）
   clearTimeout(listenTimer);
@@ -734,6 +735,7 @@ document.getElementById("comment-submit").addEventListener("click", async () => 
 
   input.value = "";
   input.dataset.replyTo = "";
+  await notifySongEventRecipients("comment", songsData.find(song => song.name === songName)?.src, `${friendName} 發表留言：「${message}」`);
   await loadComments(songName, friendName);
   document.getElementById("comment-hint").textContent = `「${songName}」已有留言：${message}`;
 });
@@ -1174,15 +1176,23 @@ async function notifyFungfung(kind, songKey, detail) {
   } catch (_) { /* 通知表未建立時不影響送禮或 Like */ }
 }
 async function checkFungfungNotifications() {
-  if (String(friendName).toLowerCase() !== "fungfung") return;
+  const currentUser = String(friendName || "").toLowerCase();
+  const recipient = ["fungfung", "manman"].includes(currentUser) ? currentUser : null;
+  if (!recipient) return;
   const notice = document.getElementById("comment-notice");
   try {
     const { data, error } = await supabaseClient.from("user_notifications")
-      .select("id, kind, message, created_at").eq("recipient_username", "fungfung")
+      .select("id, kind, message, created_at").eq("recipient_username", recipient)
       .eq("is_read", false).order("created_at", { ascending: false });
     if (error || !data) return;
     showNotificationBadge(data.length > 0);
-    if (notice && data.length) notice.textContent = `有 ${data.length} 個新通知：\\n` + data.map(item => item.message).join("\\n");
+    if (notice) {
+      notice.textContent = data.length
+        ? `有 ${data.length} 個未讀通知：\\n` + data.map(item => item.message).join("\\n")
+        : "";
+      notice.classList.add("notice-collapsed");
+      notice.setAttribute("aria-hidden", "true");
+    }
   } catch (_) {}
 }
 async function sendGiftToSong(type, songKey, quantity = 1) {
@@ -1931,16 +1941,192 @@ document.addEventListener("click", async (e) => {
     e.target.textContent = "👍";
   } else {
     // 未 Like → 新增 Like
-    await supabaseClient
+        await supabaseClient
       .from("song_likes")
       .insert({
         song_src: songSrc,
         username: username
       });
-
+    await notifySongEventRecipients("like", songSrc, `${username} Like 了歌曲`);
     e.target.textContent = "👍🏻";
   }
 
   loadLikes();
 });
 
+
+
+/* 最新互動：通知紅點切換及唱片手勢控制 */
+(function setupLatestPlayerInteractions() {
+  const notice = document.getElementById("comment-notice");
+  let noticeExpanded = false;
+
+  function setNoticeExpanded(expanded) {
+    noticeExpanded = expanded;
+    if (!notice) return;
+    notice.classList.toggle("notice-collapsed", !expanded);
+    notice.setAttribute("aria-hidden", String(!expanded));
+  }
+
+  // 紅點只作為通知面板的開關；再次點擊會收起內容。
+  document.addEventListener("click", (event) => {
+    const badge = event.target.closest("#comment-badge");
+    if (!badge) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setNoticeExpanded(!noticeExpanded);
+  });
+
+  // 通知每次重新載入時預設收起，只有按紅點才顯示。
+  const originalCheckNotifications = window.checkFungfungNotifications;
+  if (typeof originalCheckNotifications === "function") {
+    window.checkFungfungNotifications = async function (...args) {
+      const result = await originalCheckNotifications.apply(this, args);
+      setNoticeExpanded(false);
+      return result;
+    };
+  }
+  if (notice && !notice.textContent.trim()) setNoticeExpanded(false);
+
+  const disc = document.getElementById("cover");
+  if (!disc || !audio) return;
+  let pointerDown = false;
+  let moved = false;
+  let suppressClick = false;
+  let lastAngle = 0;
+  let lastPointerX = 0;
+  let lastPointerY = 0;
+
+  function angleAt(event) {
+    const rect = disc.getBoundingClientRect();
+    return Math.atan2(event.clientY - (rect.top + rect.height / 2), event.clientX - (rect.left + rect.width / 2));
+  }
+  function normalizedDelta(delta) {
+    while (delta > Math.PI) delta -= Math.PI * 2;
+    while (delta < -Math.PI) delta += Math.PI * 2;
+    return delta;
+  }
+
+  disc.addEventListener("pointerdown", (event) => {
+    pointerDown = true;
+    moved = false;
+    suppressClick = false;
+    lastAngle = angleAt(event);
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+    disc.classList.add("disc-dragging");
+    disc.setPointerCapture?.(event.pointerId);
+  });
+  disc.addEventListener("pointermove", (event) => {
+    if (!pointerDown) return;
+    const distance = Math.hypot(event.clientX - lastPointerX, event.clientY - lastPointerY);
+    const delta = normalizedDelta(angleAt(event) - lastAngle);
+    if (distance > 6) moved = true;
+    if (Math.abs(delta) > 0.015) {
+      const seconds = Math.max(1, Math.round(Math.abs(delta) * 16));
+      audio.currentTime = Math.max(0, Math.min(audio.duration || Infinity, audio.currentTime + (delta > 0 ? seconds : -seconds)));
+      suppressClick = true;
+    }
+    lastAngle = angleAt(event);
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+  });
+  function finishDiscPointer(event) {
+    if (!pointerDown) return;
+    pointerDown = false;
+    disc.classList.remove("disc-dragging");
+    disc.releasePointerCapture?.(event.pointerId);
+  }
+  disc.addEventListener("pointerup", finishDiscPointer);
+  disc.addEventListener("pointercancel", finishDiscPointer);
+  disc.addEventListener("click", (event) => {
+    if (suppressClick || moved) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClick = false;
+      return;
+    }
+    if (audio.paused) audio.play().catch(() => {});
+    else audio.pause();
+  });
+})();
+
+
+/* 唱片圖像跟隨手勢旋轉：順時針加角度，逆時針減角度 */
+(function syncDiscImageWithGesture() {
+  const disc = document.getElementById("cover");
+  if (!disc) return;
+  let dragging = false;
+  let previousAngle = 0;
+  let gestureRotation = Number(disc.dataset.gestureRotation || 0);
+  function getAngle(event) {
+    const rect = disc.getBoundingClientRect();
+    return Math.atan2(event.clientY - (rect.top + rect.height / 2), event.clientX - (rect.left + rect.width / 2));
+  }
+  function deltaAngle(value) {
+    while (value > Math.PI) value -= Math.PI * 2;
+    while (value < -Math.PI) value += Math.PI * 2;
+    return value;
+  }
+  function updateRotation() {
+    disc.dataset.gestureRotation = String(gestureRotation);
+    disc.style.setProperty("--gesture-rotation", `${gestureRotation}deg`);
+  }
+  disc.addEventListener("pointerdown", (event) => {
+    dragging = true;
+    previousAngle = getAngle(event);
+    gestureRotation = Number(disc.dataset.gestureRotation || gestureRotation || 0);
+    updateRotation();
+  });
+  disc.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const currentAngle = getAngle(event);
+    gestureRotation += deltaAngle(currentAngle - previousAngle) * 180 / Math.PI;
+    previousAngle = currentAngle;
+    updateRotation();
+  });
+  const endDrag = () => { dragging = false; };
+  disc.addEventListener("pointerup", endDrag);
+  disc.addEventListener("pointercancel", endDrag);
+  updateRotation();
+})();
+
+
+/* 統一唱片旋轉與 audio 播放狀態 */
+(function syncDiscAnimationWithAudio() {
+  const disc = document.getElementById("cover");
+  const cdElement = typeof cd !== "undefined" ? cd : disc;
+  if (!audio || !disc) return;
+  const setDiscPlaying = (playing) => {
+    disc.style.animationPlayState = playing ? "running" : "paused";
+    if (cdElement) cdElement.style.animationPlayState = playing ? "running" : "paused";
+    disc.classList.toggle("is-playing", playing);
+  };
+  audio.addEventListener("play", () => setDiscPlaying(true));
+  audio.addEventListener("playing", () => setDiscPlaying(true));
+  audio.addEventListener("pause", () => setDiscPlaying(false));
+  audio.addEventListener("ended", () => setDiscPlaying(false));
+  setDiscPlaying(!audio.paused && !audio.ended);
+})();
+
+
+/* 歌曲事件通知：fungfung 收到所有歌曲事件；manman 收到敏敏／安眠歌單事件 */
+async function notifySongEventRecipients(kind, songKey, detail) {
+  const actor = String(friendName || "").toLowerCase();
+  const song = songsData.find(item => item.src === songKey);
+  if (!song) return;
+  const recipients = new Set(["fungfung"]);
+  if (song.cat === "man" || song.cat === "manman") recipients.add("manman");
+  const songName = song.name;
+  const rows = [...recipients]
+    .filter(recipient => recipient !== actor)
+    .map(recipient => ({
+      recipient_username: recipient,
+      kind,
+      song_src: songKey,
+      message: `${detail}（歌曲：${songName}）`,
+      is_read: false
+    }));
+  if (!rows.length) return;
+  try { await supabaseClient.from("user_notifications").insert(rows); } catch (_) {}
+}
