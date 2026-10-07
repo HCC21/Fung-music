@@ -1,6 +1,18 @@
 /* Generated song group: other */
 const songsDataOther = [
  { name: "我失戀你悲傷2", src: "music/我失戀你悲傷2.mp3", cover: "covers/cover36.jpg", cat: "slow songs" },
+ { name: "離家出走", src: "music/離家出走.mp3", cover: "covers/cover29.jpg", cat: "slow songs" },
+ { name: "最爰的你", src: "music/最爰的你.mp3", cover: "covers/cover27.jpg", cat: "slow songs" },
+ { name: "迷惑", src: "music/迷惑.mp3", cover: "covers/cover26.jpg", cat: "slow songs" },
+ { name: "舊夢不須記", src: "music/舊夢不須記.mp3", cover: "covers/cover28.jpg", cat: "slow songs" },
+ { name: "閉目入神", src: "music/閉目入神.mp3", cover: "covers/cover2.jpg", cat: "slow songs" },
+ { name: "女神", src: "music/女神.mp3", cover: "covers/cover3.jpg", cat: "slow songs" },
+ { name: "相愛無夢", src: "music/相愛無夢.mp3", cover: "covers/cover12.jpg", cat: "slow songs" },
+ { name: "或許未必不過", src: "music/或許未必不過.mp3", cover: "covers/cover11.jpg", cat: "slow songs" },
+ { name: "化蝶", src: "music/化蝶.mp3", cover: "covers/cover19.jpg", cat: "slow songs" },
+ { name: "鄭中基串燒", src: "music/鄭中基串燒.mp3", cover: "covers/cover18.jpg", cat: "slow songs" },
+ { name: "我代你哭", src: "music/我代你哭.mp3", cover: "covers/cover21.jpg", cat: "slow songs" },
+ { name: "取我西經2", src: "music/取我西經2.mp3", cover: "covers/cover36.jpg", cat: "fast songs" },
     { name: "扮靚仔", src: "music/扮靚仔.mp3", cover: "covers/cover33.jpg", cat: "fast songs" },
     { name: "明星之歌", src: "music/明星之歌.mp3", cover: "covers/cover35.jpg", cat: "opera" },
     { name: "雨季不再來", src: "music/雨季不再來.mp3", cover: "covers/cover38.jpg", cat: "slow songs" },
